@@ -42,7 +42,7 @@ svg text{font-family:'Philosopher',Georgia,serif}
 .owl{font-size:44px;line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));flex:none}
 .bubble{background:#fffaf0;border-radius:16px 16px 16px 4px;padding:11px 14px;box-shadow:var(--shadow);font-size:15.5px;line-height:1.35}
 .foot{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(30,20,10,.92);color:#fff;padding:11px 16px;border-radius:12px;z-index:50;max-width:90vw;text-align:center;animation:fade .25s;font-size:15px}
+.toast{pointer-events:none;position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(30,20,10,.92);color:#fff;padding:11px 16px;border-radius:12px;z-index:50;max-width:90vw;text-align:center;animation:fade .25s;font-size:15px}
 .overlay{position:fixed;inset:0;background:rgba(10,10,20,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:40;animation:fade .25s}
 .overlay .card{max-width:440px;width:100%}
 input.name{font:inherit;font-size:18px;width:100%;padding:12px;border-radius:12px;border:2px solid #c09a58;background:#fffaf0;margin:12px 0}
@@ -112,6 +112,17 @@ input.name{font:inherit;font-size:18px;width:100%;padding:12px;border-radius:12p
 .confetti{position:fixed;top:-30px;font-size:22px;z-index:60;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 .small{font-size:13.5px}
+.halo{paint-order:stroke;stroke:#f5e6c2;stroke-width:5px;stroke-linejoin:round}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+.grade{font:inherit;position:relative;aspect-ratio:1;border:none;border-radius:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(#e9e2d2,#c9bfa8);color:#6b6253;box-shadow:0 5px 0 #8f8572,var(--shadow);filter:grayscale(.4)}
+.grade:active{transform:translateY(3px);box-shadow:0 2px 0 #8f8572}
+.grade .gn{font-family:'Philosopher',serif;font-size:46px;font-weight:700;line-height:1}
+.grade .gl{font-size:15px;font-weight:700}
+.grade .gk{position:absolute;top:8px;right:10px;font-size:16px}
+.grade.on{background:linear-gradient(#ffd96b,#e6a817);color:#4a2c05;box-shadow:0 5px 0 #9b6d0c,0 0 0 4px rgba(255,255,255,.5),var(--shadow);filter:none;animation:glow 2s ease-in-out infinite}
+.grade.on .gn{font-size:56px}
+.grades .grade:last-child{grid-column:2}
+@keyframes glow{50%{box-shadow:0 5px 0 #9b6d0c,0 0 0 9px rgba(255,230,140,.35),var(--shadow)}}
 </style>
 </head>
 <body>
@@ -127,17 +138,18 @@ const SUBJECTS=[
  {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a'},
  {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
 ];
-const HIST=[
- {id:'med1',t:'Средневековое европейское',t2:'общество. Часть 1',i:'🏰',x:100,y:548,active:true},
- {id:'med2',t:'Средневековое европейское',t2:'общество. Часть 2',i:'🏘️',x:298,y:470},
- {id:'church',t:'Католическая',t2:'церковь',i:'⛪',x:105,y:388},
- {id:'cross',t:'Крестовые',t2:'походы',i:'⚔️',x:296,y:305},
- {id:'byz',t:'Византийская',t2:'империя',i:'🏛️',x:105,y:222},
- {id:'rus',t:'Древняя',t2:'Русь',i:'🛡️',x:292,y:140}
+const GRADES=[5,6,7,8,9,10,11];
+/* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
+const CHAPTERS=[
+ {n:'I',t:'Европа в Раннее Средневековье',p:'§ 1–4',i:'⚜️',quests:[]},
+ {n:'II',t:'Мусульманская цивилизация в VII–XI вв.',p:'§ 5–6',i:'🕌',quests:[]},
+ {n:'III',t:'Средневековое европейское общество',p:'§ 7–9',i:'🏰',quests:[{id:'med1',t:'Часть 1. Сеньоры, рыцари и крестьяне'},{t:'Часть 2. Церковь и горожане'}]},
+ {n:'IV',t:'Расцвет Средневековья в Западной Европе',p:'§ 10–14',i:'⚔️',quests:[]},
+ {n:'V',t:'Страны и народы Азии, Африки и Америки в Средние века',p:'§ 15–20',i:'🌏',quests:[{id:'asia',t:'Вокруг света: Азия, Африка, Америка'}]},
+ {n:'VI',t:'Осень Средневековья',p:'§ 21–24',i:'🍂',quests:[]}
 ];
-const TOPIC_TITLE='Средневековое европейское общество. Часть 1';
 
-const STATIONS=[
+const MED1=[
 { id:'s1', name:'Три сословия', place:'Деревня', i:'🏘️', x:95, y:612,
   lesson:`<p>В Средние века люди считали, что общество делится на <b>три сословия</b> — большие группы людей с разными правами и обязанностями.</p>
   <p>🙏 <b>Молящиеся</b> — духовенство: священники, монахи, епископы. Они молятся за всех людей.<br>⚔️ <b>Воюющие</b> — феодалы: король, герцоги, графы, бароны, рыцари. Они защищают страну.<br>🌾 <b>Трудящиеся</b> — крестьяне. Они кормят всех своим трудом.</p>
@@ -224,14 +236,150 @@ const STATIONS=[
   ]}]
 }
 ];
-STATIONS[0].tasks[0].items[6]=['Аббат',0,'настоятель монастыря'];
+MED1[0].tasks[0].items[6]=['Аббат',0,'настоятель монастыря'];
+
+/* ---------- ГЛАВА V: Азия, Африка, Америка ---------- */
+const ASIA=[
+{ id:'a1', name:'Великая степь', place:'§ 15', i:'🐎', x:115, y:165,
+  lesson:`<p><b>Великая степь</b> — огромная равнина от Дуная до Китая. Там жили <b>кочевники</b> — скотоводы. Они перегоняли стада с пастбища на пастбище и жили в разборных войлочных домах — <b>юртах</b>.</p>
+  <p>В VI веке тюрки создали <b>Тюркский каганат</b> во главе с <b>каганом</b>. Позже на юге Руси кочевали печенеги, а затем половцы.</p>
+  <p>В <b>1206 году</b> на <b>курултае</b> — съезде монгольской знати — вождь <b>Темучин</b> был провозглашён <b>Чингисханом</b>. Его войско делилось на десятки, сотни, тысячи и <b>тумены</b> (по 10 000 воинов). Монголы завоевали Северный Китай, Среднюю Азию, Иран.</p>
+  <p>Внук Чингисхана <b>Батый</b> ходил походами на Русь и в Европу. Огромная держава распалась на части — <b>улусы</b>. Один из них — <b>Золотая Орда</b>.</p>`,
+  tasks:[
+   {type:'match', prompt:'Соедини слово с его значением.', pairs:[
+    ['Юрта','Разборный войлочный дом кочевника'],
+    ['Курултай','Съезд монгольской знати'],
+    ['Тумен','Отряд из 10 000 воинов'],
+    ['Каган','Титул правителя у тюрков'],
+    ['Улус','Владение, часть монгольской державы'],
+    ['Кочевники','Скотоводы, которые переходят с пастбища на пастбище']
+   ]},
+   {type:'quiz', questions:[
+    {q:'В каком году Темучин был провозглашён Чингисханом?',o:['1206','1066','1453','988'],e:'В 1206 году на курултае монгольская знать провозгласила Темучина Чингисханом — «великим ханом».'},
+    {q:'Кем приходился Батый Чингисхану?',o:['Внуком','Отцом','Братом','Учителем'],e:'Батый — внук Чингисхана. Он возглавил походы на Русь и в Европу.'},
+    {q:'Как называлась часть монгольской державы, которая позже владела степями к югу от Руси?',o:['Золотая Орда','Тюркский каганат','Священная Римская империя','Делийский султанат'],e:'Золотая Орда — один из улусов, на которые распалась держава Чингисхана.'}
+   ]}
+  ]
+},
+{ id:'a2', name:'Китай', place:'§ 16', i:'🏯', x:285, y:375,
+  lesson:`<p><b>Китай</b> — одна из древнейших стран мира. Её правитель — <b>император</b>, «Сын Неба». В Средние века Китай особенно процветал при династиях <b>Тан</b> (VII–X вв.) и <b>Сун</b> (X–XIII вв.).</p>
+  <p>Чиновниками в Китае становились не по знатности, а сдав трудные <b>экзамены</b>. По <b>Великому шёлковому пути</b> караваны везли в другие страны шёлк, чай и фарфор.</p>
+  <p>Китайцы изобрели <b>бумагу</b>, <b>книгопечатание</b>, <b>порох</b>, <b>компас</b>, <b>фарфор</b> и первыми стали пользоваться <b>бумажными деньгами</b>.</p>
+  <p>В XIII веке Китай захватили монголы, внук Чингисхана <b>Хубилай</b> основал династию <b>Юань</b>. В 1368 году монголов изгнали, и к власти пришла династия <b>Мин</b>. При Мин в Пекине построили дворец <b>Запретный город</b>, а <b>Великая Китайская стена</b> получила свой нынешний вид.</p>`,
+  tasks:[{type:'tf', prompt:'Правда или ложь?', questions:[
+   {q:'Правителя Китая называли «Сыном Неба».',a:true,e:'Да, считалось, что император правит по воле Неба.'},
+   {q:'В Китае чиновниками становились только по рождению, без всяких экзаменов.',a:false,e:'Нет! Чтобы стать чиновником, нужно было сдать трудные экзамены.'},
+   {q:'Порох, компас и книгопечатание изобрели в Китае.',a:true,e:'Верно, как и бумагу, фарфор и бумажные деньги.'},
+   {q:'По Великому шёлковому пути из Китая везли шёлк, чай и фарфор.',a:true,e:'Да, этот путь связывал Китай со Средней Азией, Ираном и Европой.'},
+   {q:'Династию Юань основали японские самураи.',a:false,e:'Нет, её основал монгольский хан Хубилай — внук Чингисхана.'},
+   {q:'Монголов из Китая изгнали, и к власти пришла династия Мин.',a:true,e:'Верно, это случилось в 1368 году.'},
+   {q:'Запретный город — это китайская деревня, куда запрещали заходить крестьянам.',a:false,e:'Нет, это императорский дворец в Пекине, построенный при династии Мин.'}
+  ]}]
+},
+{ id:'a3', name:'Страна восходящего солнца', place:'§ 17', i:'🗾', x:115, y:590,
+  lesson:`<p><b>Япония</b> расположена на островах в Тихом океане. Её называют «Страной восходящего солнца».</p>
+  <p>Японцы верили, что их <b>император</b> — потомок богини солнца. Но с <b>1192 года</b> реальная власть перешла к военному правителю — <b>сёгуну</b>.</p>
+  <p>Воинов-всадников в Японии называли <b>самураями</b>. Они следовали кодексу чести <b>бусидо</b> — «путь воина»: верность господину, смелость, презрение к смерти. Главное оружие самурая — меч <b>катана</b>.</p>
+  <p>В XIII веке монголы дважды пытались захватить Японию, но их флот разбили сильные бури. Японцы назвали их <b>камикадзе</b> — «божественный ветер».</p>
+  <p>Японцы почитали духов природы — это религия <b>синто</b>, а также исповедовали <b>буддизм</b>. Они сочиняли короткие стихи-трёхстишия, позже названные <b>хокку</b>.</p>`,
+  tasks:[
+   {type:'match', prompt:'Соедини японское слово с его значением.', pairs:[
+    ['Сёгун','Военный правитель, у которого была реальная власть'],
+    ['Самурай','Японский воин'],
+    ['Бусидо','Кодекс чести самурая — «путь воина»'],
+    ['Катана','Меч самурая'],
+    ['Камикадзе','«Божественный ветер», разбивший флот монголов'],
+    ['Синто','Японская религия почитания духов природы']
+   ]},
+   {type:'quiz', questions:[
+    {q:'С какого года реальная власть в Японии перешла к сёгуну?',o:['1192','1206','1368','1054'],e:'В 1192 году Минамото Ёритомо получил титул сёгуна, и власть оказалась у военных правителей.'},
+    {q:'Чем самурай похож на европейского рыцаря?',o:['Он воин, служит господину и следует кодексу чести','Он пашет землю и платит оброк','Он монах и живёт в монастыре','Он купец и торгует шёлком'],e:'И рыцарь, и самурай — воины-вассалы, верные своему господину и правилам чести.'}
+   ]}
+  ]
+},
+{ id:'a4', name:'Индия', place:'§ 18', i:'🐘', x:285, y:810,
+  lesson:`<p>Средневековая <b>Индия</b> была разделена на множество княжеств. Ими правили <b>раджи</b>.</p>
+  <p>Общество Индии делилось на четыре <b>варны</b>: <b>брахманы</b> (жрецы), <b>кшатрии</b> (воины), <b>вайшьи</b> (земледельцы, торговцы, ремесленники) и <b>шудры</b> (слуги). Варны делились на множество <b>каст</b>. Человек всю жизнь оставался в касте, где родился.</p>
+  <p>Главная религия — <b>индуизм</b>, индийцы почитали богов Брахму, Вишну и Шиву. В XIII веке на севере возник <b>Делийский султанат</b> — государство мусульман. В 1398 году Дели разорил завоеватель <b>Тимур</b>.</p>
+  <p>Индийские учёные придумали <b>цифры</b>, которыми мы пишем (в Европе их называют арабскими), и знак <b>ноль</b>. Из Индии пришли и <b>шахматы</b>.</p>`,
+  tasks:[
+   {type:'order', prompt:'Расставь варны Индии от самой высшей к самой низшей.', items:['Брахманы (жрецы)','Кшатрии (воины)','Вайшьи (земледельцы, торговцы)','Шудры (слуги)'], e:'Верно! Выше всех были брахманы-жрецы, ниже всех — шудры.'},
+   {type:'quiz', questions:[
+    {q:'Как назывались правители индийских княжеств?',o:['Раджи','Сёгуны','Ханы','Фараоны'],e:'Раджа — правитель княжества в Индии.'},
+    {q:'Какое государство мусульмане создали на севере Индии в XIII веке?',o:['Делийский султанат','Золотую Орду','Арабский халифат','Империю Мин'],e:'Делийский султанат возник в начале XIII века со столицей в городе Дели.'},
+    {q:'Что из этого придумали индийские учёные?',o:['Ноль и цифры, которыми мы пишем','Порох и компас','Пирамиды и мумии','Узелковое письмо кипу'],e:'Порох и компас — китайские изобретения, а кипу — инкское. Индийцы придумали цифры и ноль, а ещё шахматы.'}
+   ]}
+  ]
+},
+{ id:'a5', name:'Золото Африки', place:'§ 19', i:'🐪', x:115, y:1030,
+  lesson:`<p><b>Африку</b> пересекает огромная пустыня <b>Сахара</b>. В Северную Африку пришли арабы, и там распространился <b>ислам</b>.</p>
+  <p>В Западной Африке было много <b>золота</b>, но не хватало <b>соли</b>. Купцы на <b>верблюдах</b> везли соль через Сахару и меняли её на золото. Здесь возникли богатые государства <b>Гана</b> и <b>Мали</b>.</p>
+  <p>Правитель Мали <b>Манса Муса</b> в XIV веке совершил паломничество в Мекку и раздал по пути так много золота, что оно подешевело! Город <b>Тимбукту</b> был центром торговли и учёности.</p>
+  <p>На востоке, в <b>Эфиопии</b>, правили христианские цари. В городе <b>Лалибела</b> церкви целиком вырубили в скале. На восточном побережье торговые города вели торговлю через Индийский океан, а на юге сохранились каменные стены <b>Великого Зимбабве</b>.</p>`,
+  tasks:[{type:'tf', prompt:'Правда или ложь?', questions:[
+   {q:'Через пустыню Сахару товары возили на верблюдах.',a:true,e:'Да, верблюд может долго идти без воды — «корабль пустыни».'},
+   {q:'В Западной Африке соль меняли на золото.',a:true,e:'Верно! Соли там не хватало, а золота было много.'},
+   {q:'Манса Муса — правитель государства Мали.',a:true,e:'Да, его считают одним из самых богатых людей в истории.'},
+   {q:'В Эфиопии большинство жителей были язычниками-кочевниками, а христианства там не знали.',a:false,e:'Нет, Эфиопия — древнее христианское царство.'},
+   {q:'Тимбукту — город, известный торговлей и учёными.',a:true,e:'Да, там были мечети, школы и большие собрания книг.'},
+   {q:'Церкви Лалибелы построили из бамбука.',a:false,e:'Нет, их целиком вырубили в скале.'}
+  ]}]
+},
+{ id:'a6', name:'Майя, ацтеки и инки', place:'§ 20', i:'🗿', x:285, y:1255,
+  lesson:`<p>До прихода европейцев в Америке существовали удивительные цивилизации. Их называют <b>доколумбовыми</b> — то есть существовавшими до Колумба.</p>
+  <p>🌴 <b>Майя</b> жили на полуострове <b>Юкатан</b>. Они строили города со ступенчатыми пирамидами-храмами (<b>Чичен-Ица</b>, <b>Тикаль</b>), создали письменность, точный календарь и знали ноль.</p>
+  <p>🦅 <b>Ацтеки</b> построили столицу <b>Теночтитлан</b> на острове в озере <b>Тескоко</b> (сейчас там Мехико). Они устраивали плавучие огороды — <b>чинампы</b>. Самый известный их правитель — <b>Монтесума</b>.</p>
+  <p>🏔️ <b>Инки</b> создали огромное государство в горах <b>Анды</b> со столицей <b>Куско</b>. Правителя называли <b>Сапа Инка</b> — «единственный Инка». Записи вели узелками на шнурах — <b>кипу</b>. Высоко в горах стоит их город <b>Мачу-Пикчу</b>.</p>
+  <p>Индейцы Америки выращивали <b>кукурузу</b>, <b>картофель</b>, <b>помидоры</b> и <b>какао</b>, но не знали железа и не имели лошадей.</p>`,
+  tasks:[{type:'sort', prompt:'Что к какой цивилизации относится? Нажми на нужную корзину.', done:'Все находки разложены по цивилизациям!',
+    bins:[{n:'Майя',i:'🌴'},{n:'Ацтеки',i:'🦅'},{n:'Инки',i:'🏔️'}],
+    items:[['Полуостров Юкатан',0],['Теночтитлан',1],['Куско',2],['Чичен-Ица',0],['Чинампы',1,'плавучие огороды'],['Кипу',2,'узелковое письмо'],['Тикаль',0],['Озеро Тескоко',1],['Мачу-Пикчу',2],['Монтесума',1],['Сапа Инка',2],['Горы Анды',2]]}]
+},
+{ id:'a7', name:'Свиток путешественника', place:'Итог главы', i:'🧭', x:200, y:1460,
+  lesson:`<p>Ты обошёл полсвета: от Великой степи до гор Анд! Осталось последнее испытание — <b>Свиток путешественника</b>.</p>
+  <p>Вспомни, что где было, и расставь события по порядку. Пройдёшь — получишь <b>компас великого путешественника</b> и грамоту!</p>`,
+  tasks:[
+   {type:'sort', prompt:'Где это было? Нажми на нужную часть света.', done:'Ты знаешь, где что было!',
+    bins:[{n:'Азия',i:'🏯'},{n:'Африка',i:'🐪'},{n:'Америка',i:'🗿'}],
+    items:[['Самураи',0],['Тимбукту',1],['Теночтитлан',2],['Чингисхан',0],['Манса Муса',1],['Кипу',2],['Великая Китайская стена',0],['Церкви Лалибелы',1],['Мачу-Пикчу',2],['Делийский султанат',0]]},
+   {type:'order', plain:true, prompt:'Расставь события по порядку — от более раннего к более позднему.', labels:['1-е','2-е','3-е','4-е'],
+    items:['Начало династии Тан в Китае','Власть в Японии переходит к сёгуну','Темучин становится Чингисханом','Династия Мин изгоняет монголов из Китая'],
+    e:'Верно! VII век → 1192 → 1206 → 1368.'},
+   {type:'fill', prompt:'Вставь пропущенное слово.', questions:[
+    {q:'Японский кодекс чести самурая называется ___.',o:['бусидо','синто','кипу'],e:'«Путь воина».'},
+    {q:'Порох, компас и книгопечатание изобрели в ___.',o:['Китае','Индии','Мали'],e:'А ещё бумагу и фарфор.'},
+    {q:'Индийские учёные придумали цифры и ___.',o:['ноль','порох','компас'],e:'Эти цифры мы зовём арабскими.'},
+    {q:'Столица инков — город ___.',o:['Куско','Тимбукту','Пекин'],e:'Он стоит высоко в Андах.'},
+    {q:'Съезд монгольской знати называли ___.',o:['курултаем','сёгуном','улусом'],e:'На курултае 1206 года Темучин стал Чингисханом.'}
+   ]}
+  ]
+}
+];
+
+const QUESTS={
+ med1:{id:'med1',title:'Средневековое европейское общество. Часть 1',short:'Средневековое общество. Ч. 1',stations:MED1,
+  hint:'Пройди по дороге от деревни до замка. Каждое испытание открывает следующее.',
+  intro:n=>`<div style="text-align:center;font-size:50px">🏰</div><h2 style="text-align:center">Добро пожаловать в Средневековье!</h2><p style="line-height:1.5">${n?esc(n)+', ты':'Ты'} попал в королевство, где правят короли и рыцари, а крестьяне пашут землю. На дворе — XI век.</p><p style="line-height:1.5">Пройди <b>7 испытаний</b> от деревни до главной башни замка, и ты получишь <b>рыцарские шпоры</b>!</p>`,
+  reward:'рыцарские шпоры',rewardIcon:'🛡️⚔️🛡️',next:'Скоро откроется <b>Часть 2</b>: церковь, города, ремесленники и купцы!',bg:'linear-gradient(#3e6a2a,#24401a)',svg:()=>questSVG()},
+ asia:{id:'asia',title:'Страны и народы Азии, Африки и Америки в Средние века',short:'Азия, Африка, Америка',stations:ASIA,
+  hint:'Спускайся по карте вниз — от степей Азии через Африку к Америке. Каждое испытание открывает следующее.',
+  intro:n=>`<div style="text-align:center;font-size:50px">🧭</div><h2 style="text-align:center">Кругосветное путешествие!</h2><p style="line-height:1.5">${n?esc(n)+', пока':'Пока'} в Европе строили замки, в других частях света жили великие народы: монголы, китайцы, японцы, индийцы, африканцы и индейцы Америки.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>7 испытаний</b> и получи <b>компас великого путешественника</b>!</p>`,
+  reward:'компас великого путешественника',rewardIcon:'🧭🌏🧭',next:'Скоро откроется глава VI — <b>Осень Средневековья</b>!',bg:'linear-gradient(#1f5a6e,#12303d)',svg:()=>asiaSVG(),down:true}
+};
+let Q=QUESTS.med1,STATIONS=Q.stations;
+function setQuest(id){Q=QUESTS[id];STATIONS=Q.stations}
 
 /* ================= СОХРАНЕНИЕ ================= */
 const LS='pvsz_v1';
-let save={name:'',stars:{},intro:false,questIntro:false};
+let save={name:'',stars:{},intro:false,qi:{}};
 try{const r=localStorage.getItem(LS);if(r)save=Object.assign(save,JSON.parse(r))}catch(e){}
+if(!save.qi)save.qi={};
+if(save.questIntro){save.qi.med1=true;delete save.questIntro}
 function persist(){try{localStorage.setItem(LS,JSON.stringify(save))}catch(e){}}
 const starsOf=id=>save.stars[id]||0;
+const questStars=q=>q.stations.reduce((s,st)=>s+starsOf(st.id),0);
+const questDone=q=>q.stations.every(st=>starsOf(st.id)>0);
+const allStars=()=>Object.values(QUESTS).reduce((s,q)=>s+questStars(q),0);
 const totalStars=()=>STATIONS.reduce((s,st)=>s+starsOf(st.id),0);
 const allDone=()=>STATIONS.every(st=>starsOf(st.id)>0);
 const unlocked=i=>i===0||starsOf(STATIONS[i-1].id)>0;
@@ -293,67 +441,161 @@ function worldSVG(){
  <text x="345" y="62" font-size="26" class="bob">⛵</text><text x="20" y="372" font-size="24">🐋</text><text x="340" y="625" font-size="22" class="bob">⛵</text><text x="356" y="378" font-size="20">🐬</text>
  ${isl}</svg>`}
 function world(){
- const ts=totalStars();
+ const ts=allStars();
  screen(`
- <div class="top"><span style="width:44px"></span><h1 class="ttl">Путешествие<br>в страну знаний</h1>${soundBtn()}</div>
- <div class="guide"><div class="owl">🦉</div><div class="bubble">Привет${save.name?', <b>'+esc(save.name)+'</b>':''}! Я сова <b>Мудрослава</b>. Каждый остров — это школьный предмет. Начнём с <b>Истории</b>! ${ts?`У тебя уже ⭐ ${ts}.`:''}</div></div>
+ <div class="top"><button class="btn ghost" id="cls">← Классы</button><h2 class="ttl" style="text-align:center">6 класс</h2>${soundBtn()}</div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Привет${save.name?', <b>'+esc(save.name)+'</b>':''}! Я сова <b>Мудрослава</b>. Каждый остров — это школьный предмет 6-го класса. Начнём с <b>Истории</b>! ${ts?`У тебя уже ⭐ ${ts}.`:''}</div></div>
  ${worldSVG()}
- <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>`,
+ `,
  'linear-gradient(#2b7ea8,#164a66)');
  bindSound();
+ $('#cls').onclick=()=>{SFX.click();classes()};
  $$('[data-sub]').forEach(g=>g.onclick=()=>{const s=SUBJECTS.find(x=>x.id===g.dataset.sub);if(s.active){SFX.click();historyMap()}else{SFX.bad();toast(`Остров «${s.n}» пока окутан туманом — откроется в следующих путешествиях!`)}});
- $('#nm').onclick=askName;
- $('#rs').onclick=()=>{const o=modal(`<h2>Начать заново?</h2><p>Все звёзды и пройденные испытания будут стёрты.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn green" id="yes" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e">Стереть</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{save.stars={};save.questIntro=false;persist();o.remove();world();toast('Прогресс сброшен')}};
- if(!save.intro)askName();
 }
-function askName(){
+/* ================= ЭКРАН 0: ВЫБОР КЛАССА ================= */
+function classes(){
+ const ts=allStars();
+ screen(`
+ <div class="top"><span style="width:44px"></span><h1 class="ttl">Путешествие<br>в страну знаний</h1>${soundBtn()}</div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Привет${save.name?', <b>'+esc(save.name)+'</b>':''}! Я сова <b>Мудрослава</b>. Выбери свой класс — и отправимся в путь! ${ts?`У тебя уже ⭐ ${ts}.`:''}</div></div>
+ <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
+ <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>`,
+ 'radial-gradient(circle at 50% 20%,#3d7fa6,#173b55)');
+ bindSound();
+ $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(g===6){SFX.click();world()}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
+ $('#nm').onclick=()=>askName(classes);
+ $('#rs').onclick=()=>{const o=modal(`<h2>Начать заново?</h2><p>Все звёзды и пройденные испытания будут стёрты.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn green" id="yes" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e">Стереть</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{save.stars={};save.qi={};persist();o.remove();classes();toast('Прогресс сброшен')}};
+ if(!save.intro)askName(classes);
+}
+function askName(after){
  const o=modal(`<div style="text-align:center;font-size:52px">🦉</div><h2 style="text-align:center">Как тебя зовут, путешественник?</h2><input class="name" maxlength="20" placeholder="Твоё имя" value="${esc(save.name)}"><button class="btn wide" id="ok">В путь!</button>`);
  const inp=$('input',o);setTimeout(()=>inp.focus(),100);
- const go=()=>{save.name=inp.value.trim().replace(/[<>]/g,'');save.intro=true;persist();o.remove();world()};
+ const go=()=>{save.name=inp.value.trim().replace(/[<>]/g,'');save.intro=true;persist();o.remove();(after||classes)()};
  $('#ok',o).onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};
 }
 
 /* ================= ЭКРАН 2: КАРТА ИСТОРИИ ================= */
 function tree(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><rect x="-2" y="0" width="4" height="9" fill="#6b4a2a"/><circle cy="-4" r="9" fill="#5d8a3a"/><circle cx="-4" cy="-7" r="5" fill="#76a24a"/></g>`}
 function mountain(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><path d="M-26,0 L0,-36 L26,0Z" fill="#9b8a6e" stroke="#6b5a42" stroke-width="1.5"/><path d="M-8,-25 L0,-36 L8,-25 L3,-21 L0,-25 L-4,-21Z" fill="#fff"/></g>`}
+function wrapText(t,max){const w=t.split(' '),L=[];let c='';for(const x of w){if((c+' '+x).trim().length>max&&c){L.push(c);c=x}else c=(c+' '+x).trim()}if(c)L.push(c);return L}
 function historyMap(){
- const st=totalStars();
- const pts=[[200,640],...HIST.map(h=>[h.x,h.y]),[200,60]];
- let deco=mountain(205,215,1.1)+mountain(240,228,.85)+mountain(178,232,.8)+mountain(55,120,.9)+mountain(350,385,.8)+mountain(375,560,.7);
- [[200,440],[214,450],[190,455],[40,300],[55,310],[345,225],[360,215],[30,470],[200,345],[215,356],[365,640],[40,640],[230,560]].forEach(([x,y])=>deco+=tree(x,y,.9));
+ const N=CHAPTERS.length,top=120,gap=165,H=top+(N-1)*gap+150;
+ const pos=CHAPTERS.map((c,i)=>[i%2?290:110,top+i*gap]);
+ const pts=[[200,58],...pos,[200,H-20]];
+ let deco='';
+ const r=rng(5);
+ pos.forEach(([x,y],i)=>{const ox=x<200?345:55;deco+=mountain(ox,y+10,.75)+tree(ox+(x<200?-30:30),y+40,.9)+tree(ox+(x<200?20:-22),y+70,.8)+tree(x<200?30:370,y-55,.8)});
+ deco+=`<path d="M0,${top+gap*1.5} C80,${top+gap*1.5-30} 140,${top+gap*1.5+40} 220,${top+gap*1.5+5} S330,${top+gap*1.5-20} 400,${top+gap*1.5+10}" stroke="#8cc4d8" stroke-width="9" fill="none" stroke-linecap="round"/>`;
  let nodes='';
- HIST.forEach(h=>{
-  const done=h.active&&allDone();
-  nodes+=`<g class="node ${h.active?'':'locked'}" data-loc="${h.id}">
-  ${h.active?`<circle cx="${h.x}" cy="${h.y}" r="36" fill="#ffd34d" class="pulse"/>`:''}
-  <circle cx="${h.x}" cy="${h.y}" r="31" fill="${h.active?'#fff6dc':'#e6dcc6'}" stroke="${h.active?'#a8322a':'#8a7a62'}" stroke-width="4"/>
-  <text x="${h.x}" y="${h.y+11}" font-size="30" text-anchor="middle">${h.i}</text>
-  ${h.active?'':`<text x="${h.x+24}" y="${h.y-18}" font-size="17" text-anchor="middle">🔒</text>`}
-  ${done?`<text x="${h.x+26}" y="${h.y-18}" font-size="20" text-anchor="middle">🏅</text>`:''}
-  <text x="${h.x}" y="${h.y+48}" font-size="12.5" text-anchor="middle" fill="#3b2a1a" font-weight="700">${esc(h.t)}</text>
-  <text x="${h.x}" y="${h.y+63}" font-size="12.5" text-anchor="middle" fill="#3b2a1a" font-weight="700">${esc(h.t2)}</text>
-  ${h.active?`<text x="${h.x}" y="${h.y+80}" font-size="13" text-anchor="middle" fill="#a8322a" font-weight="700">★ ${st} / ${STATIONS.length*3}</text>`:''}
+ CHAPTERS.forEach((c,i)=>{
+  const [x,y]=pos[i],qs=c.quests.filter(q=>q.id).map(q=>QUESTS[q.id]),act=qs.length>0;
+  const got=qs.reduce((s,q)=>s+questStars(q),0),max=qs.reduce((s,q)=>s+q.stations.length*3,0),done=act&&qs.every(questDone);
+  const lines=wrapText(c.t,22);
+  nodes+=`<g class="node ${act?'':'locked'}" data-ch="${i}">
+  ${act&&!done?`<circle cx="${x}" cy="${y}" r="40" fill="#ffd34d" class="pulse"/>`:''}
+  <circle cx="${x}" cy="${y}" r="35" fill="${done?'#e9f6df':act?'#fff6dc':'#e6dcc6'}" stroke="${done?'#3f7d3a':act?'#a8322a':'#8a7a62'}" stroke-width="4"/>
+  <text x="${x}" y="${y+4}" font-size="30" text-anchor="middle">${c.i}</text>
+  <circle cx="${x}" cy="${y+32}" r="13" fill="#7a2a12"/><text x="${x}" y="${y+37}" font-size="13" text-anchor="middle" fill="#fff4d6" font-weight="700">${c.n}</text>
+  ${act?'':`<text x="${x+28}" y="${y-22}" font-size="18" text-anchor="middle">🔒</text>`}
+  ${done?`<text x="${x+30}" y="${y-22}" font-size="22" text-anchor="middle">🏅</text>`:''}
+  ${lines.map((l,k)=>`<text x="${x}" y="${y+64+k*16}" font-size="14" text-anchor="middle" fill="#3b2a1a" font-weight="700" class="halo">${esc(l)}</text>`).join('')}
+  <text x="${x}" y="${y+66+lines.length*16}" font-size="12" text-anchor="middle" fill="#7a5a30" class="halo">${c.p}${act?` · <tspan fill="#a8322a" font-weight="700">★ ${got}/${max}</tspan>`:''}</text>
   </g>`});
  screen(`
- <div class="top"><button class="btn ghost" id="back">← Острова</button><h2 class="ttl">Остров Истории</h2>${soundBtn()}</div>
- <div class="guide"><div class="owl">🦉</div><div class="bubble">Это земли Истории. Каждая крепость — тема из учебника 6-го класса. Первая дорога ведёт в <b>Средневековую Европу</b>!</div></div>
- <svg viewBox="0 0 400 680" class="map">
-  <defs><radialGradient id="pa" cx=".5" cy=".45" r=".75"><stop offset="0" stop-color="#f7e8c4"/><stop offset="1" stop-color="#d8b97e"/></radialGradient></defs>
-  <rect width="400" height="680" fill="url(#pa)"/>
-  <rect x="8" y="8" width="384" height="664" rx="14" fill="none" stroke="#8a6232" stroke-width="2" stroke-dasharray="7 5"/>
-  <path d="${blob(330,585,48,30,9)}" fill="#8cc4d8" stroke="#5e97ad" stroke-width="2"/>
-  <path d="M0,300 C60,280 90,330 150,305 S250,270 400,285" stroke="#8cc4d8" stroke-width="9" fill="none" stroke-linecap="round"/>
+ <div class="top"><button class="btn ghost" id="back">← Предметы</button><h2 class="ttl">Остров Истории · 6 класс</h2>${soundBtn()}</div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Это главы учебника «История Средних веков». Иди по дороге <b>сверху вниз</b>. Открыты главы <b>III</b> и <b>V</b>!</div></div>
+ <svg viewBox="0 0 400 ${H}" class="map">
+  <defs><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7e8c4"/><stop offset=".5" stop-color="#ecd5a2"/><stop offset="1" stop-color="#f3e0b5"/></linearGradient>
+  <marker id="arw" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10Z" fill="#8a4a1e"/></marker></defs>
+  <rect width="400" height="${H}" fill="url(#pa)"/>
+  <rect x="8" y="8" width="384" height="${H-16}" rx="14" fill="none" stroke="#8a6232" stroke-width="2" stroke-dasharray="7 5"/>
   ${deco}
   <path d="${smoothOpen(pts)}" stroke="#8a4a1e" stroke-width="4" fill="none" stroke-dasharray="2 9" stroke-linecap="round"/>
-  ${ribbon(200,36,'Земли Истории',20)}
+  <path d="M200,${H-40} v18" stroke="#8a4a1e" stroke-width="4" marker-end="url(#arw)"/>
+  ${ribbon(200,36,'История Средних веков',18)}
   ${nodes}
  </svg>`,'linear-gradient(#6b4a2a,#3e2a17)');
  bindSound();
  $('#back').onclick=()=>{SFX.click();world()};
- $$('[data-loc]').forEach(g=>g.onclick=()=>{const h=HIST.find(x=>x.id===g.dataset.loc);if(h.active){SFX.click();questMap()}else{SFX.bad();toast(`«${h.t} ${h.t2}» — эта земля откроется позже!`)}});
+ $$('[data-ch]').forEach(g=>g.onclick=()=>chapterModal(+g.dataset.ch));
+}
+function chapterModal(i){
+ const c=CHAPTERS[i];
+ if(!c.quests.some(q=>q.id)){SFX.bad();toast(`Глава ${c.n} «${c.t}» откроется позже!`);return}
+ SFX.click();
+ const o=modal(`<div style="text-align:center;font-size:44px">${c.i}</div><h2 style="text-align:center">Глава ${c.n}</h2><p style="text-align:center;margin:6px 0 12px">${esc(c.t)} <span class="small" style="color:#7a5a30">(${c.p})</span></p>
+ ${c.quests.map((q,k)=>{if(!q.id)return `<button class="opt" disabled style="opacity:.55">🔒 ${esc(q.t)}</button>`;const Qx=QUESTS[q.id],st=questStars(Qx),mx=Qx.stations.length*3;return `<button class="opt" data-q="${q.id}"><b>${questDone(Qx)?'🏅':'▶'} ${esc(q.t)}</b><br><span class="small" style="color:#a8322a">★ ${st} / ${mx}</span></button>`}).join('')}
+ <button class="btn ghost wide" style="background:#7a5a30;margin-top:6px" id="cl">Закрыть</button>`);
+ $('#cl',o).onclick=()=>o.remove();
+ $$('[data-q]',o).forEach(b=>b.onclick=()=>{o.remove();SFX.click();setQuest(b.dataset.q);questMap()});
 }
 
 /* ================= ЭКРАН 3: КАРТА КВЕСТА ================= */
+function stationNodes(){
+ const cur=STATIONS.findIndex((s,i)=>unlocked(i)&&!starsOf(s.id));
+ let nodes='';
+ STATIONS.forEach((s,i)=>{
+  const op=unlocked(i),sc=starsOf(s.id);
+  nodes+=`<g class="node ${op?'':'locked'}" data-st="${i}">
+   ${i===cur?`<circle cx="${s.x}" cy="${s.y}" r="32" fill="#ffd34d" class="pulse"/>`:''}
+   <circle cx="${s.x}" cy="${s.y}" r="27" fill="${sc?'#e9f6df':'#fff6dc'}" stroke="${sc?'#3f7d3a':op?'#a8322a':'#7a7a7a'}" stroke-width="4"/>
+   <text x="${s.x}" y="${s.y+9}" font-size="25" text-anchor="middle">${op?s.i:'🔒'}</text>
+   <circle cx="${s.x-22}" cy="${s.y-20}" r="10" fill="#3b2a1a"/><text x="${s.x-22}" y="${s.y-15.5}" font-size="12" text-anchor="middle" fill="#fff" font-weight="700">${i+1}</text>
+   ${ribbon(s.x,s.y+44,s.name,12.5,op?'#5a2a10':'#6b6b6b')}
+   ${sc?`<text x="${s.x}" y="${s.y+64}" font-size="15" text-anchor="middle" fill="#e6a817" stroke="#7a5a10" stroke-width=".5">${starStr(sc)}</text>`:''}
+  </g>`});
+ return nodes;
+}
+/* ---- рисунки для карты главы V ---- */
+const yurt=(x,y)=>`<g transform="translate(${x},${y})"><path d="M-17,0 V-10 Q0,-28 17,-10 V0Z" fill="#f4efe2" stroke="#8a7a5a" stroke-width="1.2"/><path d="M-17,-10 Q0,-28 17,-10" fill="none" stroke="#c0503f" stroke-width="2.5"/><path d="M-17,-5 H17" stroke="#c0503f" stroke-width="1.5"/><rect x="-4" y="-9" width="8" height="9" fill="#a8322a"/><path d="M0,-24 v-5" stroke="#8a7a5a" stroke-width="1.5"/></g>`;
+const tuft=(x,y)=>`<path d="M${x-5},${y} q2,-8 5,-10 M${x},${y} v-11 M${x+5},${y} q-2,-8 -5,-10" stroke="#8f9a3c" stroke-width="1.6" fill="none"/>`;
+function pagoda(x,y){let g='';for(let k=0;k<3;k++){const w=30-k*7,yy=-k*18;g+=`<rect x="${-w/2+4}" y="${yy-14}" width="${w-8}" height="14" fill="#c9443a" stroke="#6b1f18"/><path d="M${-w/2-6},${yy-12} Q0,${yy-24} ${w/2+6},${yy-12} L${w/2},${yy-16} Q0,${yy-25} ${-w/2},${yy-16}Z" fill="#2f5d4a" stroke="#1d3a2e"/>`}return `<g transform="translate(${x},${y})">${g}<path d="M0,-58 v-10" stroke="#d9a234" stroke-width="2.5"/></g>`}
+function wall(pts){const d=smoothOpen(pts);let t='';pts.forEach(([x,y],k)=>{if(k)t+=`<rect x="${x-7}" y="${y-20}" width="14" height="18" fill="#c7b089" stroke="#7d6a4a"/><path d="M${x-9},${y-20} L${x},${y-28} L${x+9},${y-20}Z" fill="#7a3b2a"/>`});return `<path d="${d}" stroke="#7d6a4a" stroke-width="12" fill="none" stroke-linecap="round"/><path d="${d}" stroke="#c7b089" stroke-width="9" fill="none" stroke-linecap="round"/><path d="${d}" stroke="#7d6a4a" stroke-width="3" fill="none" stroke-dasharray="3 4" transform="translate(0,-5)"/>${t}`}
+const torii=(x,y)=>`<g transform="translate(${x},${y})"><rect x="-12" y="-26" width="3.5" height="26" fill="#c62f24"/><rect x="8.5" y="-26" width="3.5" height="26" fill="#c62f24"/><path d="M-18,-28 Q0,-32 18,-28 L17,-24 Q0,-27 -17,-24Z" fill="#2b1a10"/><rect x="-14" y="-21" width="28" height="3" fill="#c62f24"/></g>`;
+const sakura=(x,y)=>`<g transform="translate(${x},${y})"><path d="M0,0 V-14 M0,-10 l-7,-6 M0,-12 l6,-7" stroke="#5a3a2a" stroke-width="2.5"/><circle cx="-8" cy="-19" r="7" fill="#f7b6cf"/><circle cx="6" cy="-22" r="8" fill="#f3a2c1"/><circle cx="-1" cy="-27" r="7" fill="#fbd0e0"/></g>`;
+const fuji=(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><path d="M-40,0 L-9,-38 L9,-38 L40,0Z" fill="#6c7f99"/><path d="M-9,-38 L9,-38 L17,-28 L9,-30 L3,-25 L-4,-30 L-17,-28Z" fill="#fff"/></g>`;
+const temple=(x,y)=>`<g transform="translate(${x},${y})"><rect x="-26" y="-14" width="52" height="14" fill="#d38b4a" stroke="#7a3f1a"/><path d="M-14,-14 L-14,-30 Q-12,-58 0,-68 Q12,-58 14,-30 L14,-14Z" fill="#e0a05a" stroke="#7a3f1a"/>${[0,1,2,3].map(k=>`<path d="M-13,${-22-k*10} Q0,${-25-k*10} 13,${-22-k*10}" stroke="#9a5a26" fill="none"/>`).join('')}<circle cy="-70" r="3" fill="#d9a234"/><rect x="-5" y="-10" width="10" height="10" fill="#5a2e10"/></g>`;
+const palm=(x,y)=>`<g transform="translate(${x},${y})"><path d="M0,0 Q3,-14 -1,-28" stroke="#7a5a30" stroke-width="3.5" fill="none"/><path d="M-1,-28 q-12,-4 -18,5 M-1,-28 q12,-5 18,4 M-1,-28 q-6,-10 -14,-12 M-1,-28 q6,-11 14,-11 M-1,-28 q0,-8 1,-14" stroke="#3f8a3a" stroke-width="4" fill="none" stroke-linecap="round"/></g>`;
+const dune=(x,y,w)=>`<path d="M${x-w},${y} Q${x},${y-w*.35} ${x+w},${y}Z" fill="#dcb35e"/>`;
+const baobab=(x,y)=>`<g transform="translate(${x},${y})"><path d="M-8,0 Q-6,-14 -5,-24 L5,-24 Q6,-14 8,0Z" fill="#8a6a4a"/><path d="M-5,-24 l-10,-6 M5,-24 l10,-7 M0,-24 v-8" stroke="#8a6a4a" stroke-width="3"/><ellipse cx="0" cy="-33" rx="22" ry="7" fill="#6f9a3e"/></g>`;
+const mudMosque=(x,y)=>`<g transform="translate(${x},${y})"><rect x="-30" y="-20" width="60" height="20" fill="#c08a52" stroke="#7a522a"/>${[-24,0,24].map(t=>`<path d="M${t-6},-20 L${t-5},-40 L${t},-46 L${t+5},-40 L${t+6},-20Z" fill="#c9955c" stroke="#7a522a"/>${[0,1,2].map(k=>`<path d="M${t-8},${-26-k*6} h16" stroke="#6b4422" stroke-width="1.2"/>`).join('')}`).join('')}<rect x="-5" y="-12" width="10" height="12" fill="#5a3a1a"/></g>`;
+function pyramid(x,y){let g='';for(let k=0;k<5;k++){const w=70-k*12;g+=`<rect x="${-w/2}" y="${-(k+1)*10}" width="${w}" height="10" fill="${k%2?'#b9a17a':'#c8b089'}" stroke="#7d6a4a"/>`}return `<g transform="translate(${x},${y})">${g}<rect x="-3" y="-50" width="6" height="50" fill="#8a7454" opacity=".6"/><rect x="-9" y="-62" width="18" height="12" fill="#a8322a" stroke="#5a1a10"/></g>`}
+const jtree=(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-2" y="-4" width="4" height="12" fill="#5a3a1a"/><circle cy="-10" r="11" fill="#2f7a3a"/><circle cx="-7" cy="-6" r="7" fill="#3c9046"/><circle cx="7" cy="-7" r="7" fill="#278034"/></g>`;
+const andes=(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><path d="M-30,0 L-6,-46 L14,0Z" fill="#7d7266"/><path d="M-6,-46 L-14,-30 L-8,-33 L-4,-28 L2,-34Z" fill="#fff"/><path d="M0,0 L22,-34 L44,0Z" fill="#8f8478"/><path d="M22,-34 L16,-24 L22,-26 L28,-23Z" fill="#fff"/></g>`;
+const emo=(x,y,e,s=22)=>`<text x="${x}" y="${y}" font-size="${s}" text-anchor="middle">${e}</text>`;
+const band=(y,fill,amp=14)=>`<path d="M0,${y} Q60,${y-amp} 130,${y} T260,${y} T400,${y-4} V2000 H0Z" fill="${fill}"/>`;
+function asiaSVG(){
+ const H=1560,r=rng(17);
+ let d='';
+ // зоны сверху вниз
+ d+=`<rect width="400" height="${H}" fill="#d8c983"/>`;
+ for(let i=0;i<28;i++)d+=tuft(10+r()*380,20+r()*250);
+ d+=yurt(268,135)+yurt(312,160)+yurt(258,185)+emo(345,215,'🐎',24)+emo(312,222,'🐎',20)+emo(52,255,'🐑',18)+emo(30,70,'🦅',20);
+ d+=band(285,'#a9c97e')+wall([[0,445],[50,410],[105,432],[160,400],[205,420]])+pagoda(80,375)+tree(160,340)+tree(30,330)+tree(370,455);
+ d+=band(495,'#5ea8c9',10);
+ for(let i=0;i<18;i++){const x=r()*390+5,y=500+r()*200;d+=`<path d="M${x.toFixed(0)},${y.toFixed(0)} q5,-4 10,0 q5,-4 10,0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".45"/>`}
+ d+=`<path d="${blob(125,600,105,62,4)}" fill="#e9d9a6"/><path d="${blob(122,596,90,52,4)}" fill="#8fc46e"/>`;
+ d+=`<path d="${blob(310,610,72,52,8)}" fill="#e9d9a6"/><path d="${blob(308,606,60,44,8)}" fill="#8fc46e"/>`;
+ d+=fuji(305,615,1)+sakura(350,640)+torii(268,648)+sakura(40,630)+emo(370,540,'⛵',20);
+ d+=band(715,'#e2b56c');
+ d+=temple(85,835)+palm(30,800)+palm(160,870)+palm(370,900)+emo(70,905,'🐘',26)+emo(160,785,'🐒',18);
+ d+=band(935,'#ecd08a');
+ d+=dune(290,1060,70)+dune(370,1050,50)+dune(230,1120,50)+emo(255,1000,'🐪',24)+emo(292,1006,'🐪',22)+emo(328,1012,'🐪',20)+mudMosque(300,1110)+baobab(375,1130)+baobab(30,1120);
+ d+=band(1158,'#4f9cc0',8)+emo(70,1192,'⛵',22)+emo(350,1185,'🐋',20);
+ d+=band(1212,'#5e9e4a');
+ d+=pyramid(95,1300)+jtree(30,1240)+jtree(170,1250,.9)+jtree(20,1320,1.1)+jtree(175,1330)+andes(330,1345,.9)+emo(375,1250,'🦙',22)+emo(160,1290,'🦜',18);
+ d+=band(1372,'#e8d4a8');
+ for(let i=0;i<14;i++)d+=`<text x="${(20+r()*360).toFixed(0)}" y="${(1390+r()*160).toFixed(0)}" font-size="10" fill="#c9a65a" opacity=".7">✦</text>`;
+ d+=emo(70,1470,'📚',30)+emo(330,1470,'🌍',32)+emo(330,1530,'🔭',22)+emo(70,1530,'🗺️',22);
+ // подписи зон
+ d+=ribbon(310,40,'Великая степь',13,'#6b4a1a')+ribbon(90,305,'Китай',13,'#8a2a1a')+ribbon(290,520,'Япония',13,'#8a1a3a')+ribbon(100,740,'Индия',13,'#8a4a1a')+ribbon(300,960,'Африка',13,'#7a4a10')+ribbon(110,1232,'Америка',13,'#2a5a2a');
+ // дорога сверху вниз
+ const pts=[[200,8],...STATIONS.map(s=>[s.x,s.y])];
+ let road=`<path d="${smoothOpen(pts)}" stroke="#f2e2b8" stroke-width="16" fill="none" stroke-linecap="round" opacity=".9"/><path d="${smoothOpen(pts)}" stroke="#a0804a" stroke-width="2.2" fill="none" stroke-dasharray="6 8"/>`;
+ for(let i=0;i<pts.length-1;i++){const[x1,y1]=pts[i],[x2,y2]=pts[i+1],mx=(x1+x2)/2,my=(y1+y2)/2;road+=`<path d="M${mx-7},${my-5} L${mx+7},${my-5} L${mx},${my+6}Z" fill="#8a4a1e" opacity=".85"/>`}
+ return `<svg viewBox="0 0 400 ${H}" class="map" id="qsvg">${d}${road}${stationNodes()}</svg>`;
+}
+
 function house(x,y,c='#c0503f'){return `<g transform="translate(${x},${y})"><rect x="-11" y="-9" width="22" height="16" fill="#e8d2a6" stroke="#7a5a30"/><path d="M-14,-9 L0,-22 L14,-9Z" fill="${c}" stroke="#6b2a1a"/><rect x="-3" y="0" width="6" height="7" fill="#6b4a2a"/></g>`}
 function questSVG(){
  let d='';
@@ -386,19 +628,7 @@ function questSVG(){
  // дорога
  const pts=[[200,690],...STATIONS.map(s=>[s.x,s.y])];
  const road=`<path d="${smoothOpen(pts)}" stroke="#d8bf8a" stroke-width="16" fill="none" stroke-linecap="round"/><path d="${smoothOpen(pts)}" stroke="#b89a62" stroke-width="2" fill="none" stroke-dasharray="6 8"/>`;
- // узлы
- const cur=STATIONS.findIndex((s,i)=>unlocked(i)&&!starsOf(s.id));
- let nodes='';
- STATIONS.forEach((s,i)=>{
-  const op=unlocked(i),sc=starsOf(s.id);
-  nodes+=`<g class="node ${op?'':'locked'}" data-st="${i}">
-   ${i===cur?`<circle cx="${s.x}" cy="${s.y}" r="32" fill="#ffd34d" class="pulse"/>`:''}
-   <circle cx="${s.x}" cy="${s.y}" r="27" fill="${sc?'#e9f6df':'#fff6dc'}" stroke="${sc?'#3f7d3a':op?'#a8322a':'#7a7a7a'}" stroke-width="4"/>
-   <text x="${s.x}" y="${s.y+9}" font-size="25" text-anchor="middle">${op?s.i:'🔒'}</text>
-   <circle cx="${s.x-22}" cy="${s.y-20}" r="10" fill="#3b2a1a"/><text x="${s.x-22}" y="${s.y-15.5}" font-size="12" text-anchor="middle" fill="#fff" font-weight="700">${i+1}</text>
-   ${ribbon(s.x,s.y+44,s.name,12.5,op?'#5a2a10':'#6b6b6b')}
-   ${sc?`<text x="${s.x}" y="${s.y+64}" font-size="15" text-anchor="middle" fill="#e6a817" stroke="#7a5a10" stroke-width=".5">${starStr(sc)}</text>`:''}
-  </g>`});
+ const nodes=stationNodes();
  return `<svg viewBox="0 0 400 690" class="map">
  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86c6e6"/><stop offset="1" stop-color="#e2f3f8"/></linearGradient>
  <linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#94c25e"/><stop offset="1" stop-color="#5e9a3c"/></linearGradient></defs>
@@ -411,17 +641,18 @@ function questSVG(){
 function questMap(){
  const done=allDone();
  screen(`
- <div class="top"><button class="btn ghost" id="back">← История</button><h2 class="ttl">Средневековое европейское общество. Ч. 1</h2>${soundBtn()}</div>
- ${done?`<button class="btn green wide" id="cert">🏅 Получить грамоту и рыцарские шпоры</button>`:
- `<div class="guide"><div class="owl">🦉</div><div class="bubble">Пройди по дороге от деревни до замка. Каждое испытание открывает следующее. Собери как можно больше звёзд! ⭐ ${totalStars()} / ${STATIONS.length*3}</div></div>`}
- ${questSVG()}`,'linear-gradient(#3e6a2a,#24401a)');
+ <div class="top"><button class="btn ghost" id="back">← История</button><h2 class="ttl">${esc(Q.short)}</h2>${soundBtn()}</div>
+ ${done?`<button class="btn green wide" id="cert">🏅 Получить грамоту: ${esc(Q.reward)}</button>`:
+ `<div class="guide"><div class="owl">🦉</div><div class="bubble">${Q.hint} Собери как можно больше звёзд! ⭐ ${totalStars()} / ${STATIONS.length*3}</div></div>`}
+ ${Q.svg()}`,Q.bg);
  bindSound();
  $('#back').onclick=()=>{SFX.click();historyMap()};
  if(done)$('#cert').onclick=certificate;
  $$('[data-st]').forEach(g=>g.onclick=()=>{const i=+g.dataset.st;if(unlocked(i)){SFX.click();startStation(i)}else{SFX.bad();toast('Сначала пройди предыдущее испытание!')}});
- if(!save.questIntro){
-  save.questIntro=true;persist();
-  const o=modal(`<div style="text-align:center;font-size:50px">🏰</div><h2 style="text-align:center">Добро пожаловать в Средневековье!</h2><p style="line-height:1.5">${save.name?esc(save.name)+', ты':'Ты'} попал${''} в королевство, где правят короли и рыцари, а крестьяне пашут землю. На дворе — XI век.</p><p style="line-height:1.5">Пройди <b>7 испытаний</b> от деревни до главной башни замка, и ты получишь <b>рыцарские шпоры</b>!</p><p class="small" style="color:#7a5a30">Перед каждым испытанием — короткий «Свиток знаний». Читай внимательно: там подсказки!</p><button class="btn wide" id="go">Вперёд!</button>`);
+ if(Q.down){const cur=STATIONS.findIndex((s,i)=>unlocked(i)&&!starsOf(s.id));const sv=$('#qsvg');if(cur>0&&sv){requestAnimationFrame(()=>{const rc=sv.getBoundingClientRect(),vb=sv.viewBox.baseVal.height,y=rc.top+window.scrollY+STATIONS[cur].y/vb*rc.height;window.scrollTo({top:Math.max(0,y-window.innerHeight/2),behavior:'smooth'})})}}
+ if(!save.qi[Q.id]){
+  save.qi[Q.id]=true;persist();
+  const o=modal(`${Q.intro(save.name)}<p class="small" style="color:#7a5a30">Перед каждым испытанием — короткий «Свиток знаний». Читай внимательно: там подсказки!</p><button class="btn wide" id="go">Вперёд!</button>`);
   $('#go',o).onclick=()=>{SFX.click();o.remove()};
  }
 }
@@ -483,7 +714,7 @@ function sortTask(task,done){
  const items=shuffle(task.items);let k=0;const got=task.bins.map(()=>[]);
  function show(){
   if(k>=items.length){
-   screen(`${taskHead(1)}<div class="card res"><div style="font-size:46px">🎯</div><h2>Все разложены по сословиям!</h2>
+   screen(`${taskHead(1)}<div class="card res"><div style="font-size:46px">🎯</div><h2>${esc(task.done||'Все разложены по сословиям!')}</h2>
    <div class="bins" style="margin-top:12px">${task.bins.map((b,i)=>`<div class="bin" style="cursor:default"><span class="bi">${b.i}</span><span class="bn">${b.n}</span><span class="bl">${got[i].join(', ')}</span></div>`).join('')}</div></div>
    <button class="btn wide" id="next">Дальше →</button>`,BG_TASK);bindHead();$('#next').onclick=()=>{SFX.click();done()};return}
   const it=items[k];
@@ -529,7 +760,7 @@ function orderTask(task,done){
   const full=slots.every(s=>s!==null);
   screen(`${taskHead(0)}
   <div class="card" id="oc"><div class="qnum">${esc(task.prompt)}</div>
-  <div class="ladder">${slots.map((s,i)=>`<button class="step ${s!==null?'full':''} ${checked&&s!==null?(s===i?'ok':'bad'):''}" data-s="${i}" style="width:${52+i*16}%">${s!==null?esc(task.items[s]):`ступень ${i+1}`}</button>`).join('')}</div>
+  <div class="ladder">${slots.map((s,i)=>`<button class="step ${s!==null?'full':''} ${checked&&s!==null?(s===i?'ok':'bad'):''}" data-s="${i}" style="width:${task.plain?100:52+i*16}%">${task.plain?`<span style="opacity:.6;white-space:nowrap;margin-right:6px">${task.labels[i]}</span>`:''}${s!==null?esc(task.items[s]):(task.plain?'…':`ступень ${i+1}`)}</button>`).join('')}</div>
   <div class="pool">${pool.map(p=>`<button class="term" data-p="${p}">${esc(task.items[p])}</button>`).join('')}</div>
   <div id="ex"></div></div>
   <button class="btn wide" id="chk" ${full?'':'disabled'}>Проверить</button>`,BG_TASK);
@@ -573,20 +804,20 @@ function certificate(){
  const ts=totalStars(),max=STATIONS.length*3;
  SFX.win();confetti();
  screen(`<div class="card cert" style="margin-top:14px">
-  <div style="font-size:40px">🛡️⚔️🛡️</div><h1>Грамота</h1>
+  <div style="font-size:40px">${Q.rewardIcon}</div><h1>Грамота</h1>
   <p style="margin:10px 0 2px">Настоящим удостоверяется, что</p>
   <div class="who">${esc(save.name||'Отважный путешественник')}</div>
-  <p style="line-height:1.5">прошёл все испытания квеста<br><b>«${TOPIC_TITLE}»</b><br>и получает <b>рыцарские шпоры</b>!</p>
+  <p style="line-height:1.5">прошёл все испытания квеста<br><b>«${esc(Q.title)}»</b><br>и получает <b>${esc(Q.reward)}</b>!</p>
   <div class="bigstars" style="font-size:30px"><span class="gold">★</span> ${ts} / ${max}</div>
   <p class="small">${ts===max?'Безупречно — все звёзды собраны!':'Перепройди испытания, чтобы собрать все звёзды.'}</p>
   <div class="seal">🦉</div>
  </div>
- <div class="guide"><div class="owl">🦉</div><div class="bubble">Скоро откроется <b>Часть 2</b>: города, ремесленники и купцы!</div></div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">${Q.next}</div></div>
  <div class="row"><button class="btn" id="qm">🗺️ Карта квеста</button><button class="btn" id="hm">📜 Остров Истории</button></div>`,'linear-gradient(#7a2a12,#3b140a)');
  $('#qm').onclick=()=>{SFX.click();questMap()};$('#hm').onclick=()=>{SFX.click();historyMap()};
 }
 
-world();
+classes();
 </script>
 </body>
 </html>
