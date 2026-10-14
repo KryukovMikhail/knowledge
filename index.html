@@ -112,6 +112,7 @@ input.name{font:inherit;font-size:18px;width:100%;padding:12px;border-radius:12p
 .confetti{position:fixed;top:-30px;font-size:22px;z-index:60;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 .small{font-size:13.5px}
+.build{position:fixed;left:calc(10px + env(safe-area-inset-left));bottom:calc(8px + env(safe-area-inset-bottom));font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em;pointer-events:none}
 .halo{paint-order:stroke;stroke:#f5e6c2;stroke-width:5px;stroke-linejoin:round}
 .grades{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
 .grade{font:inherit;position:relative;aspect-ratio:1;border:none;border-radius:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(#e9e2d2,#c9bfa8);color:#6b6253;box-shadow:0 5px 0 #8f8572,var(--shadow);filter:grayscale(.4)}
@@ -138,6 +139,7 @@ const SUBJECTS=[
  {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a'},
  {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
 ];
+const BUILD='K001.003';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -146,7 +148,7 @@ const CHAPTERS=[
  {n:'III',t:'Средневековое европейское общество',p:'§ 7–9',i:'🏰',quests:[{id:'med1',t:'Часть 1. Сеньоры, рыцари и крестьяне'},{t:'Часть 2. Церковь и горожане'}]},
  {n:'IV',t:'Расцвет Средневековья в Западной Европе',p:'§ 10–14',i:'⚔️',quests:[]},
  {n:'V',t:'Страны и народы Азии, Африки и Америки в Средние века',p:'§ 15–20',i:'🌏',quests:[{id:'asia',t:'Вокруг света: Азия, Африка, Америка'}]},
- {n:'VI',t:'Осень Средневековья',p:'§ 21–24',i:'🍂',quests:[]}
+ {n:'VI',t:'Осень Средневековья',p:'§ 21–24',i:'🍂',quests:[{id:'autumn',t:'Конец Средневековья: войны, чума и Возрождение'}]}
 ];
 
 const MED1=[
@@ -356,6 +358,98 @@ const ASIA=[
 }
 ];
 
+
+/* ---------- ГЛАВА VI: Осень Средневековья ---------- */
+const AUTUMN=[
+{ id:'v1', name:'Столетняя война', place:'§ 21–22', i:'🏹', x:115, y:165,
+  lesson:`<p>В <b>1337 году</b> английский король <b>Эдуард III</b> заявил права на французский трон. Так началась <b>Столетняя война</b> между Англией и Францией. На самом деле она длилась даже больше ста лет — до <b>1453 года</b>.</p>
+  <p>Сначала побеждали англичане: их <b>лучники</b> с длинными луками разбили французских рыцарей при <b>Креси</b> (1346), <b>Пуатье</b> (1356) и <b>Азенкуре</b> (1415). Англичане захватили почти весь север Франции.</p>
+  <p>Спасла Францию простая крестьянская девушка <b>Жанна д’Арк</b>. В <b>1429 году</b> она освободила осаждённый <b>Орлеан</b> — её прозвали <b>Орлеанской девой</b>. Потом Жанна привела дофина <b>Карла VII</b> в <b>Реймс</b>, где его короновали.</p>
+  <p>В 1430 году Жанну взяли в плен, и в <b>1431 году</b> англичане сожгли её в Руане. Но французы продолжили борьбу и выгнали англичан. У Англии остался лишь порт <b>Кале</b>.</p>`,
+  tasks:[
+   {type:'quiz', questions:[
+    {q:'Между какими странами шла Столетняя война?',o:['Англией и Францией','Францией и Испанией','Англией и Византией','Германией и Италией'],e:'Английский король Эдуард III претендовал на французский престол.'},
+    {q:'Сколько на самом деле длилась Столетняя война?',o:['Больше ста лет (1337–1453)','Ровно сто лет','Десять лет','Около пятидесяти лет'],e:'С 1337 по 1453 год — 116 лет, хотя с перерывами.'},
+    {q:'Кто помог англичанам победить при Креси, Пуатье и Азенкуре?',o:['Лучники с длинными луками','Боевые слоны','Янычары','Пушки с кораблей'],e:'Стрелы английских лучников косили тяжёлую французскую конницу.'},
+    {q:'Какой город освободила Жанна д’Арк в 1429 году?',o:['Орлеан','Париж','Лондон','Кале'],e:'Поэтому её и называют Орлеанской девой.'},
+    {q:'Что осталось у Англии во Франции после войны?',o:['Только порт Кале','Весь север Франции','Париж','Ничего не изменилось'],e:'Франция вернула почти все свои земли.'}
+   ]},
+   {type:'order', plain:true, prompt:'Расставь события Столетней войны по порядку.', labels:['1-е','2-е','3-е','4-е'],
+    items:['Начало войны','Битва при Креси','Жанна д’Арк освобождает Орлеан','Конец войны'],e:'Верно! 1337 → 1346 → 1429 → 1453.'}
+  ]
+},
+{ id:'v2', name:'Чума и восстания', place:'§ 21–22', i:'💀', x:285, y:395,
+  lesson:`<p>В <b>1347 году</b> в Европу с кораблями пришла страшная болезнь — <b>чума</b>. Её назвали <b>«Чёрной смертью»</b>. За несколько лет она унесла жизни примерно <b>трети</b> жителей Европы.</p>
+  <p>Работников стало мало, а феодалы требовали всё больше. Крестьяне поднимались на восстания. Во Франции в <b>1358 году</b> вспыхнула <b>Жакерия</b> — от прозвища крестьян «Жак-простак».</p>
+  <p>В Англии в <b>1381 году</b> восстание возглавил кровельщик <b>Уот Тайлер</b>. Проповедник <b>Джон Болл</b> спрашивал: «Когда Адам пахал, а Ева пряла, кто тогда был дворянином?»</p>
+  <p>В Чехии проповедник <b>Ян Гус</b> критиковал богатство церкви. В <b>1415 году</b> его сожгли, и чехи поднялись на борьбу — начались <b>гуситские войны</b>. Их войском командовал <b>Ян Жижка</b>.</p>
+  <p>В самой Англии после Столетней войны знать сражалась за трон в <b>Войне Алой и Белой розы</b> (1455–1485).</p>`,
+  tasks:[{type:'match', prompt:'Соедини имя или название с объяснением.', pairs:[
+   ['Чёрная смерть','Эпидемия чумы, погубившая треть Европы'],
+   ['Жакерия','Крестьянское восстание во Франции в 1358 году'],
+   ['Уот Тайлер','Вождь крестьянского восстания в Англии в 1381 году'],
+   ['Ян Гус','Чешский проповедник, сожжённый в 1415 году'],
+   ['Ян Жижка','Полководец гуситов'],
+   ['Алая и Белая роза','Война английской знати за королевский трон']
+  ]}]
+},
+{ id:'v3', name:'Падение Константинополя', place:'§ 23', i:'🕌', x:115, y:625,
+  lesson:`<p>На рубеже XIII–XIV веков в Малой Азии возникло государство турок-османов. Его основатель — <b>Осман</b>, отсюда название — <b>Османская империя</b>.</p>
+  <p>Сильнейшей частью османского войска были <b>янычары</b> — пехотинцы, которых с детства готовили к войне. Османы захватили Балканы. В <b>1389 году</b> они разбили сербов на <b>Косовом поле</b>.</p>
+  <p>От некогда великой <b>Византии</b> остался почти только <b>Константинополь</b>. Византийцы просили помощи у Запада, но её почти не было.</p>
+  <p>В <b>1453 году</b> султан <b>Мехмед II</b> с огромными пушками осадил и взял Константинополь. Последний император <b>Константин XI</b> погиб в бою. Город стал столицей османов — <b>Стамбулом</b>, а храм <b>Святой Софии</b> превратили в мечеть.</p>`,
+  tasks:[{type:'tf', prompt:'Правда или ложь?', questions:[
+   {q:'Османская империя получила название по имени своего основателя Османа.',a:true,e:'Да, турок-османов назвали по имени их первого правителя.'},
+   {q:'Янычары — это византийские монахи.',a:false,e:'Нет, янычары — отборная османская пехота.'},
+   {q:'В 1389 году на Косовом поле османы разбили сербов.',a:true,e:'Верно, после этого Сербия попала в зависимость от османов.'},
+   {q:'Константинополь пал в 1453 году.',a:true,e:'Да, этим годом историки часто отмечают конец Средних веков.'},
+   {q:'Константинополь взял султан Мехмед II.',a:true,e:'Верно, его прозвали Завоевателем.'},
+   {q:'После захвата храм Святой Софии превратили в королевский дворец.',a:false,e:'Нет, его превратили в мечеть.'},
+   {q:'Последний византийский император Константин XI сбежал в Рим.',a:false,e:'Нет, он погиб, сражаясь на стенах города.'}
+  ]}]
+},
+{ id:'v4', name:'Возрождение', place:'§ 24', i:'🎨', x:285, y:855,
+  lesson:`<p>В XIV–XV веках в Италии начинается эпоха <b>Возрождения</b> (Ренессанса). Люди снова увлеклись наукой и искусством Древней Греции и Рима — как будто «возрождали» их.</p>
+  <p>Учёных той эпохи называли <b>гуманистами</b> (от латинского «человечный»): они верили в силу человеческого ума и таланта. Одним из первых гуманистов был поэт <b>Франческо Петрарка</b>.</p>
+  <p>Великие художники Возрождения: <b>Леонардо да Винчи</b> («Мона Лиза»), <b>Микеланджело</b> (статуя Давида, роспись Сикстинской капеллы), <b>Рафаэль</b> («Сикстинская мадонна»).</p>
+  <p>Около <b>1450 года</b> немец <b>Иоганн Гутенберг</b> изобрёл в Европе <b>книгопечатание</b>: книги стали дешевле и доступнее.</p>
+  <p>В <b>1492 году</b> <b>Христофор Колумб</b> доплыл до Америки, а в 1498 году <b>Васко да Гама</b> открыл морской путь в Индию. Начинается Новое время!</p>`,
+  tasks:[
+   {type:'match', prompt:'Соедини имя с тем, чем этот человек прославился.', pairs:[
+    ['Гутенберг','Изобрёл в Европе книгопечатание'],
+    ['Леонардо да Винчи','Написал картину «Мона Лиза»'],
+    ['Микеланджело','Создал статую Давида'],
+    ['Петрарка','Поэт, один из первых гуманистов'],
+    ['Колумб','В 1492 году доплыл до Америки'],
+    ['Васко да Гама','Открыл морской путь в Индию']
+   ]},
+   {type:'quiz', questions:[
+    {q:'В какой стране началась эпоха Возрождения?',o:['В Италии','В Англии','В Японии','В Мали'],e:'Итальянские города — Флоренция, Венеция, Рим — были богатыми, там хранились памятники Древнего Рима.'},
+    {q:'Почему эпоху назвали Возрождением?',o:['Возрождали науку и искусство Древней Греции и Рима','Люди перестали болеть чумой','Возродилась Византийская империя','Снова начались крестовые походы'],e:'Гуманисты изучали древних авторов и подражали античным мастерам.'}
+   ]}
+  ]
+},
+{ id:'v5', name:'Свиток летописца', place:'Итог главы', i:'📜', x:200, y:1090,
+  lesson:`<p>Средневековье подходит к концу! Осталось последнее испытание главы — <b>Свиток летописца</b>.</p>
+  <p>Пройдёшь — получишь <b>перо летописца</b> и грамоту, а дальше тебя ждёт <b>замок итогового испытания</b>.</p>`,
+  tasks:[
+   {type:'sort', prompt:'Где это было? Нажми на нужную страну.', done:'Ты знаешь, где что было!',
+    bins:[{n:'Англия',i:'🌹'},{n:'Франция',i:'⚜️'},{n:'Османская империя',i:'🌙'}],
+    items:[['Уот Тайлер',0],['Жакерия',1],['Мехмед II',2],['Эдуард III',0],['Орлеан',1],['Янычары',2],['Война Алой и Белой розы',0],['Жанна д’Арк',1],['Стамбул',2],['Реймс',1]]},
+   {type:'order', plain:true, prompt:'Расставь события по порядку — от раннего к позднему.', labels:['1-е','2-е','3-е','4-е','5-е'],
+    items:['Начало Столетней войны','«Чёрная смерть» приходит в Европу','Жанна д’Арк освобождает Орлеан','Падение Константинополя','Колумб доплывает до Америки'],
+    e:'Верно! 1337 → 1347 → 1429 → 1453 → 1492.'},
+   {type:'fill', prompt:'Вставь пропущенное слово.', questions:[
+    {q:'Жанну д’Арк называли ___ девой.',o:['Орлеанской','Парижской','Лондонской'],e:'Она освободила Орлеан в 1429 году.'},
+    {q:'Эпидемию чумы назвали «___ смертью».',o:['Чёрной','Белой','Алой'],e:'Она погубила треть жителей Европы.'},
+    {q:'После 1453 года Константинополь стал называться ___.',o:['Стамбулом','Римом','Каиром'],e:'Он стал столицей Османской империи.'},
+    {q:'Книгопечатание в Европе изобрёл Иоганн ___.',o:['Гутенберг','Гус','Тайлер'],e:'Это случилось около 1450 года.'},
+    {q:'Учёных эпохи Возрождения называли ___.',o:['гуманистами','янычарами','гуситами'],e:'Они верили в силу человеческого разума.'}
+   ]}
+  ]
+}
+];
+
 const QUESTS={
  med1:{id:'med1',title:'Средневековое европейское общество. Часть 1',short:'Средневековое общество. Ч. 1',stations:MED1,
   hint:'Пройди по дороге от деревни до замка. Каждое испытание открывает следующее.',
@@ -364,7 +458,11 @@ const QUESTS={
  asia:{id:'asia',title:'Страны и народы Азии, Африки и Америки в Средние века',short:'Азия, Африка, Америка',stations:ASIA,
   hint:'Спускайся по карте вниз — от степей Азии через Африку к Америке. Каждое испытание открывает следующее.',
   intro:n=>`<div style="text-align:center;font-size:50px">🧭</div><h2 style="text-align:center">Кругосветное путешествие!</h2><p style="line-height:1.5">${n?esc(n)+', пока':'Пока'} в Европе строили замки, в других частях света жили великие народы: монголы, китайцы, японцы, индийцы, африканцы и индейцы Америки.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>7 испытаний</b> и получи <b>компас великого путешественника</b>!</p>`,
-  reward:'компас великого путешественника',rewardIcon:'🧭🌏🧭',next:'Скоро откроется глава VI — <b>Осень Средневековья</b>!',bg:'linear-gradient(#1f5a6e,#12303d)',svg:()=>asiaSVG(),down:true}
+  reward:'компас великого путешественника',rewardIcon:'🧭🌏🧭',next:'Дальше тебя ждёт глава VI — <b>Осень Средневековья</b>!',bg:'linear-gradient(#1f5a6e,#12303d)',svg:()=>asiaSVG(),down:true},
+ autumn:{id:'autumn',title:'Осень Средневековья',short:'Осень Средневековья',stations:AUTUMN,
+  hint:'Спускайся по карте вниз — от полей Столетней войны к стенам Константинополя и мастерским Возрождения.',
+  intro:n=>`<div style="text-align:center;font-size:50px">🍂</div><h2 style="text-align:center">Осень Средневековья</h2><p style="line-height:1.5">${n?esc(n)+', на':'На'} дворе XIV–XV века. Европу ждут долгие войны, страшная чума и восстания. Падёт Константинополь — а в Италии зародится новая эпоха.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>5 испытаний</b> и получи <b>перо летописца</b>!</p>`,
+  reward:'перо летописца',rewardIcon:'🪶📜🪶',next:'В конце дороги глав стоит <b>замок итогового испытания</b> — скоро его ворота откроются!',bg:'linear-gradient(#7a3e14,#3b1d0a)',svg:()=>autumnSVG(),down:true}
 };
 let Q=QUESTS.med1,STATIONS=Q.stations;
 function setQuest(id){Q=QUESTS[id];STATIONS=Q.stations}
@@ -459,7 +557,8 @@ function classes(){
  <div class="top"><span style="width:44px"></span><h1 class="ttl">Путешествие<br>в страну знаний</h1>${soundBtn()}</div>
  <div class="guide"><div class="owl">🦉</div><div class="bubble">Привет${save.name?', <b>'+esc(save.name)+'</b>':''}! Я сова <b>Мудрослава</b>. Выбери свой класс — и отправимся в путь! ${ts?`У тебя уже ⭐ ${ts}.`:''}</div></div>
  <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
- <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>`,
+ <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>
+ <div class="build">Сборка ${BUILD}</div>`,
  'radial-gradient(circle at 50% 20%,#3d7fa6,#173b55)');
  bindSound();
  $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(g===6){SFX.click();world()}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
@@ -479,9 +578,9 @@ function tree(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><
 function mountain(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><path d="M-26,0 L0,-36 L26,0Z" fill="#9b8a6e" stroke="#6b5a42" stroke-width="1.5"/><path d="M-8,-25 L0,-36 L8,-25 L3,-21 L0,-25 L-4,-21Z" fill="#fff"/></g>`}
 function wrapText(t,max){const w=t.split(' '),L=[];let c='';for(const x of w){if((c+' '+x).trim().length>max&&c){L.push(c);c=x}else c=(c+' '+x).trim()}if(c)L.push(c);return L}
 function historyMap(){
- const N=CHAPTERS.length,top=120,gap=165,H=top+(N-1)*gap+150;
+ const N=CHAPTERS.length,top=120,gap=165,Cy=top+(N-1)*gap+300,H=Cy+70;
  const pos=CHAPTERS.map((c,i)=>[i%2?290:110,top+i*gap]);
- const pts=[[200,58],...pos,[200,H-20]];
+ const pts=[[200,58],...pos,[200,Cy-6]];
  let deco='';
  const r=rng(5);
  pos.forEach(([x,y],i)=>{const ox=x<200?345:55;deco+=mountain(ox,y+10,.75)+tree(ox+(x<200?-30:30),y+40,.9)+tree(ox+(x<200?20:-22),y+70,.8)+tree(x<200?30:370,y-55,.8)});
@@ -503,7 +602,7 @@ function historyMap(){
   </g>`});
  screen(`
  <div class="top"><button class="btn ghost" id="back">← Предметы</button><h2 class="ttl">Остров Истории · 6 класс</h2>${soundBtn()}</div>
- <div class="guide"><div class="owl">🦉</div><div class="bubble">Это главы учебника «История Средних веков». Иди по дороге <b>сверху вниз</b>. Открыты главы <b>III</b> и <b>V</b>!</div></div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Это главы учебника «История Средних веков». Иди по дороге <b>сверху вниз</b>. В конце пути тебя ждёт <b>Замок знаний</b> с итоговым испытанием!</div></div>
  <svg viewBox="0 0 400 ${H}" class="map">
   <defs><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7e8c4"/><stop offset=".5" stop-color="#ecd5a2"/><stop offset="1" stop-color="#f3e0b5"/></linearGradient>
   <marker id="arw" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10Z" fill="#8a4a1e"/></marker></defs>
@@ -511,13 +610,38 @@ function historyMap(){
   <rect x="8" y="8" width="384" height="${H-16}" rx="14" fill="none" stroke="#8a6232" stroke-width="2" stroke-dasharray="7 5"/>
   ${deco}
   <path d="${smoothOpen(pts)}" stroke="#8a4a1e" stroke-width="4" fill="none" stroke-dasharray="2 9" stroke-linecap="round"/>
-  <path d="M200,${H-40} v18" stroke="#8a4a1e" stroke-width="4" marker-end="url(#arw)"/>
+  ${finalCastle(200,Cy)}
   ${ribbon(200,36,'История Средних веков',18)}
   ${nodes}
  </svg>`,'linear-gradient(#6b4a2a,#3e2a17)');
  bindSound();
  $('#back').onclick=()=>{SFX.click();world()};
  $$('[data-ch]').forEach(g=>g.onclick=()=>chapterModal(+g.dataset.ch));
+ $('[data-final]').onclick=finalModal;
+}
+function finalCastle(x,y){
+ const cren=(x0,x1,yy)=>{let t='';for(let k=x0;k<x1;k+=11)t+=`<rect x="${k}" y="${yy-7}" width="7" height="7" fill="#b4ab9b" stroke="#6d6458" stroke-width=".8"/>`;return t};
+ return `<g class="node" data-final="1" transform="translate(${x},${y})">
+  <ellipse cx="0" cy="4" rx="150" ry="16" fill="#7aa85a" opacity=".55"/>
+  <rect x="-95" y="-90" width="190" height="90" fill="#c4bba9" stroke="#6d6458" stroke-width="1.5"/>${cren(-95,95,-90)}
+  <rect x="-125" y="-128" width="40" height="128" fill="#b4ab9b" stroke="#6d6458"/><path d="M-130,-128 L-105,-170 L-80,-128Z" fill="#a8322a" stroke="#5a1a10"/>
+  <rect x="85" y="-128" width="40" height="128" fill="#b4ab9b" stroke="#6d6458"/><path d="M80,-128 L105,-170 L130,-128Z" fill="#a8322a" stroke="#5a1a10"/>
+  <rect x="-35" y="-160" width="70" height="80" fill="#bdb4a3" stroke="#6d6458" stroke-width="1.5"/>${cren(-35,35,-160)}
+  <path d="M0,-167 v-48" stroke="#4a3a2a" stroke-width="3"/>
+  <path d="M0,-215 C14,-221 26,-209 44,-214 L44,-190 C26,-185 14,-197 0,-191Z" fill="#d9a234" stroke="#8a6214"><animate attributeName="d" dur="1.6s" repeatCount="indefinite" values="M0,-215 C14,-221 26,-209 44,-214 L44,-190 C26,-185 14,-197 0,-191Z;M0,-215 C14,-209 26,-221 44,-212 L44,-188 C26,-197 14,-185 0,-191Z;M0,-215 C14,-221 26,-209 44,-214 L44,-190 C26,-185 14,-197 0,-191Z"/></path>
+  <text x="20" y="-197" font-size="13" text-anchor="middle">🦉</text>
+  <rect x="-110" y="-110" width="8" height="14" rx="4" fill="#3b2a1a"/><rect x="102" y="-110" width="8" height="14" rx="4" fill="#3b2a1a"/><rect x="-5" y="-140" width="10" height="18" rx="5" fill="#3b2a1a"/>
+  <rect x="-65" y="-62" width="10" height="16" rx="5" fill="#3b2a1a"/><rect x="55" y="-62" width="10" height="16" rx="5" fill="#3b2a1a"/>
+  <path d="M-26,0 v-38 a26,26 0 0 1 52,0 v38Z" fill="#5a3a1a" stroke="#3b2210" stroke-width="2"/>
+  ${[0,1,2,3,4].map(k=>`<path d="M${-22+k*11},-58 v58" stroke="#2b1a0a" stroke-width="2" opacity=".7"/>`).join('')}<path d="M-24,-30 h48 M-26,-14 h52" stroke="#2b1a0a" stroke-width="2" opacity=".7"/>
+  <text x="0" y="-20" font-size="20" text-anchor="middle">🔒</text>
+  ${ribbon(0,32,'Замок знаний · Итоговое испытание',14)}
+ </g>`}
+function finalModal(){
+ SFX.click();
+ const rows=CHAPTERS.map(c=>{const qs=c.quests.filter(q=>q.id).map(q=>QUESTS[q.id]);if(!qs.length)return `<div class="small" style="opacity:.55;margin:4px 0">🔒 Глава ${c.n} — скоро</div>`;const ok=qs.every(questDone);return `<div class="small" style="margin:4px 0">${ok?'✅':'⬜'} Глава ${c.n}: ${esc(c.t)}</div>`}).join('');
+ const o=modal(`<div style="text-align:center;font-size:50px">🏰</div><h2 style="text-align:center">Замок знаний</h2><p style="line-height:1.45">Здесь будет <b>итоговое испытание</b> по всей истории Средних веков. Ворота пока закрыты — проходи главы и собирай звёзды!</p>${rows}<button class="btn wide" style="margin-top:12px" id="cl">Понятно</button>`);
+ $('#cl',o).onclick=()=>o.remove();
 }
 function chapterModal(i){
  const c=CHAPTERS[i];
@@ -531,6 +655,38 @@ function chapterModal(i){
 }
 
 /* ================= ЭКРАН 3: КАРТА КВЕСТА ================= */
+/* ---- рисунки для карты главы VI ---- */
+const atree=(x,y,s=1,c='#d9772b')=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-2" y="-2" width="4" height="11" fill="#5a3a1a"/><circle cy="-8" r="10" fill="${c}"/><circle cx="-6" cy="-4" r="6" fill="#e9a23b"/><circle cx="6" cy="-5" r="6" fill="#b8501f"/></g>`;
+const leaf=(x,y,r)=>`<path d="M${x},${y} q4,-6 9,-2 q-3,6 -9,2Z" fill="${['#d9772b','#e9a23b','#b8501f','#c9952b'][Math.floor(r*4)]}" transform="rotate(${Math.floor(r*360)} ${x} ${y})" opacity=".8"/>`;
+function tent(x,y,flag){const eng=flag==='en';return `<g transform="translate(${x},${y})"><path d="M-18,0 L0,-26 L18,0Z" fill="${eng?'#f4efe2':'#3f6fa8'}" stroke="#5a4a3a"/><path d="M-5,0 L0,-26 L5,0Z" fill="${eng?'#c0503f':'#f4efe2'}"/><path d="M0,-26 v-14" stroke="#5a3a1a" stroke-width="1.6"/>${eng?`<rect x="0" y="-40" width="16" height="10" fill="#fff" stroke="#999" stroke-width=".5"/><path d="M8,-40 v10 M0,-35 h16" stroke="#c62f24" stroke-width="2.2"/>`:`<rect x="0" y="-40" width="16" height="10" fill="#2f5aa8"/><text x="8" y="-32" font-size="8" text-anchor="middle" fill="#f2c94c">⚜</text>`}</g>`}
+const dhouse=(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-12" y="-14" width="24" height="18" fill="#7a6a5a" stroke="#3b2f25"/><path d="M-15,-14 L0,-28 L15,-14Z" fill="#4a3a30" stroke="#2b2018"/><rect x="-4" y="-6" width="8" height="10" fill="#2b2018"/><rect x="5" y="-11" width="5" height="5" fill="#e9c46a" opacity=".7"/></g>`;
+function sofia(x,y){return `<g transform="translate(${x},${y})">${[-44,44].map(t=>`<rect x="${t-3}" y="-70" width="6" height="70" fill="#e8d6b0" stroke="#8a7454"/><path d="M${t-4},-70 L${t},-84 L${t+4},-70Z" fill="#6b7f99"/>`).join('')}<rect x="-34" y="-22" width="68" height="22" fill="#d9a979" stroke="#8a5a34"/><path d="M-26,-22 Q0,-62 26,-22Z" fill="#a7b7c8" stroke="#5a6a7a"/><path d="M-36,-22 Q-30,-36 -20,-24Z M36,-22 Q30,-36 20,-24Z" fill="#a7b7c8" stroke="#5a6a7a"/><path d="M0,-50 v-8" stroke="#d9a234" stroke-width="2"/><circle cy="-60" r="3" fill="none" stroke="#d9a234" stroke-width="1.5"/>${[-22,-10,2,14].map(t=>`<rect x="${t}" y="-14" width="6" height="10" rx="3" fill="#5a3a20"/>`).join('')}</g>`}
+function cwall(x1,x2,y){let g=`<rect x="${x1}" y="${y-16}" width="${x2-x1}" height="16" fill="#b9a382" stroke="#6b5a42"/>`;for(let x=x1;x<x2;x+=10)g+=`<rect x="${x}" y="${y-22}" width="6" height="6" fill="#b9a382" stroke="#6b5a42" stroke-width=".8"/>`;return g}
+const duomo=(x,y)=>`<g transform="translate(${x},${y})"><rect x="-38" y="-20" width="76" height="20" fill="#efe2c4" stroke="#7a5a30"/>${[-30,-18,-6,6,18].map(t=>`<rect x="${t}" y="-16" width="6" height="12" fill="#3f7d5a" opacity=".6"/>`).join('')}<rect x="-20" y="-34" width="40" height="14" fill="#efe2c4" stroke="#7a5a30"/><path d="M-18,-34 Q-16,-66 0,-72 Q16,-66 18,-34Z" fill="#c0603a" stroke="#7a3a1a"/>${[-8,0,8].map(t=>`<path d="M${t},-34 Q${t*.6},-58 0,-72" stroke="#efe2c4" stroke-width="1.5" fill="none"/>`).join('')}<rect x="-4" y="-80" width="8" height="8" fill="#efe2c4" stroke="#7a5a30"/><rect x="48" y="-70" width="14" height="70" fill="#efe2c4" stroke="#7a5a30"/><path d="M48,-70 h14" stroke="#c0603a" stroke-width="3"/></g>`;
+const caravel=(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})" class="bob"><path d="M-34,-6 L34,-6 L24,8 L-26,8Z" fill="#7a4a24" stroke="#3b2210"/><path d="M-34,-6 L-38,-14 L-24,-6Z" fill="#7a4a24"/><path d="M-8,-6 V-58 M14,-6 V-46 M-26,-6 V-36" stroke="#3b2210" stroke-width="2"/><path d="M-22,-52 Q-8,-44 6,-52 L6,-20 Q-8,-14 -22,-20Z" fill="#f4efe2" stroke="#8a7a5a"/><path d="M-14,-40 h12 M-8,-46 v12" stroke="#c62f24" stroke-width="3"/><path d="M4,-42 Q14,-36 24,-42 L24,-16 Q14,-12 4,-16Z" fill="#f4efe2" stroke="#8a7a5a"/><path d="M-26,-34 L-40,-14 L-26,-12Z" fill="#f4efe2" stroke="#8a7a5a"/><path d="M-8,-58 l10,3 -10,3" fill="#c62f24"/></g>`;
+function autumnSVG(){
+ const H=1240,r=rng(23);
+ let d=`<rect width="400" height="${H}" fill="#e2b46a"/>`;
+ for(let i=0;i<6;i++)d+=`<path d="M0,${30+i*42} Q200,${18+i*42} 400,${34+i*42}" stroke="#c99a4e" stroke-width="10" fill="none" opacity=".45"/>`;
+ d+=tent(250,120,'en')+tent(290,138,'en')+tent(330,118,'en')+tent(270,235,'fr')+tent(318,250,'fr')+tent(360,232,'fr')+emo(300,190,'⚔️',22)+atree(30,90)+atree(190,60,.9)+atree(40,260,1.1)+atree(365,60,.9);
+ d+=band(300,'#9a8b78')+dhouse(40,380)+dhouse(80,400,1.1)+dhouse(130,375)+dhouse(55,450,1.2)+dhouse(120,455)+dhouse(175,470,.9)+emo(160,420,'🐀',18)+emo(30,480,'🐀',16)+emo(200,345,'🕯️',18)+emo(360,470,'🌫️',26)+atree(370,330,.9,'#8a5a2a');
+ d+=band(520,'#cbb489');
+ d+=`<path d="M230,${560} Q300,${540} 400,${560} V740 H260 Q240,640 230,560Z" fill="#5ea8c9"/>`;
+ d+=cwall(220,330,712)+sofia(300,690)+emo(370,610,'⛵',22)+emo(380,690,'⛵',18)+emo(60,560,'🌙',20)+atree(30,700,1,'#c9952b')+emo(200,580,'💣',18);
+ d+=band(750,'#e8b98a');
+ d+=duomo(90,895)+atree(180,920,.9)+atree(25,820,.9,'#c9952b')+emo(170,800,'🎨',22)+emo(40,930,'📖',22)+emo(370,940,'🖋️',20);
+ d+=band(985,'#efd9a8');
+ d+=`<path d="M0,1150 Q100,1135 200,1150 T400,1145 V${H} H0Z" fill="#4f9cc0"/>`;
+ for(let i=0;i<10;i++){const x=r()*380+10,y=1165+r()*65;d+=`<path d="M${x.toFixed(0)},${y.toFixed(0)} q5,-4 10,0 q5,-4 10,0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".45"/>`}
+ d+=caravel(330,1195,1)+caravel(70,1205,.75)+emo(60,1060,'🧭',24)+emo(345,1060,'🗺️',24);
+ for(let i=0;i<26;i++)d+=leaf(10+r()*380,20+r()*(H-140),r());
+ d+=ribbon(300,40,'Франция',13,'#7a3a10')+ribbon(110,325,'Год чумы',13,'#3b2f25')+ribbon(300,545,'Константинополь',13,'#2a4a6a')+ribbon(110,775,'Италия',13,'#8a3a1a')+ribbon(300,1010,'Новое время',13,'#2a5a6a');
+ const pts=[[200,8],...STATIONS.map(s=>[s.x,s.y])];
+ let road=`<path d="${smoothOpen(pts)}" stroke="#f6e6c0" stroke-width="16" fill="none" stroke-linecap="round" opacity=".9"/><path d="${smoothOpen(pts)}" stroke="#a0804a" stroke-width="2.2" fill="none" stroke-dasharray="6 8"/>`;
+ for(let i=0;i<pts.length-1;i++){const[x1,y1]=pts[i],[x2,y2]=pts[i+1],mx=(x1+x2)/2,my=(y1+y2)/2;road+=`<path d="M${mx-7},${my-5} L${mx+7},${my-5} L${mx},${my+6}Z" fill="#8a4a1e" opacity=".85"/>`}
+ return `<svg viewBox="0 0 400 ${H}" class="map" id="qsvg">${d}${road}${stationNodes()}</svg>`;
+}
+
 function stationNodes(){
  const cur=STATIONS.findIndex((s,i)=>unlocked(i)&&!starsOf(s.id));
  let nodes='';
