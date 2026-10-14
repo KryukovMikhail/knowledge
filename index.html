@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Путешествие в страну знаний</title>
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#3b2a1a;--parch:#f6e7c6;--gold:#d9a234;--gold-d:#8a6214;--red:#a8322a;--green:#3f7d3a;--shadow:0 6px 18px rgba(0,0,0,.28)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;color:var(--ink);font-family:'PT Sans',system-ui,sans-serif;font-size:16px}
+body{background:#1d5a7a;transition:background .4s}
+#app{max-width:620px;margin:0 auto;position:relative}
+.screen{min-height:100vh;display:flex;flex-direction:column;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1,h2,h3{font-family:'Philosopher',Georgia,serif;margin:0}
+.top{display:flex;align-items:center;gap:8px}
+.top .ttl{flex:1;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5);line-height:1.1}
+.top h1.ttl{font-size:27px;text-align:center}
+.top h2.ttl{font-size:19px}
+.btn{font:inherit;font-weight:700;border:none;border-radius:14px;padding:13px 20px;background:var(--gold);color:#2b1a08;box-shadow:0 4px 0 var(--gold-d),var(--shadow);cursor:pointer;font-size:17px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gold-d)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btn.green{background:#5fae55;color:#fff;box-shadow:0 4px 0 #2f6b29,var(--shadow)}
+.btn.ghost{background:rgba(255,255,255,.16);color:#fff;box-shadow:none;padding:9px 13px;font-size:15px}
+.btn.ghost:active{transform:none;background:rgba(255,255,255,.28)}
+.btn.wide{width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row .btn{flex:1}
+.card{background:var(--parch);border-radius:16px;padding:16px;box-shadow:var(--shadow);border:2px solid #c09a58;position:relative}
+.map{width:100%;height:auto;display:block;border-radius:18px;box-shadow:var(--shadow);user-select:none;-webkit-user-select:none}
+svg text{font-family:'Philosopher',Georgia,serif}
+.node{cursor:pointer}
+.node:active{opacity:.8}
+.locked{filter:grayscale(.75) brightness(.92)}
+.pulse{animation:pulse 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:.15;transform:scale(1.35)}}
+.bob{animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.guide{display:flex;gap:10px;align-items:flex-end}
+.owl{font-size:44px;line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));flex:none}
+.bubble{background:#fffaf0;border-radius:16px 16px 16px 4px;padding:11px 14px;box-shadow:var(--shadow);font-size:15.5px;line-height:1.35}
+.foot{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(30,20,10,.92);color:#fff;padding:11px 16px;border-radius:12px;z-index:50;max-width:90vw;text-align:center;animation:fade .25s;font-size:15px}
+.overlay{position:fixed;inset:0;background:rgba(10,10,20,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:40;animation:fade .25s}
+.overlay .card{max-width:440px;width:100%}
+input.name{font:inherit;font-size:18px;width:100%;padding:12px;border-radius:12px;border:2px solid #c09a58;background:#fffaf0;margin:12px 0}
+/* task */
+.thead{display:flex;align-items:center;gap:8px;color:#fff}
+.thead .tt{flex:1;font-family:'Philosopher',serif;font-size:18px;line-height:1.15;text-shadow:0 2px 4px rgba(0,0,0,.4)}
+.chip{background:rgba(255,255,255,.18);border-radius:10px;padding:6px 10px;font-weight:700;font-size:14px;white-space:nowrap}
+.bar{height:8px;background:rgba(255,255,255,.2);border-radius:8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--gold);border-radius:8px;transition:width .4s}
+.lesson h2{font-size:23px;margin-bottom:8px}
+.lesson p{line-height:1.5;margin:8px 0;font-size:16.5px}
+.lesson .scrollic{font-size:46px;text-align:center}
+.lesson b{color:#7a3b10}
+.qnum{font-size:13px;color:#8a6a3a;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.qtext{font-size:19px;font-weight:700;margin:8px 0 6px;line-height:1.35}
+.opt{display:block;width:100%;text-align:left;margin:9px 0;padding:13px 14px;border-radius:13px;border:2px solid #c9a65a;background:#fffaf0;font:inherit;font-size:16.5px;color:var(--ink);cursor:pointer;transition:background .15s}
+.opt:active{background:#f3e4bf}
+.opt.ok{background:#cdeec2;border-color:var(--green)}
+.opt.bad{background:#f6cbc5;border-color:var(--red)}
+.opt.dim{opacity:.55}
+.opts.tf{display:flex;gap:10px}
+.opts.tf .opt{text-align:center;font-weight:700;font-size:18px}
+.expl{margin-top:10px;padding:11px 13px;border-radius:12px;background:#fff3d6;border-left:5px solid var(--gold);line-height:1.4;animation:fade .3s}
+.expl.good{border-color:var(--green);background:#eaf7e4}
+.expl.wrong{border-color:var(--red);background:#fbe9e6}
+.blank{display:inline-block;min-width:80px;border-bottom:3px solid var(--gold);text-align:center;color:var(--green)}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+/* sort */
+.sortcard{font-size:24px;font-weight:700;text-align:center;padding:22px 12px;background:#fffaf0;border:3px dashed #c09a58;border-radius:16px;margin:8px 0 14px;font-family:'Philosopher',serif}
+.sortcard small{display:block;font-size:14px;font-weight:400;font-family:'PT Sans',sans-serif;color:#7a5a30;margin-top:4px}
+.bins{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bin{font:inherit;border:2px solid #b58b45;border-radius:14px;background:#efd9a8;padding:10px 6px;cursor:pointer;color:var(--ink);min-height:120px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bin:active{background:#e6cb8e}
+.bin .bi{font-size:30px}
+.bin .bn{font-weight:700;font-size:14px;line-height:1.1}
+.bin .bl{font-size:12px;color:#5b4220;line-height:1.25;text-align:center}
+.left{text-align:center;color:#7a5a30;font-size:14px;margin-top:10px}
+/* match */
+.terms{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}
+.term{font:inherit;font-weight:700;padding:11px 4px;border-radius:12px;border:2px solid #b58b45;background:#efd9a8;cursor:pointer;color:var(--ink);font-size:15.5px}
+.def{font:inherit;display:block;width:100%;text-align:left;padding:11px 12px;margin:7px 0;border-radius:12px;border:2px solid #c9a65a;background:#fffaf0;cursor:pointer;color:var(--ink);font-size:15.5px;line-height:1.3}
+.sel{outline:4px solid #4a90c8;outline-offset:1px}
+.term.done,.def.done{background:#cdeec2;border-color:var(--green);pointer-events:none;opacity:.75}
+.def.done::before{content:attr(data-t) ' — ';font-weight:700}
+.flash{background:#f6cbc5!important;border-color:var(--red)!important}
+/* order */
+.ladder{display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px 0}
+.step{font:inherit;font-weight:700;font-size:16px;border-radius:10px;padding:11px 8px;border:2px dashed #b58b45;background:#fbf1da;color:#9b7b4b;cursor:pointer;min-height:46px;display:flex;align-items:center;justify-content:center;gap:6px}
+.step.full{border-style:solid;background:#efd9a8;color:var(--ink)}
+.step.ok{background:#cdeec2;border-color:var(--green)}
+.step.bad{background:#f6cbc5;border-color:var(--red)}
+.pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0 12px}
+.pool .term{padding:10px 14px}
+/* result */
+.res{text-align:center}
+.bigstars{font-size:52px;letter-spacing:6px;margin:10px 0}
+.bigstars span{display:inline-block;animation:pop .5s backwards}
+.bigstars span:nth-child(2){animation-delay:.25s}.bigstars span:nth-child(3){animation-delay:.5s}
+@keyframes pop{from{transform:scale(0) rotate(-90deg)}}
+.gray{color:#c9b998}
+.gold{color:#e6a817;text-shadow:0 2px 0 #9b6d0c}
+.cert{background:radial-gradient(circle at 50% 30%,#fff6dc,#ead09a);border:6px double #9b6d2c;text-align:center;padding:24px 18px}
+.cert h1{font-size:34px;color:#7a2a12}
+.cert .who{font-family:'Philosopher',serif;font-size:28px;color:#3b2a1a;border-bottom:2px solid #9b6d2c;display:inline-block;padding:0 14px;margin:8px 0}
+.seal{width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#d4473b,#8e1d14);color:#ffdca0;display:flex;align-items:center;justify-content:center;font-size:38px;margin:14px auto 0;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.confetti{position:fixed;top:-30px;font-size:22px;z-index:60;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+.small{font-size:13.5px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* ================= ДАННЫЕ ================= */
+const SUBJECTS=[
+ {id:'history',n:'История',i:'📜',x:200,y:135,rx:92,ry:66,seed:3,land:'#b9cf6c',active:true},
+ {id:'math',n:'Математика',i:'📐',x:95,y:288,rx:68,ry:50,seed:11,land:'#9cc77a'},
+ {id:'rus',n:'Русский язык',i:'✍️',x:305,y:292,rx:70,ry:52,seed:21,land:'#9cc77a'},
+ {id:'lit',n:'Литература',i:'📖',x:100,y:442,rx:66,ry:50,seed:31,land:'#9cc77a'},
+ {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a'},
+ {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
+];
+const HIST=[
+ {id:'med1',t:'Средневековое европейское',t2:'общество. Часть 1',i:'🏰',x:100,y:548,active:true},
+ {id:'med2',t:'Средневековое европейское',t2:'общество. Часть 2',i:'🏘️',x:298,y:470},
+ {id:'church',t:'Католическая',t2:'церковь',i:'⛪',x:105,y:388},
+ {id:'cross',t:'Крестовые',t2:'походы',i:'⚔️',x:296,y:305},
+ {id:'byz',t:'Византийская',t2:'империя',i:'🏛️',x:105,y:222},
+ {id:'rus',t:'Древняя',t2:'Русь',i:'🛡️',x:292,y:140}
+];
+const TOPIC_TITLE='Средневековое европейское общество. Часть 1';
+
+const STATIONS=[
+{ id:'s1', name:'Три сословия', place:'Деревня', i:'🏘️', x:95, y:612,
+  lesson:`<p>В Средние века люди считали, что общество делится на <b>три сословия</b> — большие группы людей с разными правами и обязанностями.</p>
+  <p>🙏 <b>Молящиеся</b> — духовенство: священники, монахи, епископы. Они молятся за всех людей.<br>⚔️ <b>Воюющие</b> — феодалы: король, герцоги, графы, бароны, рыцари. Они защищают страну.<br>🌾 <b>Трудящиеся</b> — крестьяне. Они кормят всех своим трудом.</p>
+  <p>Обычно человек принадлежал к сословию <b>по рождению</b> — так же, как его родители.</p>`,
+  tasks:[{type:'sort', prompt:'Кто к какому сословию относится? Нажми на нужную корзину.',
+    bins:[{n:'Молящиеся',i:'🙏'},{n:'Воюющие',i:'⚔️'},{n:'Трудящиеся',i:'🌾'}],
+    items:[['Монах',0],['Рыцарь',1],['Пахарь',2],['Епископ',0],['Граф',1],['Пастух',2],['Аббат','0','настоятель монастыря'],['Барон',1],['Крестьянка-пряха',2],['Священник',0],['Герцог',1],['Жнец',2]]}]
+},
+{ id:'s2', name:'Крестьянская община', place:'Поля', i:'🌾', x:300, y:545,
+  lesson:`<p>Большинство жителей средневековой Европы были <b>крестьянами</b>. Многие из них жили на земле феодала и зависели от него.</p>
+  <p>Хозяйство было <b>натуральным</b>: почти всё нужное крестьяне делали сами — выращивали хлеб, пряли, ткали, шили одежду, мастерили инструменты.</p>
+  <p>Крестьяне одной деревни объединялись в <b>общину</b>. Землю пахали по системе <b>трёхполья</b>: одно поле засевали осенью (озимые), другое весной (яровые), а третье отдыхало — его оставляли под <b>пар</b>.</p>`,
+  tasks:[{type:'quiz', questions:[
+   {q:'Что такое натуральное хозяйство?',o:['Хозяйство, где почти всё нужное производят сами, а не покупают','Хозяйство, где всё выращенное продают на рынке','Хозяйство, где работают только летом','Хозяйство, которое принадлежит королю'],e:'При натуральном хозяйстве люди сами обеспечивают себя едой, одеждой и инструментами. Покупали лишь то, чего не могли сделать сами: соль, железо.'},
+   {q:'Как называлось объединение крестьян одной деревни?',o:['Община','Цех','Гильдия','Орден'],e:'Крестьяне объединялись в общину. А цехи — это объединения ремесленников в городах, о них будет во второй части.'},
+   {q:'При трёхполье пашню делили на три части. Что было с третьей частью?',o:['Её оставляли под пар — земля отдыхала','Там сажали лес','Там пасли королевских коней','Там строили дома'],e:'Озимые, яровые и пар каждый год менялись местами. Отдохнувшая земля давала лучший урожай.'},
+   {q:'Что решала крестьянская община?',o:['Когда начинать полевые работы, как пользоваться лесом и пастбищами','Кого посвятить в рыцари','Кто станет королём','Кого назначить епископом'],e:'Община сообща распределяла участки, решала, когда пахать и сеять, как пользоваться лугами, лесом и водой.'},
+   {q:'Почему крестьяне редко покупали вещи?',o:['Почти всё делали сами в своём хозяйстве','Рынков тогда совсем не было','Покупать запрещала церковь','Денег не существовало'],e:'Рынки и деньги были, но крестьянам они были мало нужны: хозяйство было натуральным.'}
+  ]}]
+},
+{ id:'s3', name:'Словарь сеньора', place:'Дом старосты', i:'📜', x:100, y:470,
+  lesson:`<p>Главным богатством в Средние века была <b>земля</b>. Король раздавал земли своим приближённым за службу, а те — своим людям.</p>
+  <p>Тот, кто давал землю, назывался <b>сеньором</b> (господином), а тот, кто её получал и обязывался служить, — <b>вассалом</b>. Земельное владение, полученное за службу, — это <b>феод</b>.</p>
+  <p>Крестьяне выполняли для феодала <b>повинности</b>: <b>барщину</b> и <b>оброк</b>, а церкви отдавали <b>десятину</b>.</p>`,
+  tasks:[{type:'match', prompt:'Соедини слово с его значением: нажми на слово, потом на объяснение.', pairs:[
+   ['Феод','Земельное владение, которое сеньор передавал вассалу за военную службу'],
+   ['Сеньор','Господин, который даёт землю вассалу'],
+   ['Вассал','Тот, кто получил землю и обязан служить сеньору'],
+   ['Барщина','Работа крестьян на поле и в хозяйстве феодала'],
+   ['Оброк','Часть урожая, продукты или деньги, которые крестьяне отдают феодалу'],
+   ['Десятина','Десятая часть доходов в пользу церкви']
+  ]}]
+},
+{ id:'s4', name:'Феодальная лестница', place:'Королевский шатёр', i:'👑', x:300, y:395,
+  lesson:`<p>Отношения сеньоров и вассалов похожи на <b>лестницу</b>.</p>
+  <p>На самом верху — <b>король</b>, главный сеньор страны. Ниже — <b>герцоги и графы</b>, вассалы короля. Ещё ниже — <b>бароны</b>, вассалы герцогов и графов. А на нижней ступени — <b>рыцари</b>: у них своих вассалов уже не было.</p>
+  <p>Во Франции говорили: <b>«Вассал моего вассала — не мой вассал»</b>. Каждый служил только своему сеньору.</p>
+  <p>Крестьяне в эту лестницу не входили — своим трудом они кормили всех её участников.</p>`,
+  tasks:[
+   {type:'order', prompt:'Построй феодальную лестницу сверху вниз. Нажимай на звания по порядку.', items:['👑 Король','Герцоги и графы','Бароны','Рыцари'], e:'Верно! Король — главный сеньор, а рыцари — нижняя ступень лестницы.'},
+   {type:'quiz', questions:[
+    {q:'Что значили слова «Вассал моего вассала — не мой вассал»?',o:['Сеньор не мог приказывать вассалам своих вассалов','Вассалы могли никому не служить','Рыцари были главнее короля','Все вассалы подчинялись только королю'],e:'Барон служил своему графу, а не королю. Поэтому король не мог напрямую приказать барону — власть короля была слабой.'},
+    {q:'Кто НЕ входил в феодальную лестницу?',o:['Крестьяне','Бароны','Графы','Рыцари'],e:'Феодальная лестница — это только феодалы. Крестьяне трудились на их землях.'}
+   ]}
+  ]
+},
+{ id:'s5', name:'Замок феодала', place:'Стены замка', i:'🏰', x:100, y:322,
+  lesson:`<p>Феодалы жили в <b>замках</b> — каменных крепостях. Замок строили на холме, скале или у реки — там, где его легче защищать.</p>
+  <p>Замок окружали высокие стены с башнями и глубокий <b>ров</b> с водой. Через ров был перекинут <b>подъёмный мост</b>. Из узких щелей в стенах — <b>бойниц</b> — защитники стреляли из луков.</p>
+  <p>Главная башня — <b>донжон</b> — была жилищем феодала и последним убежищем во время осады.</p>`,
+  tasks:[{type:'quiz', questions:[
+   {q:'Как называлась главная башня замка?',o:['Донжон','Минарет','Пагода','Колокольня'],e:'Донжон — самая высокая и прочная башня. В нём жил феодал, там хранили запасы и прятались при осаде.'},
+   {q:'Зачем вокруг замка выкапывали ров с водой?',o:['Чтобы врагу было трудно подойти к стенам','Чтобы ловить рыбу к пиру','Чтобы поливать огород','Для купания рыцарей'],e:'Ров мешал врагам подтащить к стенам лестницы и тараны.'},
+   {q:'Что делали с подъёмным мостом, когда подходил враг?',o:['Поднимали его, закрывая вход','Поджигали','Разбирали на дрова','Украшали флагами'],e:'Мост поднимали на цепях, и он закрывал ворота, как дверь.'},
+   {q:'Где обычно строили замки?',o:['На холме, скале или у реки — где удобно обороняться','В низине среди болот','Посреди ровного поля','Внутри густого леса, подальше от дорог'],e:'С высоты было видно врага издалека, а штурмовать замок на скале очень трудно.'},
+   {q:'Узкие щели в стенах, через которые стреляли из лука, — это…',o:['Бойницы','Витражи','Форточки','Арки'],e:'Бойницы делали узкими снаружи и широкими внутри: защитнику удобно стрелять, а попасть в него трудно.'}
+  ]}]
+},
+{ id:'s6', name:'Посвящение в рыцари', place:'Турнирное поле', i:'🛡️', x:300, y:252,
+  lesson:`<p>Рыцарем становились не сразу. Мальчика из знатной семьи лет в 7 отдавали <b>пажом</b> ко двору сеньора. Лет в 14 он становился <b>оруженосцем</b> и помогал рыцарю. А примерно в 21 год юношу <b>посвящали в рыцари</b>: вручали меч и шпоры, ударяли по плечу.</p>
+  <p>Рыцарь — это <b>конный воин</b> в доспехах. Рыцари показывали ловкость на <b>турнирах</b> — военных состязаниях. У каждого рыцарского рода был свой <b>герб</b>.</p>
+  <p>Рыцарь должен был следовать <b>кодексу чести</b>: быть верным сеньору, смелым и защищать слабых.</p>`,
+  tasks:[{type:'tf', prompt:'Правда или ложь?', questions:[
+   {q:'Обучение будущего рыцаря начиналось со службы пажом.',a:true,e:'Да, лет с 7 мальчик служил пажом, потом становился оруженосцем.'},
+   {q:'Турнир — это соревнование крестьян в пахоте.',a:false,e:'Нет! Турнир — это военные состязания рыцарей.'},
+   {q:'Оруженосец помогал рыцарю: чистил доспехи и ухаживал за конём.',a:true,e:'Верно, а ещё подавал оружие и сопровождал рыцаря в походах.'},
+   {q:'Рыцари сражались в основном пешими, без коней.',a:false,e:'Нет, рыцарь — это прежде всего конный воин в тяжёлых доспехах.'},
+   {q:'Герб — отличительный знак рыцарского рода, его изображали на щите.',a:true,e:'Да! По гербу на щите узнавали рыцаря, когда лицо было закрыто шлемом.'},
+   {q:'Рыцари платили оброк крестьянам.',a:false,e:'Наоборот: оброк платили крестьяне своему феодалу.'},
+   {q:'По кодексу чести рыцарь должен был быть верным сеньору и защищать слабых.',a:true,e:'Верно, а ещё быть смелым, щедрым и держать слово.'}
+  ]}]
+},
+{ id:'s7', name:'Свиток мудреца', place:'Донжон', i:'📖', x:200, y:128,
+  lesson:`<p>Ты почти у цели! В донжоне тебя ждёт <b>Свиток мудреца</b>. В нём пропущены слова — вспомни всё, что узнал, и заполни пропуски.</p>
+  <p>Пройдёшь это испытание — получишь <b>рыцарские шпоры</b> и грамоту!</p>`,
+  tasks:[{type:'fill', prompt:'Вставь пропущенное слово.', questions:[
+   {q:'Духовенство, феодалы и крестьяне — это три ___ средневекового общества.',o:['сословия','государства','ордена'],e:'Молящиеся, воюющие и трудящиеся.'},
+   {q:'Земельное владение, полученное за службу, называлось ___.',o:['феод','оброк','община'],e:'Феод получал вассал от своего сеньора.'},
+   {q:'«Вассал моего вассала — не мой ___».',o:['вассал','сеньор','рыцарь'],e:'Каждый служил только своему сеньору.'},
+   {q:'Работа крестьян в хозяйстве феодала называлась ___.',o:['барщиной','десятиной','турниром'],e:'А продукты или деньги, которые отдавали феодалу, — оброк.'},
+   {q:'Главная башня замка — ___.',o:['донжон','бойница','ров'],e:'Последнее убежище при осаде.'},
+   {q:'Хозяйство, где всё нужное производят сами, называется ___.',o:['натуральным','рыночным','королевским'],e:'Так жило большинство крестьян.'},
+   {q:'Объединение крестьян одной деревни — это ___.',o:['община','цех','турнир'],e:'Община сообща решала деревенские дела.'}
+  ]}]
+}
+];
+STATIONS[0].tasks[0].items[6]=['Аббат',0,'настоятель монастыря'];
+
+/* ================= СОХРАНЕНИЕ ================= */
+const LS='pvsz_v1';
+let save={name:'',stars:{},intro:false,questIntro:false};
+try{const r=localStorage.getItem(LS);if(r)save=Object.assign(save,JSON.parse(r))}catch(e){}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(save))}catch(e){}}
+const starsOf=id=>save.stars[id]||0;
+const totalStars=()=>STATIONS.reduce((s,st)=>s+starsOf(st.id),0);
+const allDone=()=>STATIONS.every(st=>starsOf(st.id)>0);
+const unlocked=i=>i===0||starsOf(STATIONS[i-1].id)>0;
+
+/* ================= ЗВУК ================= */
+let AC=null,soundOn=true,audioUnlocked=false;
+try{const m=localStorage.getItem('pvsz_sound');if(m==='0')soundOn=false}catch(e){}
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+document.addEventListener('pointerdown',()=>{const a=ac();if(a&&!audioUnlocked){const b=a.createBuffer(1,1,22050),s=a.createBufferSource();s.buffer=b;s.connect(a.destination);s.start(0);audioUnlocked=true}},{passive:true});
+function tone(f,d,t=0,type='sine',v=.15){if(!soundOn)return;const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain(),st=a.currentTime+t;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(v,st+.02);g.gain.exponentialRampToValueAtTime(.001,st+d);o.connect(g);g.connect(a.destination);o.start(st);o.stop(st+d+.05)}
+const SFX={
+ ok(){tone(660,.15,0,'triangle');tone(990,.28,.11,'triangle')},
+ bad(){tone(200,.25,0,'sawtooth',.07);tone(150,.3,.12,'sawtooth',.07)},
+ click(){tone(540,.07,0,'triangle',.08)},
+ win(){[523,659,784,1047,1319].forEach((f,i)=>tone(f,.4,i*.12,'triangle',.13))}
+};
+
+/* ================= УТИЛИТЫ ================= */
+const app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const $=(q,el=document)=>el.querySelector(q);
+const $$=(q,el=document)=>[...el.querySelectorAll(q)];
+function screen(html,bg){app.innerHTML=`<div class="screen">${html}</div>`;document.body.style.background=bg;window.scrollTo(0,0)}
+let toastT;
+function toast(msg){$$('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),2600)}
+function modal(html){const o=document.createElement('div');o.className='overlay';o.innerHTML=`<div class="card">${html}</div>`;document.body.appendChild(o);return o}
+function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function smoothClosed(p){const n=p.length,f=v=>v.toFixed(1);let d=`M${f(p[0][0])},${f(p[0][1])}`;for(let i=0;i<n;i++){const p0=p[(i-1+n)%n],p1=p[i],p2=p[(i+1)%n],p3=p[(i+2)%n];d+=`C${f(p1[0]+(p2[0]-p0[0])/6)},${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)},${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])},${f(p2[1])}`}return d+'Z'}
+function smoothOpen(p){const n=p.length,f=v=>v.toFixed(1);let d=`M${f(p[0][0])},${f(p[0][1])}`;for(let i=0;i<n-1;i++){const p0=p[Math.max(i-1,0)],p1=p[i],p2=p[i+1],p3=p[Math.min(i+2,n-1)];d+=`C${f(p1[0]+(p2[0]-p0[0])/6)},${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)},${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])},${f(p2[1])}`}return d}
+function blob(cx,cy,rx,ry,seed,n=12,j=.3){const r=rng(seed),p=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,k=1-j/2+r()*j;p.push([cx+Math.cos(a)*rx*k,cy+Math.sin(a)*ry*k])}return smoothClosed(p)}
+const starStr=n=>'★'.repeat(n)+'☆'.repeat(3-n);
+function ribbon(x,y,text,fs=13,fill='#7a2a12',col='#fff4d6'){const w=text.length*fs*.52+18;return `<g><rect x="${x-w/2}" y="${y-fs+1}" width="${w}" height="${fs+8}" rx="6" fill="${fill}" opacity=".92"/><text x="${x}" y="${y+2}" font-size="${fs}" text-anchor="middle" fill="${col}" font-weight="700">${esc(text)}</text></g>`}
+function confetti(){const e=['⭐','✨','🎉','🏅','🛡️','👑'];for(let i=0;i<34;i++){const c=document.createElement('div');c.className='confetti';c.textContent=e[i%e.length];c.style.left=Math.random()*100+'vw';c.style.animationDuration=(2.2+Math.random()*2)+'s';c.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),5200)}}
+function soundBtn(){return `<button class="btn ghost" data-snd>${soundOn?'🔊':'🔇'}</button>`}
+function bindSound(){$$('[data-snd]').forEach(b=>b.onclick=()=>{soundOn=!soundOn;try{localStorage.setItem('pvsz_sound',soundOn?'1':'0')}catch(e){}b.textContent=soundOn?'🔊':'🔇';SFX.click()})}
+
+/* ================= ЭКРАН 1: КАРТА ПРЕДМЕТОВ ================= */
+function worldSVG(){
+ const r=rng(7);let waves='';
+ for(let i=0;i<46;i++){const x=r()*380+5,y=r()*630+10;waves+=`<path d="M${x.toFixed(0)},${y.toFixed(0)} q5,-4 10,0 q5,-4 10,0" stroke="#fff" stroke-width="1.6" fill="none" opacity=".35"/>`}
+ let isl='';
+ for(const s of SUBJECTS){
+  isl+=`<g class="node ${s.active?'':'locked'}" data-sub="${s.id}">
+   <path d="${blob(s.x+5,s.y+9,s.rx,s.ry,s.seed)}" fill="rgba(0,40,70,.35)"/>
+   <path d="${blob(s.x,s.y,s.rx+11,s.ry+9,s.seed)}" fill="#8fd6ec" opacity=".55"/>
+   <path d="${blob(s.x,s.y,s.rx,s.ry,s.seed)}" fill="#f0d99c" stroke="#c9a65a" stroke-width="2"/>
+   <path d="${blob(s.x,s.y-4,s.rx*.8,s.ry*.72,s.seed+5)}" fill="${s.land}"/>
+   ${s.active?`<circle cx="${s.x}" cy="${s.y-6}" r="34" fill="#fff59a" class="pulse"/>`:''}
+   <text x="${s.x}" y="${s.y+8}" font-size="${s.active?44:34}" text-anchor="middle" class="${s.active?'bob':''}">${s.i}</text>
+   ${ribbon(s.x,s.y+s.ry+8,s.n,s.active?16:13,s.active?'#7a2a12':'#5b5b5b')}
+   ${s.active?'':`<text x="${s.x+s.rx*.62}" y="${s.y-s.ry*.35}" font-size="20" text-anchor="middle">🔒</text>`}
+  </g>`}
+ return `<svg viewBox="0 0 400 650" class="map">
+ <defs><radialGradient id="sea" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#5fb7d8"/><stop offset="1" stop-color="#2a7aa3"/></radialGradient></defs>
+ <rect width="400" height="650" fill="url(#sea)"/>${waves}
+ <g transform="translate(46,48)" opacity=".85"><circle r="26" fill="#f6e7c6" stroke="#7a5a30" stroke-width="2"/><path d="M0,-24 L5,0 L0,24 L-5,0Z" fill="#a8322a"/><path d="M-24,0 L0,-5 L24,0 L0,5Z" fill="#3b2a1a"/><text y="-28" font-size="11" text-anchor="middle" fill="#fff" font-weight="700">С</text></g>
+ <text x="345" y="62" font-size="26" class="bob">⛵</text><text x="20" y="372" font-size="24">🐋</text><text x="340" y="625" font-size="22" class="bob">⛵</text><text x="356" y="378" font-size="20">🐬</text>
+ ${isl}</svg>`}
+function world(){
+ const ts=totalStars();
+ screen(`
+ <div class="top"><span style="width:44px"></span><h1 class="ttl">Путешествие<br>в страну знаний</h1>${soundBtn()}</div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Привет${save.name?', <b>'+esc(save.name)+'</b>':''}! Я сова <b>Мудрослава</b>. Каждый остров — это школьный предмет. Начнём с <b>Истории</b>! ${ts?`У тебя уже ⭐ ${ts}.`:''}</div></div>
+ ${worldSVG()}
+ <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>`,
+ 'linear-gradient(#2b7ea8,#164a66)');
+ bindSound();
+ $$('[data-sub]').forEach(g=>g.onclick=()=>{const s=SUBJECTS.find(x=>x.id===g.dataset.sub);if(s.active){SFX.click();historyMap()}else{SFX.bad();toast(`Остров «${s.n}» пока окутан туманом — откроется в следующих путешествиях!`)}});
+ $('#nm').onclick=askName;
+ $('#rs').onclick=()=>{const o=modal(`<h2>Начать заново?</h2><p>Все звёзды и пройденные испытания будут стёрты.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn green" id="yes" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e">Стереть</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{save.stars={};save.questIntro=false;persist();o.remove();world();toast('Прогресс сброшен')}};
+ if(!save.intro)askName();
+}
+function askName(){
+ const o=modal(`<div style="text-align:center;font-size:52px">🦉</div><h2 style="text-align:center">Как тебя зовут, путешественник?</h2><input class="name" maxlength="20" placeholder="Твоё имя" value="${esc(save.name)}"><button class="btn wide" id="ok">В путь!</button>`);
+ const inp=$('input',o);setTimeout(()=>inp.focus(),100);
+ const go=()=>{save.name=inp.value.trim().replace(/[<>]/g,'');save.intro=true;persist();o.remove();world()};
+ $('#ok',o).onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};
+}
+
+/* ================= ЭКРАН 2: КАРТА ИСТОРИИ ================= */
+function tree(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><rect x="-2" y="0" width="4" height="9" fill="#6b4a2a"/><circle cy="-4" r="9" fill="#5d8a3a"/><circle cx="-4" cy="-7" r="5" fill="#76a24a"/></g>`}
+function mountain(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><path d="M-26,0 L0,-36 L26,0Z" fill="#9b8a6e" stroke="#6b5a42" stroke-width="1.5"/><path d="M-8,-25 L0,-36 L8,-25 L3,-21 L0,-25 L-4,-21Z" fill="#fff"/></g>`}
+function historyMap(){
+ const st=totalStars();
+ const pts=[[200,640],...HIST.map(h=>[h.x,h.y]),[200,60]];
+ let deco=mountain(205,215,1.1)+mountain(240,228,.85)+mountain(178,232,.8)+mountain(55,120,.9)+mountain(350,385,.8)+mountain(375,560,.7);
+ [[200,440],[214,450],[190,455],[40,300],[55,310],[345,225],[360,215],[30,470],[200,345],[215,356],[365,640],[40,640],[230,560]].forEach(([x,y])=>deco+=tree(x,y,.9));
+ let nodes='';
+ HIST.forEach(h=>{
+  const done=h.active&&allDone();
+  nodes+=`<g class="node ${h.active?'':'locked'}" data-loc="${h.id}">
+  ${h.active?`<circle cx="${h.x}" cy="${h.y}" r="36" fill="#ffd34d" class="pulse"/>`:''}
+  <circle cx="${h.x}" cy="${h.y}" r="31" fill="${h.active?'#fff6dc':'#e6dcc6'}" stroke="${h.active?'#a8322a':'#8a7a62'}" stroke-width="4"/>
+  <text x="${h.x}" y="${h.y+11}" font-size="30" text-anchor="middle">${h.i}</text>
+  ${h.active?'':`<text x="${h.x+24}" y="${h.y-18}" font-size="17" text-anchor="middle">🔒</text>`}
+  ${done?`<text x="${h.x+26}" y="${h.y-18}" font-size="20" text-anchor="middle">🏅</text>`:''}
+  <text x="${h.x}" y="${h.y+48}" font-size="12.5" text-anchor="middle" fill="#3b2a1a" font-weight="700">${esc(h.t)}</text>
+  <text x="${h.x}" y="${h.y+63}" font-size="12.5" text-anchor="middle" fill="#3b2a1a" font-weight="700">${esc(h.t2)}</text>
+  ${h.active?`<text x="${h.x}" y="${h.y+80}" font-size="13" text-anchor="middle" fill="#a8322a" font-weight="700">★ ${st} / ${STATIONS.length*3}</text>`:''}
+  </g>`});
+ screen(`
+ <div class="top"><button class="btn ghost" id="back">← Острова</button><h2 class="ttl">Остров Истории</h2>${soundBtn()}</div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Это земли Истории. Каждая крепость — тема из учебника 6-го класса. Первая дорога ведёт в <b>Средневековую Европу</b>!</div></div>
+ <svg viewBox="0 0 400 680" class="map">
+  <defs><radialGradient id="pa" cx=".5" cy=".45" r=".75"><stop offset="0" stop-color="#f7e8c4"/><stop offset="1" stop-color="#d8b97e"/></radialGradient></defs>
+  <rect width="400" height="680" fill="url(#pa)"/>
+  <rect x="8" y="8" width="384" height="664" rx="14" fill="none" stroke="#8a6232" stroke-width="2" stroke-dasharray="7 5"/>
+  <path d="${blob(330,585,48,30,9)}" fill="#8cc4d8" stroke="#5e97ad" stroke-width="2"/>
+  <path d="M0,300 C60,280 90,330 150,305 S250,270 400,285" stroke="#8cc4d8" stroke-width="9" fill="none" stroke-linecap="round"/>
+  ${deco}
+  <path d="${smoothOpen(pts)}" stroke="#8a4a1e" stroke-width="4" fill="none" stroke-dasharray="2 9" stroke-linecap="round"/>
+  ${ribbon(200,36,'Земли Истории',20)}
+  ${nodes}
+ </svg>`,'linear-gradient(#6b4a2a,#3e2a17)');
+ bindSound();
+ $('#back').onclick=()=>{SFX.click();world()};
+ $$('[data-loc]').forEach(g=>g.onclick=()=>{const h=HIST.find(x=>x.id===g.dataset.loc);if(h.active){SFX.click();questMap()}else{SFX.bad();toast(`«${h.t} ${h.t2}» — эта земля откроется позже!`)}});
+}
+
+/* ================= ЭКРАН 3: КАРТА КВЕСТА ================= */
+function house(x,y,c='#c0503f'){return `<g transform="translate(${x},${y})"><rect x="-11" y="-9" width="22" height="16" fill="#e8d2a6" stroke="#7a5a30"/><path d="M-14,-9 L0,-22 L14,-9Z" fill="${c}" stroke="#6b2a1a"/><rect x="-3" y="0" width="6" height="7" fill="#6b4a2a"/></g>`}
+function questSVG(){
+ let d='';
+ // поля трёхполья
+ d+=`<g opacity=".95"><path d="M215,500 L390,478 L392,520 L218,542Z" fill="#e8c35a"/><path d="M218,542 L392,520 L394,562 L221,584Z" fill="#9fcf6a"/><path d="M221,584 L394,562 L396,600 L224,622Z" fill="#a98458"/>
+ ${[0,1,2,3,4,5].map(i=>`<path d="M${228+i*28},${498-i*3.5} l2,118" stroke="rgba(0,0,0,.12)"/>`).join('')}</g>`;
+ // деревня
+ d+=house(40,600)+house(150,640,'#b5793a')+house(35,655,'#8a5a2e')+house(160,585)+house(60,548,'#b5793a');
+ // церковь
+ d+=`<g transform="translate(335,648)"><rect x="-16" y="-14" width="32" height="22" fill="#efe2c4" stroke="#7a5a30"/><path d="M-18,-14 L0,-26 L18,-14Z" fill="#7d6a5a"/><rect x="-6" y="-46" width="12" height="22" fill="#efe2c4" stroke="#7a5a30"/><path d="M-8,-46 L0,-60 L8,-46Z" fill="#7d6a5a"/><path d="M0,-66 v8 M-3,-63 h6" stroke="#c9952b" stroke-width="2"/></g>`;
+ // турнир
+ d+=`<g><rect x="240" y="270" width="140" height="4" fill="#8a5a2e"/>${[0,1,2,3,4,5,6].map(i=>`<rect x="${242+i*22}" y="262" width="3" height="14" fill="#6b4a2a"/>`).join('')}
+ <g transform="translate(370,232)"><path d="M-14,14 L0,-12 L14,14Z" fill="#c0503f"/><path d="M-5,14 L0,-12 L5,14Z" fill="#f6e7c6"/><path d="M0,-12 v-8 l9,3 -9,3" fill="#d9a234" stroke="#6b4a2a"/></g>
+ <g transform="translate(232,236)"><path d="M-13,14 L0,-10 L13,14Z" fill="#3f6fa8"/><path d="M-4,14 L0,-10 L4,14Z" fill="#f6e7c6"/></g></g>`;
+ // деревья
+ [[30,430],[48,442],[190,520],[372,430],[30,300],[45,312],[190,350],[378,345],[365,300],[20,520],[175,445],[388,640],[250,640]].forEach(([x,y])=>d+=tree(x,y,1.1));
+ // замок
+ const cren=(x0,x1,y)=>{let s='';for(let x=x0;x<x1;x+=10)s+=`<rect x="${x}" y="${y-6}" width="6" height="6" fill="#b4ab9b" stroke="#7d7468" stroke-width=".8"/>`;return s};
+ const castle=`<g>
+  <path d="M70,182 Q200,215 330,182" stroke="#5aa9c9" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <rect x="120" y="92" width="160" height="80" fill="#c4bba9" stroke="#7d7468" stroke-width="1.5"/>${cren(120,280,92)}
+  <rect x="104" y="72" width="30" height="102" fill="#b4ab9b" stroke="#7d7468"/><path d="M100,72 L119,40 L138,72Z" fill="#a8322a"/>
+  <rect x="266" y="72" width="30" height="102" fill="#b4ab9b" stroke="#7d7468"/><path d="M262,72 L281,40 L300,72Z" fill="#a8322a"/>
+  <rect x="176" y="30" width="48" height="72" fill="#b9b0a0" stroke="#7d7468" stroke-width="1.5"/>${cren(176,224,30)}
+  <path d="M200,24 v-22" stroke="#4a3a2a" stroke-width="2"/><path d="M200,2 l22,6 -22,6Z" fill="#d9a234" class="bob"/>
+  <rect x="113" y="100" width="4" height="10" fill="#3b2a1a"/><rect x="275" y="100" width="4" height="10" fill="#3b2a1a"/><rect x="198" y="52" width="4" height="12" fill="#3b2a1a"/>
+  <path d="M184,172 v-26 a16,16 0 0 1 32,0 v26Z" fill="#3b2a1a"/>
+  <rect x="186" y="172" width="28" height="22" fill="#8a5a2e"/>${[0,1,2,3].map(i=>`<path d="M186,${177+i*5} h28" stroke="#5a3a1a"/>`).join('')}
+ </g>`;
+ // дорога
+ const pts=[[200,690],...STATIONS.map(s=>[s.x,s.y])];
+ const road=`<path d="${smoothOpen(pts)}" stroke="#d8bf8a" stroke-width="16" fill="none" stroke-linecap="round"/><path d="${smoothOpen(pts)}" stroke="#b89a62" stroke-width="2" fill="none" stroke-dasharray="6 8"/>`;
+ // узлы
+ const cur=STATIONS.findIndex((s,i)=>unlocked(i)&&!starsOf(s.id));
+ let nodes='';
+ STATIONS.forEach((s,i)=>{
+  const op=unlocked(i),sc=starsOf(s.id);
+  nodes+=`<g class="node ${op?'':'locked'}" data-st="${i}">
+   ${i===cur?`<circle cx="${s.x}" cy="${s.y}" r="32" fill="#ffd34d" class="pulse"/>`:''}
+   <circle cx="${s.x}" cy="${s.y}" r="27" fill="${sc?'#e9f6df':'#fff6dc'}" stroke="${sc?'#3f7d3a':op?'#a8322a':'#7a7a7a'}" stroke-width="4"/>
+   <text x="${s.x}" y="${s.y+9}" font-size="25" text-anchor="middle">${op?s.i:'🔒'}</text>
+   <circle cx="${s.x-22}" cy="${s.y-20}" r="10" fill="#3b2a1a"/><text x="${s.x-22}" y="${s.y-15.5}" font-size="12" text-anchor="middle" fill="#fff" font-weight="700">${i+1}</text>
+   ${ribbon(s.x,s.y+44,s.name,12.5,op?'#5a2a10':'#6b6b6b')}
+   ${sc?`<text x="${s.x}" y="${s.y+64}" font-size="15" text-anchor="middle" fill="#e6a817" stroke="#7a5a10" stroke-width=".5">${starStr(sc)}</text>`:''}
+  </g>`});
+ return `<svg viewBox="0 0 400 690" class="map">
+ <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86c6e6"/><stop offset="1" stop-color="#e2f3f8"/></linearGradient>
+ <linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#94c25e"/><stop offset="1" stop-color="#5e9a3c"/></linearGradient></defs>
+ <rect width="400" height="690" fill="url(#sky)"/><circle cx="350" cy="40" r="20" fill="#ffe27a"/>
+ <g fill="#fff" opacity=".85"><ellipse cx="70" cy="40" rx="30" ry="10"/><ellipse cx="90" cy="34" rx="18" ry="10"/><ellipse cx="320" cy="90" rx="26" ry="8"/></g>
+ <path d="M0,150 Q70,110 140,140 T280,128 T400,135 V690 H0Z" fill="#a9cf86"/>
+ ${castle}
+ <path d="M0,195 Q100,170 200,196 T400,190 V690 H0Z" fill="url(#gr)"/>
+ ${d}${road}${nodes}</svg>`}
+function questMap(){
+ const done=allDone();
+ screen(`
+ <div class="top"><button class="btn ghost" id="back">← История</button><h2 class="ttl">Средневековое европейское общество. Ч. 1</h2>${soundBtn()}</div>
+ ${done?`<button class="btn green wide" id="cert">🏅 Получить грамоту и рыцарские шпоры</button>`:
+ `<div class="guide"><div class="owl">🦉</div><div class="bubble">Пройди по дороге от деревни до замка. Каждое испытание открывает следующее. Собери как можно больше звёзд! ⭐ ${totalStars()} / ${STATIONS.length*3}</div></div>`}
+ ${questSVG()}`,'linear-gradient(#3e6a2a,#24401a)');
+ bindSound();
+ $('#back').onclick=()=>{SFX.click();historyMap()};
+ if(done)$('#cert').onclick=certificate;
+ $$('[data-st]').forEach(g=>g.onclick=()=>{const i=+g.dataset.st;if(unlocked(i)){SFX.click();startStation(i)}else{SFX.bad();toast('Сначала пройди предыдущее испытание!')}});
+ if(!save.questIntro){
+  save.questIntro=true;persist();
+  const o=modal(`<div style="text-align:center;font-size:50px">🏰</div><h2 style="text-align:center">Добро пожаловать в Средневековье!</h2><p style="line-height:1.5">${save.name?esc(save.name)+', ты':'Ты'} попал${''} в королевство, где правят короли и рыцари, а крестьяне пашут землю. На дворе — XI век.</p><p style="line-height:1.5">Пройди <b>7 испытаний</b> от деревни до главной башни замка, и ты получишь <b>рыцарские шпоры</b>!</p><p class="small" style="color:#7a5a30">Перед каждым испытанием — короткий «Свиток знаний». Читай внимательно: там подсказки!</p><button class="btn wide" id="go">Вперёд!</button>`);
+  $('#go',o).onclick=()=>{SFX.click();o.remove()};
+ }
+}
+
+/* ================= ИСПЫТАНИЯ ================= */
+let run=null;
+function startStation(i){run={i,st:STATIONS[i],t:0,mistakes:0};lesson()}
+function taskHead(sub){
+ const st=run.st,n=st.tasks.length,frac=(run.t+(sub||0))/n;
+ return `<div class="thead"><button class="btn ghost" id="quit">✕</button><div class="tt">${run.i+1}. ${esc(st.name)}</div><span class="chip">❌ <span id="mc">${run.mistakes}</span></span>${soundBtn()}</div>
+ <div class="bar"><i style="width:${Math.round(frac*100)}%"></i></div>`}
+function bindHead(){bindSound();$('#quit').onclick=()=>{const o=modal(`<h2>Выйти из испытания?</h2><p>Прогресс этого испытания не сохранится.</p><div class="row"><button class="btn" id="st">Остаться</button><button class="btn ghost" style="background:#7a5a30" id="ex">Выйти</button></div>`);$('#st',o).onclick=()=>o.remove();$('#ex',o).onclick=()=>{o.remove();questMap()}}}
+function miss(){run.mistakes++;const m=$('#mc');if(m)m.textContent=run.mistakes;SFX.bad()}
+const BG_TASK='linear-gradient(#5a3e24,#2e1f12)';
+function lesson(){
+ const st=run.st;
+ screen(`${taskHead(0)}
+ <div class="card lesson"><div class="scrollic">${st.i}</div><h2>Свиток знаний: ${esc(st.name)}</h2>${st.lesson}</div>
+ <button class="btn wide" id="go">⚔️ К испытанию!</button>`,BG_TASK);
+ bindHead();$('#go').onclick=()=>{SFX.click();nextTask()};
+}
+function nextTask(){
+ const st=run.st;
+ if(run.t>=st.tasks.length)return finish();
+ const task=st.tasks[run.t];
+ const done=()=>{run.t++;nextTask()};
+ ({quiz:quizTask,tf:quizTask,fill:quizTask,sort:sortTask,match:matchTask,order:orderTask})[task.type](task,done);
+}
+
+/* --- викторина / правда-ложь / пропуски --- */
+function quizTask(task,done){
+ const qs=task.questions;let q=0;
+ function show(){
+  const Q=qs[q],isTF=task.type==='tf',isFill=task.type==='fill';
+  const opts=isTF?[['Правда ✅',true],['Ложь ❌',false]]:shuffle(Q.o.map((o,k)=>[o,k===0]));
+  const qtext=isFill?esc(Q.q).replace('___','<span class="blank" id="blank">&nbsp;?&nbsp;</span>'):esc(Q.q);
+  screen(`${taskHead(q/qs.length)}
+  <div class="card" id="qc"><div class="qnum">${task.prompt?esc(task.prompt)+' · ':''}${q+1} из ${qs.length}</div>
+  <div class="qtext">${qtext}</div>
+  <div class="opts ${isTF?'tf':''}">${opts.map((o,k)=>`<button class="opt" data-k="${k}">${esc(o[0])}</button>`).join('')}</div>
+  <div id="ex"></div></div>
+  <button class="btn wide" id="next" style="display:none">${q+1<qs.length?'Дальше →':'Завершить ✓'}</button>`,BG_TASK);
+  bindHead();
+  $$('.opt').forEach(b=>b.onclick=()=>{
+   const k=+b.dataset.k,ok=isTF?(opts[k][1]===Q.a):opts[k][1];
+   $$('.opt').forEach((x,j)=>{x.disabled=true;const right=isTF?(opts[j][1]===Q.a):opts[j][1];if(right)x.classList.add('ok');else if(x!==b)x.classList.add('dim')});
+   if(ok){SFX.ok()}else{b.classList.remove('dim');b.classList.add('bad');shake($('#qc'));miss()}
+   if(isFill){const bl=$('#blank');bl.textContent=Q.o[0]}
+   $('#ex').innerHTML=`<div class="expl ${ok?'good':'wrong'}"><b>${ok?'Верно!':'Не совсем.'}</b> ${esc(Q.e)}</div>`;
+   const nx=$('#next');nx.style.display='block';nx.scrollIntoView({behavior:'smooth',block:'nearest'});
+   nx.onclick=()=>{SFX.click();q++;if(q<qs.length)show();else done()};
+  });
+ }
+ show();
+}
+
+/* --- сортировка --- */
+function sortTask(task,done){
+ const items=shuffle(task.items);let k=0;const got=task.bins.map(()=>[]);
+ function show(){
+  if(k>=items.length){
+   screen(`${taskHead(1)}<div class="card res"><div style="font-size:46px">🎯</div><h2>Все разложены по сословиям!</h2>
+   <div class="bins" style="margin-top:12px">${task.bins.map((b,i)=>`<div class="bin" style="cursor:default"><span class="bi">${b.i}</span><span class="bn">${b.n}</span><span class="bl">${got[i].join(', ')}</span></div>`).join('')}</div></div>
+   <button class="btn wide" id="next">Дальше →</button>`,BG_TASK);bindHead();$('#next').onclick=()=>{SFX.click();done()};return}
+  const it=items[k];
+  screen(`${taskHead(k/items.length)}
+  <div class="card" id="sc"><div class="qnum">${esc(task.prompt)}</div>
+  <div class="sortcard" id="cardv">${esc(it[0])}${it[2]?`<small>(${esc(it[2])})</small>`:''}</div>
+  <div class="bins">${task.bins.map((b,i)=>`<button class="bin" data-b="${i}"><span class="bi">${b.i}</span><span class="bn">${b.n}</span><span class="bl">${got[i].join(', ')}</span></button>`).join('')}</div>
+  <div class="left">Осталось: ${items.length-k}</div></div>`,BG_TASK);
+  bindHead();
+  $$('.bin').forEach(b=>b.onclick=()=>{
+   if(+b.dataset.b===+it[1]){SFX.ok();got[+it[1]].push(it[0]);k++;show()}
+   else{miss();shake($('#cardv'));b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),500);toast('Подумай ещё! Загляни в «Свиток знаний» в памяти 😉')}
+  });
+ }
+ show();
+}
+
+/* --- сопоставление --- */
+function matchTask(task,done){
+ const terms=shuffle(task.pairs.map((p,i)=>[p[0],i])),defs=shuffle(task.pairs.map((p,i)=>[p[1],i]));
+ let sel=null,left=task.pairs.length;
+ screen(`${taskHead(0)}
+ <div class="card"><div class="qnum">${esc(task.prompt)}</div>
+ <div class="terms">${terms.map(t=>`<button class="term" data-i="${t[1]}">${esc(t[0])}</button>`).join('')}</div>
+ ${defs.map(d=>`<button class="def" data-i="${d[1]}" data-t="${esc(task.pairs[d[1]][0])}">${esc(d[0])}</button>`).join('')}
+ </div><button class="btn wide" id="next" style="display:none">Дальше →</button>`,BG_TASK);
+ bindHead();
+ const pick=(el,kind)=>{
+  if(!sel||sel.kind===kind){$$('.sel').forEach(x=>x.classList.remove('sel'));sel={el,kind};el.classList.add('sel');SFX.click();return}
+  const a=sel.el,b=el;sel=null;$$('.sel').forEach(x=>x.classList.remove('sel'));
+  if(a.dataset.i===b.dataset.i){SFX.ok();a.classList.add('done');b.classList.add('done');left--;
+   if(left===0){const nx=$('#next');nx.style.display='block';nx.onclick=()=>{SFX.click();done()};nx.scrollIntoView({behavior:'smooth'});toast('Все слова на месте! 🎉')}}
+  else{miss();[a,b].forEach(x=>{x.classList.add('flash');shake(x)});setTimeout(()=>[a,b].forEach(x=>x.classList.remove('flash')),600)}
+ };
+ $$('.term').forEach(t=>t.onclick=()=>pick(t,'t'));
+ $$('.def').forEach(d=>d.onclick=()=>pick(d,'d'));
+}
+
+/* --- порядок (лестница) --- */
+function orderTask(task,done){
+ const n=task.items.length;let slots=Array(n).fill(null),pool=shuffle(task.items.map((t,i)=>i)),checked=null;
+ function show(){
+  const full=slots.every(s=>s!==null);
+  screen(`${taskHead(0)}
+  <div class="card" id="oc"><div class="qnum">${esc(task.prompt)}</div>
+  <div class="ladder">${slots.map((s,i)=>`<button class="step ${s!==null?'full':''} ${checked&&s!==null?(s===i?'ok':'bad'):''}" data-s="${i}" style="width:${52+i*16}%">${s!==null?esc(task.items[s]):`ступень ${i+1}`}</button>`).join('')}</div>
+  <div class="pool">${pool.map(p=>`<button class="term" data-p="${p}">${esc(task.items[p])}</button>`).join('')}</div>
+  <div id="ex"></div></div>
+  <button class="btn wide" id="chk" ${full?'':'disabled'}>Проверить</button>`,BG_TASK);
+  bindHead();
+  $$('[data-p]').forEach(b=>b.onclick=()=>{const p=+b.dataset.p,e=slots.indexOf(null);if(e<0)return;slots[e]=p;pool=pool.filter(x=>x!==p);checked=null;SFX.click();show()});
+  $$('[data-s]').forEach(b=>b.onclick=()=>{const i=+b.dataset.s;if(slots[i]===null)return;pool.push(slots[i]);slots[i]=null;checked=null;SFX.click();show()});
+  $('#chk').onclick=()=>{
+   if(slots.every((s,i)=>s===i)){SFX.ok();checked=true;
+    $$('.step').forEach(x=>x.classList.add('ok'));$$('.step').forEach(x=>x.onclick=null);
+    $('#ex').innerHTML=`<div class="expl good"><b>Отлично!</b> ${esc(task.e)}</div>`;
+    const c=$('#chk');c.textContent='Дальше →';c.onclick=()=>{SFX.click();done()};
+   }else{miss();checked=true;show();shake($('#oc'));toast('Красные ступени стоят не на месте — нажми на них, чтобы убрать')}
+  };
+ }
+ show();
+}
+
+/* --- итог испытания --- */
+const PRAISE=['Великолепно! Ты настоящий знаток Средневековья!','Хорошо! Ещё немного — и будет идеально.','Испытание пройдено! Попробуй ещё раз, чтобы собрать больше звёзд.'];
+function finish(){
+ const m=run.mistakes,stars=m===0?3:m<=2?2:1,prev=starsOf(run.st.id),last=run.i===STATIONS.length-1;
+ if(stars>prev){save.stars[run.st.id]=stars;persist()}
+ SFX.win();if(stars===3)confetti();
+ const nextI=run.i+1<STATIONS.length?run.i+1:null;
+ screen(`<div class="card res" style="margin-top:20px">
+  <div style="font-size:54px">${run.st.i}</div><h2>Испытание «${esc(run.st.name)}» пройдено!</h2>
+  <div class="bigstars">${[0,1,2].map(i=>`<span class="${i<stars?'gold':'gray'}">★</span>`).join('')}</div>
+  <p>Ошибок: <b>${m}</b>${prev>stars?` · твой рекорд: ${starStr(prev)}`:''}</p>
+  <div class="guide" style="text-align:left;margin-top:10px"><div class="owl">🦉</div><div class="bubble">${PRAISE[3-stars]}</div></div>
+ </div>
+ ${last&&allDone()?`<button class="btn green wide" id="cert">🏅 Получить грамоту</button>`:''}
+ ${nextI!==null?`<button class="btn green wide" id="nx">Следующее испытание: ${esc(STATIONS[nextI].name)} →</button>`:''}
+ <div class="row"><button class="btn" id="map">🗺️ На карту</button><button class="btn" id="again">↻ Ещё раз</button></div>`,BG_TASK);
+ const i=run.i;
+ $('#map').onclick=()=>{SFX.click();questMap()};
+ $('#again').onclick=()=>{SFX.click();startStation(i)};
+ if($('#nx'))$('#nx').onclick=()=>{SFX.click();startStation(nextI)};
+ if($('#cert'))$('#cert').onclick=certificate;
+}
+function certificate(){
+ const ts=totalStars(),max=STATIONS.length*3;
+ SFX.win();confetti();
+ screen(`<div class="card cert" style="margin-top:14px">
+  <div style="font-size:40px">🛡️⚔️🛡️</div><h1>Грамота</h1>
+  <p style="margin:10px 0 2px">Настоящим удостоверяется, что</p>
+  <div class="who">${esc(save.name||'Отважный путешественник')}</div>
+  <p style="line-height:1.5">прошёл все испытания квеста<br><b>«${TOPIC_TITLE}»</b><br>и получает <b>рыцарские шпоры</b>!</p>
+  <div class="bigstars" style="font-size:30px"><span class="gold">★</span> ${ts} / ${max}</div>
+  <p class="small">${ts===max?'Безупречно — все звёзды собраны!':'Перепройди испытания, чтобы собрать все звёзды.'}</p>
+  <div class="seal">🦉</div>
+ </div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Скоро откроется <b>Часть 2</b>: города, ремесленники и купцы!</div></div>
+ <div class="row"><button class="btn" id="qm">🗺️ Карта квеста</button><button class="btn" id="hm">📜 Остров Истории</button></div>`,'linear-gradient(#7a2a12,#3b140a)');
+ $('#qm').onclick=()=>{SFX.click();questMap()};$('#hm').onclick=()=>{SFX.click();historyMap()};
+}
+
+world();
+</script>
+</body>
+</html>
