@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Страна знаний">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1d5a7a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Путешествие в страну знаний</title>
 <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -112,7 +119,7 @@ input.name{font:inherit;font-size:18px;width:100%;padding:12px;border-radius:12p
 .confetti{position:fixed;top:-30px;font-size:22px;z-index:60;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 .small{font-size:13.5px}
-.build{position:fixed;left:calc(10px + env(safe-area-inset-left));bottom:calc(8px + env(safe-area-inset-bottom));font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em;padding:6px 8px 2px 2px;user-select:none;-webkit-user-select:none;cursor:default}
+.build{align-self:flex-start;margin-top:4px;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em;padding:6px 8px 2px 2px;user-select:none;-webkit-user-select:none;cursor:default}
 .adm .card{padding:14px}
 .adm h3{font-size:18px;margin-bottom:8px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -171,6 +178,7 @@ select.name{font:inherit;padding:8px;border-radius:10px;border:2px solid #c09a58
 .chip2.nope{background:#e9e2d2;color:#9a8a72}.chip2.fixd{background:#cdeec2}.chip2.fixd s{color:#a8322a}
 .quote{font-family:'Philosopher',serif;font-style:italic;font-size:21px;display:block;background:#fff6dc;border-left:5px solid #c09a58;padding:8px 12px;border-radius:8px}
 .opts.odd{display:grid;grid-template-columns:1fr 1fr;gap:8px}.opts.odd .opt{margin:0;text-align:center;font-weight:700}
+@media print{@page{size:A4 portrait;margin:12mm}body{background:#fff!important}body *{visibility:hidden}.cert,.cert *{visibility:visible}.cert{position:absolute;left:0;top:0;width:100%;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:20px}.cert h1{font-size:56px}.cert .who{font-size:40px}.noprint,.toast,.confetti,.build{display:none!important}}
 .halo{paint-order:stroke;stroke:#f5e6c2;stroke-width:5px;stroke-linejoin:round}
 .grades{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
 .grade{font:inherit;position:relative;aspect-ratio:1;border:none;border-radius:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(#e9e2d2,#c9bfa8);color:#6b6253;box-shadow:0 5px 0 #8f8572,var(--shadow);filter:grayscale(.4)}
@@ -197,7 +205,7 @@ const SUBJECTS=[
  {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a'},
  {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
 ];
-const BUILD='K001.008';
+const BUILD='K001.009';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -1237,6 +1245,7 @@ function classes(){
  <button class="btn wide ${dailyDone()?'':'green'}" id="daily">☀️ Вопрос дня${dailyDone()?' · ✅ пройден':''} · 🔥 ${streakNow()}</button>
  <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
  <button class="btn wide" id="myres">📊 Мои результаты</button>
+ <div class="foot"><button class="btn ghost small" id="tr">💾 Перенос прогресса</button><button class="btn ghost small" id="inst" ${isStandalone()?'style="display:none"':''}>📲 Установить</button></div>
  <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>
  <div class="build" id="bld">${BUILD}</div>`,
  'radial-gradient(circle at 50% 20%,#3d7fa6,#173b55)');
@@ -1244,6 +1253,8 @@ function classes(){
  $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(g===6){SFX.click();world()}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
  $('#nm').onclick=()=>askName(classes);
  $('#myres').onclick=()=>{SFX.click();resultsScreen()};
+ $('#tr').onclick=transferModal;
+ $('#inst').onclick=installApp;
  $('#hero').onclick=heroModal;
  $('#daily').onclick=()=>{SFX.click();setQuest('daily');startStation(0)};
  $('#rs').onclick=()=>{const o=modal(`<h2>Начать заново?</h2><p>Все звёзды и пройденные испытания будут стёрты.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn green" id="yes" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e">Стереть</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{save.stars={};save.qi={};save.srs={};save.cards={};save.daily=null;save.learned=0;persist();o.remove();classes();toast('Прогресс сброшен')}};
@@ -1735,9 +1746,11 @@ function certificate(){
   <p class="small">${ts===max?'Безупречно — все звёзды собраны!':'Перепройди испытания, чтобы собрать все звёзды.'}</p>
   <div class="seal">🦉</div>
  </div>
- <div class="guide"><div class="owl">🦉</div><div class="bubble">${Q.next}</div></div>
- <div class="row">${Q.noMap?'':'<button class="btn" id="qm">🗺️ Карта квеста</button>'}<button class="btn" id="hm">📜 Остров Истории</button></div>`,'linear-gradient(#7a2a12,#3b140a)');
+ <div class="row noprint"><button class="btn green" id="cimg">🖼️ Сохранить картинкой</button><button class="btn green" id="cprn">🖨️ Распечатать</button></div>
+ <div class="guide noprint"><div class="owl">🦉</div><div class="bubble">${Q.next}</div></div>
+ <div class="row noprint">${Q.noMap?'':'<button class="btn" id="qm">🗺️ Карта квеста</button>'}<button class="btn" id="hm">📜 Остров Истории</button></div>`,'linear-gradient(#7a2a12,#3b140a)');
  if($('#qm'))$('#qm').onclick=()=>{SFX.click();questMap()};$('#hm').onclick=()=>{SFX.click();historyMap()};
+ const cq=Q;$('#cimg').onclick=()=>{SFX.click();certImage(cq)};$('#cprn').onclick=()=>{SFX.click();document.querySelectorAll('.confetti').forEach(x=>x.remove());window.print()};
 }
 
 
@@ -2021,6 +2034,113 @@ function showAwards(list){
  $('#aw',o).onclick=()=>{o.remove();showAwards(list)};
 }
 
+
+/* ================= ПРИЛОЖЕНИЕ (PWA) ================= */
+let installEvt=null;
+const isStandalone=()=>window.matchMedia&&matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
+window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+function installApp(){
+ SFX.click();
+ if(installEvt){installEvt.prompt();installEvt.userChoice.finally(()=>{installEvt=null;classes()});return}
+ const ios=isIOS();
+ const o=modal(`<div style="text-align:center;font-size:48px">📲</div><h2 style="text-align:center">Установить на телефон</h2>
+ ${ios?`<ol style="line-height:1.55;padding-left:20px"><li>Открой игру в <b>Safari</b>.</li><li>Нажми кнопку <b>«Поделиться»</b> <span style="font-size:20px">⬆️</span> внизу экрана.</li><li>Выбери <b>«На экран „Домой“»</b> и нажми «Добавить».</li></ol>`
+ :`<ol style="line-height:1.55;padding-left:20px"><li>Открой меню браузера <b>⋮</b> (три точки).</li><li>Выбери <b>«Установить приложение»</b> или <b>«Добавить на главный экран»</b>.</li></ol>`}
+ <p class="small" style="color:#7a5a30">На экране появится иконка с совой. Игра будет открываться как приложение и работать без интернета.</p>
+ ${ios?'<p class="small" style="color:#a8322a">Важно: на iPhone у приложения своё хранилище. Перед установкой сохрани прогресс через «💾 Перенос прогресса», а потом загрузи его в приложении.</p>':''}
+ <button class="btn wide" id="cl">Понятно</button>`);
+ $('#cl',o).onclick=()=>o.remove();
+}
+
+/* ================= ПЕРЕНОС ПРОГРЕССА ================= */
+function exportData(){return {app:'pvsz',v:1,build:BUILD,ts:Date.now(),save,log:LOG}}
+async function packCode(){
+ const json=JSON.stringify(exportData());
+ const toB64=bytes=>{let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+ try{if(window.CompressionStream){const st=new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));return 'PVSZ1:'+toB64(new Uint8Array(await new Response(st).arrayBuffer()))}}catch(e){}
+ return 'PVSZ0:'+toB64(new TextEncoder().encode(json));
+}
+async function unpackCode(code){
+ code=code.trim().replace(/\s/g,'');const m=code.match(/^PVSZ([01]):(.+)$/);if(!m)throw new Error('Это не код прогресса');
+ const b=m[2].replace(/-/g,'+').replace(/_/g,'/');const bin=atob(b+'==='.slice((b.length+3)%4));const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+ if(m[1]==='1'){if(!window.DecompressionStream)throw new Error('Этот браузер не умеет распаковывать код — используй файл');const st=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));return JSON.parse(await new Response(st).text())}
+ return JSON.parse(new TextDecoder().decode(bytes));
+}
+function applyImport(d){
+ if(!d||d.app!=='pvsz'||!d.save)throw new Error('Файл не от этой игры');
+ const o=modal(`<h2>Загрузить прогресс?</h2><p>Игрок: <b>${esc(d.save.name||'без имени')}</b>, звёзд: <b>${Object.values(d.save.stars||{}).reduce((s,x)=>s+x,0)}</b>, карточек: <b>${Object.keys(d.save.cards||{}).length}</b>.<br><span class="small">Сохранено ${new Date(d.ts).toLocaleString('ru-RU')}</span></p><p class="small" style="color:#a8322a">Текущий прогресс на этом устройстве будет заменён. Журнал попыток объединится.</p><div class="row"><button class="btn" id="no">Отмена</button><button class="btn green" id="yes">Загрузить</button></div>`);
+ $('#no',o).onclick=()=>o.remove();
+ $('#yes',o).onclick=()=>{save=Object.assign({name:'',stars:{},intro:true,qi:{}},d.save);persist();
+  const seen=new Set(LOG.map(l=>l.ts+'|'+l.st));(d.log||[]).forEach(l=>{if(!seen.has(l.ts+'|'+l.st))LOG.push(l)});LOG.sort((a,b)=>a.ts-b.ts);saveLog();
+  o.remove();document.querySelectorAll('.overlay').forEach(x=>x.remove());SFX.win();toast('Прогресс загружен! 🎉');classes()};
+}
+async function shareOrDownload(blob,name,title){
+ try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title});return}}catch(e){if(e&&e.name==='AbortError')return}
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+}
+function transferModal(){
+ SFX.click();
+ const o=modal(`<div style="text-align:center;font-size:44px">💾</div><h2 style="text-align:center">Перенос прогресса</h2>
+ <p class="small" style="color:#7a5a30;text-align:center">Звёзды, карточки, герой, серия дней и журнал попыток</p>
+ <div class="qnum" style="margin-top:10px">Сохранить с этого устройства</div>
+ <div class="row" style="margin:6px 0 12px"><button class="btn" id="fsave">📁 В файл</button><button class="btn" id="csave">🔑 Код</button></div>
+ <div class="qnum">Загрузить на это устройство</div>
+ <div class="row" style="margin:6px 0 12px"><button class="btn green" id="fload">📂 Из файла</button><button class="btn green" id="cload">🔑 Ввести код</button></div>
+ <input type="file" id="fin" accept=".json,application/json" style="display:none">
+ <div id="tbox"></div>
+ <button class="btn ghost wide" style="background:#7a5a30" id="cl">Закрыть</button>`);
+ $('#cl',o).onclick=()=>o.remove();
+ $('#fsave',o).onclick=()=>{const d=new Date().toISOString().slice(0,10);shareOrDownload(new Blob([JSON.stringify(exportData())],{type:'application/json'}),`progress_${(save.name||'igrok').replace(/[^\wа-яё-]/gi,'_')}_${d}.json`,'Прогресс в «Стране знаний»')};
+ $('#csave',o).onclick=async()=>{const code=await packCode();$('#tbox',o).innerHTML=`<p class="small">Скопируй код и вставь его на другом устройстве (например, отправь себе в мессенджер):</p><textarea class="name" id="ctext" readonly style="height:110px;font-size:12px;word-break:break-all">${code}</textarea><button class="btn wide" id="ccopy">📋 Скопировать код</button>`;
+  $('#ccopy',o).onclick=()=>{const t=$('#ctext',o);t.select();(navigator.clipboard?navigator.clipboard.writeText(code):Promise.reject()).then(()=>toast('Код скопирован')).catch(()=>{try{document.execCommand('copy');toast('Код скопирован')}catch(e){toast('Выдели код и скопируй вручную')}})}};
+ $('#fload',o).onclick=()=>$('#fin',o).click();
+ $('#fin',o).onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{applyImport(JSON.parse(t))}catch(err){toast('Не получилось: '+(err.message||'неверный файл'))}})};
+ $('#cload',o).onclick=()=>{$('#tbox',o).innerHTML=`<textarea class="name" id="cin" placeholder="Вставь код, начинается с PVSZ" style="height:110px;font-size:12px"></textarea><button class="btn green wide" id="capply">Загрузить</button>`;
+  $('#capply',o).onclick=async()=>{try{applyImport(await unpackCode($('#cin',o).value))}catch(err){toast('Не получилось: '+(err.message||'неверный код'))}}};
+}
+
+/* ================= ГРАМОТА КАРТИНКОЙ И НА ПЕЧАТЬ ================= */
+function certCanvas(q){
+ const W=1080,H=1440,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+ const serif="'Philosopher', Georgia, serif",sans="'PT Sans', Arial, sans-serif";
+ const g=x.createRadialGradient(W/2,H*.3,100,W/2,H/2,900);g.addColorStop(0,'#fff6dc');g.addColorStop(1,'#e6c98e');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.strokeStyle='#9b6d2c';x.lineWidth=14;x.strokeRect(40,40,W-80,H-80);x.lineWidth=4;x.strokeRect(70,70,W-140,H-140);
+ x.fillStyle='#9b6d2c';[[70,70],[W-70,70],[70,H-70],[W-70,H-70]].forEach(([a,b])=>{x.beginPath();x.arc(a,b,16,0,7);x.fill()});
+ x.textAlign='center';x.textBaseline='middle';
+ x.font=`110px ${sans}`;x.fillText(q.rewardIcon||'🏅',W/2,230);
+ x.fillStyle='#7a2a12';x.font=`bold 128px ${serif}`;x.fillText('Грамота',W/2,400);
+ x.fillStyle='#3b2a1a';x.font=`44px ${sans}`;x.fillText('Настоящим удостоверяется, что',W/2,520);
+ const nm=save.name||'Отважный путешественник';x.font=`bold 84px ${serif}`;x.fillText(nm,W/2,630);
+ const nw=Math.min(800,x.measureText(nm).width+80);x.strokeStyle='#9b6d2c';x.lineWidth=4;x.beginPath();x.moveTo(W/2-nw/2,690);x.lineTo(W/2+nw/2,690);x.stroke();
+ const wrap=(t,font,y,lh,max=860)=>{x.font=font;const w=t.split(' ');let line='',ys=y;w.forEach(word=>{const tt=line?line+' '+word:word;if(x.measureText(tt).width>max&&line){x.fillText(line,W/2,ys);line=word;ys+=lh}else line=tt});x.fillText(line,W/2,ys);return ys};
+ x.fillStyle='#3b2a1a';let y=wrap(q.noMap?'прошёл':'прошёл все испытания квеста',`44px ${sans}`,770,58);
+ y=wrap(`«${q.title}»`,`bold 52px ${sans}`,y+70,64);
+ y=wrap(`и получает ${q.reward}!`,`44px ${sans}`,y+80,58);
+ const ts=questStars(q),mx=q.stations.length*3;
+ const sy=Math.min(y+100,1230),cy=1195,cx=W-205;
+ x.fillStyle='#b8860b';x.font=`bold 60px ${sans}`;x.fillText(`★ ${ts} / ${mx}`,W/2,sy);
+ x.beginPath();x.arc(cx,cy,78,0,7);const sg=x.createRadialGradient(cx-24,cy-24,8,cx,cy,78);sg.addColorStop(0,'#d4473b');sg.addColorStop(1,'#8e1d14');x.fillStyle=sg;x.fill();
+ x.font=`80px ${sans}`;x.fillText('🦉',cx,cy+5);x.strokeStyle='#f2c94c';x.lineWidth=3;x.beginPath();x.arc(cx,cy,66,0,7);x.stroke();
+ x.fillStyle='#7a5a30';x.font=`30px ${sans}`;x.fillText('Путешествие в страну знаний · История Средних веков, 6 класс',W/2,1310);
+ x.fillText(new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}),W/2,1352);
+ return c;
+}
+async function certImage(q){
+ try{await document.fonts.ready}catch(e){}
+ certCanvas(q).toBlob(b=>shareOrDownload(b,`gramota_${q.id}.png`,'Моя грамота'),'image/png');
+}
+function myCerts(){
+ const done=Object.values(QUESTS).filter(q=>!q.special&&!q.noCert&&questDone(q));
+ if(!done.length){toast('Грамоты появятся, когда пройдёшь квест целиком');return}
+ SFX.click();
+ const o=modal(`<div style="text-align:center;font-size:44px">🏅</div><h2 style="text-align:center">Мои грамоты</h2>${done.map(q=>`<button class="opt" data-cq="${q.id}"><b>${q.rewardIcon} ${esc(q.title)}</b><br><span class="small" style="color:#a8322a">★ ${questStars(q)} / ${q.stations.length*3}</span></button>`).join('')}<button class="btn ghost wide" style="background:#7a5a30;margin-top:6px" id="cl">Закрыть</button>`);
+ $('#cl',o).onclick=()=>o.remove();
+ $$('[data-cq]',o).forEach(b=>b.onclick=()=>{o.remove();setQuest(b.dataset.cq);certificate()});
+}
+
 /* ================= МОИ РЕЗУЛЬТАТЫ (ученик видит только свои) ================= */
 const fmtDur=s=>{const m=Math.floor(s/60);return m>=60?`${Math.floor(m/60)} ч ${m%60} мин`:`${m}:${String(s%60).padStart(2,'0')}`};
 const fmtTs=ts=>new Date(ts).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -2045,12 +2165,14 @@ function resultsScreen(){
  <div class="card"><h3>📚 История · 6 класс</h3>${prog}</div>
  <div class="card"><h3>🔁 Что стоит повторить</h3>${weak.length?weak.map(([k,c])=>`<div class="weak"><b>×${c}</b> ${esc(k)}</div>`).join(''):'<p class="small">Ошибок пока нет — так держать! 🎉</p>'}</div>
  <div class="card"><h3>🗒️ Мои попытки</h3>${logs||'<p class="small">Здесь появятся твои попытки, когда ты пройдёшь первое испытание.</p>'}</div>
+ <div class="row"><button class="btn" id="mc2">🏅 Мои грамоты</button><button class="btn" id="tr2">💾 Перенос</button></div>
  <button class="btn green wide" id="cp">📤 Отправить результаты родителям</button>
  <p class="small" style="color:#cfe0ee;text-align:center;margin:0">Результаты хранятся только на этом устройстве. Кнопка подготовит отчёт, который можно отправить в мессенджер.</p>
  </div>`,'linear-gradient(#2a4a5a,#14242c)');
  bindSound();
  $('#back').onclick=()=>{SFX.click();classes()};
  $$('.lg').forEach(r=>r.onclick=()=>r.classList.toggle('open'));
+ $('#mc2').onclick=myCerts;$('#tr2').onclick=transferModal;
  $('#cp').onclick=()=>{const t=`Путешествие в страну знаний — результаты${me?' ('+me+')':''}, ${fmtTs(Date.now())}\nИспытаний: ${L.length}, время: ${fmtDur(time)}, средняя оценка: ${avg}★, ошибок: ${errs}\n\n`+L.slice().reverse().slice(0,60).map(l=>`${fmtTs(l.ts)} — ${l.qt} · ${l.st}: ${l.stars}★, ошибок ${l.m}, ${fmtDur(l.dur)}`+((l.errs||[]).length?'\n   ✗ '+l.errs.join('\n   ✗ '):'')).join('\n');
   const fallback=()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Отчёт скопирован — вставь его в сообщение')}catch(e){toast('Не удалось скопировать')}ta.remove()};
   if(navigator.share){navigator.share({title:'Мои результаты',text:t}).catch(()=>{})}
