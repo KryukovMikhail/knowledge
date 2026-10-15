@@ -112,7 +112,28 @@ input.name{font:inherit;font-size:18px;width:100%;padding:12px;border-radius:12p
 .confetti{position:fixed;top:-30px;font-size:22px;z-index:60;pointer-events:none;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 .small{font-size:13.5px}
-.build{position:fixed;left:calc(10px + env(safe-area-inset-left));bottom:calc(8px + env(safe-area-inset-bottom));font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em;pointer-events:none}
+.build{position:fixed;left:calc(10px + env(safe-area-inset-left));bottom:calc(8px + env(safe-area-inset-bottom));font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em;padding:6px 8px 2px 2px;user-select:none;-webkit-user-select:none;cursor:default}
+.adm .card{padding:14px}
+.adm h3{font-size:18px;margin-bottom:8px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:#fffaf0;border:1px solid #d9c08a;border-radius:12px;padding:10px}
+.tile b{display:block;font-size:22px;font-family:'Philosopher',serif;color:#7a2a12}
+.tile span{font-size:12.5px;color:#7a5a30}
+.qrow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;margin:8px 0;font-size:14.5px}
+.qrow .pb{grid-column:1/3;height:7px;background:#ead8b0;border-radius:6px;overflow:hidden}
+.qrow .pb i{display:block;height:100%;background:#3f7d3a}
+.lg{border-top:1px solid #e3d0a6;padding:9px 2px;cursor:pointer}
+.lg:first-child{border-top:none}
+.lg .l1{display:flex;justify-content:space-between;gap:8px;font-size:14.5px}
+.lg .l2{font-size:12.5px;color:#7a5a30;margin-top:2px}
+.lg .errs{display:none;margin:6px 0 0;padding-left:18px;font-size:13px;color:#8a2a1a;line-height:1.35}
+.lg.open .errs{display:block}
+.weak{font-size:13.5px;line-height:1.35;margin:6px 0;padding:7px 9px;background:#fbe9e6;border-radius:9px;border-left:4px solid #a8322a}
+.weak b{color:#a8322a}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;margin:6px 0}
+.sw input{width:22px;height:22px}
+select.name{font:inherit;padding:8px;border-radius:10px;border:2px solid #c09a58;background:#fffaf0;width:100%;margin-bottom:8px}
+.pinbox{font-size:28px;letter-spacing:12px;text-align:center}
 .halo{paint-order:stroke;stroke:#f5e6c2;stroke-width:5px;stroke-linejoin:round}
 .grades{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
 .grade{font:inherit;position:relative;aspect-ratio:1;border:none;border-radius:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(#e9e2d2,#c9bfa8);color:#6b6253;box-shadow:0 5px 0 #8f8572,var(--shadow);filter:grayscale(.4)}
@@ -139,13 +160,13 @@ const SUBJECTS=[
  {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a'},
  {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
 ];
-const BUILD='K001.004';
+const BUILD='K001.005';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
  {n:'I',t:'Европа в Раннее Средневековье',p:'§ 1–4',i:'⚜️',quests:[{id:'early',t:'От Рима к империи Карла Великого'}]},
  {n:'II',t:'Мусульманская цивилизация в VII–XI вв.',p:'§ 5–6',i:'🕌',quests:[{id:'arab',t:'Арабы, ислам и халифат'}]},
- {n:'III',t:'Средневековое европейское общество',p:'§ 7–9',i:'🏰',quests:[{id:'med1',t:'Часть 1. Сеньоры, рыцари и крестьяне'},{t:'Часть 2. Церковь и горожане'}]},
+ {n:'III',t:'Средневековое европейское общество',p:'§ 7–9',i:'🏰',quests:[{id:'med1',t:'Часть 1. Сеньоры, рыцари и крестьяне'},{id:'med2',t:'Часть 2. Церковь и горожане'}]},
  {n:'IV',t:'Расцвет Средневековья в Западной Европе',p:'§ 10–14',i:'⚔️',quests:[{id:'bloom',t:'Крестоносцы, короли и соборы'}]},
  {n:'V',t:'Страны и народы Азии, Африки и Америки в Средние века',p:'§ 15–20',i:'🌏',quests:[{id:'asia',t:'Вокруг света: Азия, Африка, Америка'}]},
  {n:'VI',t:'Осень Средневековья',p:'§ 21–24',i:'🍂',quests:[{id:'autumn',t:'Конец Средневековья: войны, чума и Возрождение'}]}
@@ -716,9 +737,105 @@ const BLOOM=[
 }
 ];
 
+/* ---------- ГЛАВА III, Часть 2: Церковь и горожане ---------- */
+const MED2=[
+{ id:'c1', name:'Католическая церковь', place:'§ 8', i:'⛪',
+  lesson:`<p>Главой <b>католической церкви</b> был <b>папа римский</b>. Ему подчинялись все священники Западной Европы.</p>
+  <p>Духовенство делилось на <b>белое</b> — священники и епископы, которые жили среди людей, — и <b>чёрное</b> — монахи, ушедшие от мира в монастыри.</p>
+  <p>Церковь была самым крупным землевладельцем. Все жители платили ей <b>десятину</b> — десятую часть доходов.</p>
+  <p>Церковь могла наказать человека <b>отлучением</b> от церкви — с отлучённым нельзя было общаться. А на целую страну папа мог наложить <b>интердикт</b> — запрет проводить богослужения.</p>`,
+  tasks:[{type:'quiz', questions:[
+   {q:'Кто был главой католической церкви?',o:['Папа римский','Император','Король Франции','Аббат'],e:'Папа жил в Риме, ему подчинялось всё западное духовенство.'},
+   {q:'Кого называли «чёрным» духовенством?',o:['Монахов','Священников в городах','Епископов','Рыцарей'],e:'Монахи уходили от мира в монастыри. Священники и епископы — белое духовенство.'},
+   {q:'Что такое десятина?',o:['Десятая часть доходов в пользу церкви','Десять дней работы на сеньора','Отряд из десяти рыцарей','Налог на десять лет'],e:'Десятину платили все — и крестьяне, и горожане.'},
+   {q:'Что такое интердикт?',o:['Запрет богослужений в целой стране','Указ короля о налогах','Книга церковных законов','Посвящение в монахи'],e:'Папа налагал интердикт, чтобы заставить правителя подчиниться.'},
+   {q:'Что значило отлучение от церкви?',o:['Человек изгонялся из церковной общины','Человека делали епископом','Человек уходил в монастырь','Человека освобождали от десятины'],e:'С отлучённым запрещалось общаться — это было тяжёлое наказание.'}
+  ]}]
+},
+{ id:'c2', name:'Монахи и ордены', place:'§ 8', i:'📿',
+  lesson:`<p>Монахи жили в <b>монастырях</b> по строгим правилам — <b>уставу</b>. Монастырь возглавлял <b>аббат</b>. Монахи давали обеты бедности, послушания и безбрачия.</p>
+  <p>В X веке из монастыря Клюни во Франции началось движение за строгость монашеской жизни — <b>клюнийское движение</b>.</p>
+  <p>В XIII веке появились <b>нищенствующие ордены</b>: <b>францисканцы</b> (основатель — <b>Франциск Ассизский</b>) и <b>доминиканцы</b> (основатель — <b>Доминик</b>). Они жили подаянием и проповедовали среди простых людей.</p>
+  <p>Тех, кто не соглашался с учением церкви, называли <b>еретиками</b>. Для борьбы с ними папа создал церковный суд — <b>инквизицию</b>.</p>`,
+  tasks:[{type:'match', prompt:'Соедини слово с его значением.', pairs:[
+   ['Аббат','Настоятель монастыря'],
+   ['Устав','Правила жизни монахов'],
+   ['Францисканцы','Нищенствующий орден Франциска Ассизского'],
+   ['Доминиканцы','Нищенствующий орден, основанный Домиником'],
+   ['Еретики','Те, кто не соглашался с учением церкви'],
+   ['Инквизиция','Церковный суд над еретиками']
+  ]}]
+},
+{ id:'c3', name:'Рождение городов', place:'§ 9', i:'🏘️',
+  lesson:`<p>С XI века в Европе стали быстро расти <b>города</b>. Ремесленники уходили из деревень и селились там, где удобно торговать: у стен замков и монастырей, у мостов, перекрёстков дорог и морских гаваней.</p>
+  <p>Город стоял на земле сеньора, и тот собирал с горожан налоги. Горожане боролись за самоуправление — это <b>коммунальное движение</b>. Город, добившийся свободы, становился <b>коммуной</b>: им управлял выборный <b>городской совет</b> во главе с <b>мэром</b> (в Германии — бургомистром). Совет заседал в <b>ратуше</b>.</p>
+  <p>Говорили: <b>«Городской воздух делает свободным»</b>. Крепостной крестьянин, проживший в городе <b>год и один день</b>, становился свободным.</p>
+  <p>Средневековые города были тесными: узкие кривые улочки, высокие стены, грязь и частые пожары.</p>`,
+  tasks:[{type:'tf', prompt:'Правда или ложь?', questions:[
+   {q:'Города часто возникали у замков, монастырей, мостов и перекрёстков дорог.',a:true,e:'Там было удобно торговать и безопасно жить.'},
+   {q:'Городской совет заседал в донжоне.',a:false,e:'Нет, в ратуше. Донжон — главная башня замка.'},
+   {q:'Крепостной, проживший в городе год и один день, становился свободным.',a:true,e:'Отсюда поговорка «Городской воздух делает свободным».'},
+   {q:'Коммунальное движение — это борьба горожан за самоуправление.',a:true,e:'Город-коммуна сам выбирал совет и мэра.'},
+   {q:'Улицы средневековых городов были широкими и чистыми.',a:false,e:'Нет, улочки были узкими, кривыми и грязными.'},
+   {q:'В Германии главу городского совета называли бургомистром.',a:true,e:'А во Франции и Англии — мэром.'}
+  ]}]
+},
+{ id:'c4', name:'Цехи и гильдии', place:'§ 9', i:'🔨',
+  lesson:`<p>Ремесленники одной профессии объединялись в <b>цехи</b>: цех сапожников, цех пекарей, цех кузнецов. У цеха был <b>устав</b>: сколько работать, какого качества делать товар, по какой цене продавать.</p>
+  <p>Полноправным членом цеха был <b>мастер</b>. Ему помогали <b>подмастерья</b> и <b>ученики</b>. Чтобы стать мастером, подмастерье должен был изготовить образцовое изделие — <b>шедевр</b>.</p>
+  <p>Купцы объединялись в <b>гильдии</b>. Они торговали на больших <b>ярмарках</b>, самые знаменитые — во французской области Шампань.</p>
+  <p>Деньги в разных странах были разные, поэтому появились <b>менялы</b>, а потом и <b>банки</b>. Слово «банк» происходит от итальянского «скамья» — на скамьях сидели менялы.</p>`,
+  tasks:[
+   {type:'order', plain:true, prompt:'Расставь путь ремесленника по порядку.', labels:['1-е','2-е','3-е','4-е'],
+    items:['Ученик','Подмастерье','Изготовление шедевра','Мастер'],e:'Верно! Сначала учёба, потом работа подмастерьем, шедевр — и звание мастера.'},
+   {type:'quiz', questions:[
+    {q:'Что такое цех?',o:['Объединение ремесленников одной профессии','Объединение купцов','Городской совет','Церковный суд'],e:'Купцы объединялись в гильдии, а ремесленники — в цехи.'},
+    {q:'Что такое шедевр в Средние века?',o:['Образцовое изделие, которое делал подмастерье, чтобы стать мастером','Картина в соборе','Главная башня замка','Ярмарочный праздник'],e:'Сейчас шедевром называют любое выдающееся произведение.'},
+    {q:'Откуда произошло слово «банк»?',o:['От итальянского «скамья»','От немецкого «замок»','От латинского «золото»','От французского «рынок»'],e:'Менялы раскладывали монеты на скамьях.'},
+    {q:'Где проходили самые знаменитые ярмарки?',o:['В Шампани (Франция)','В Мекке','В Константинополе','В Лондоне'],e:'На ярмарки Шампани съезжались купцы со всей Европы.'}
+   ]}
+  ]
+},
+{ id:'c5', name:'Свиток горожанина', place:'Итог части', i:'📜',
+  lesson:`<p>Ты побывал в соборе, монастыре и на городской площади! Осталось последнее испытание — <b>Свиток горожанина</b>.</p><p>Пройдёшь — получишь <b>ключи от города</b> и грамоту!</p>`,
+  tasks:[
+   {type:'sort', prompt:'Это относится к церкви или к городу?', done:'Всё на своих местах!',
+    bins:[{n:'Церковь',i:'⛪'},{n:'Город',i:'🏘️'}],
+    items:[['Папа римский',0],['Ратуша',1],['Десятина',0],['Цех',1],['Монастырь',0],['Ярмарка',1],['Инквизиция',0],['Гильдия',1],['Аббат',0],['Бургомистр',1]]},
+   {type:'fill', prompt:'Вставь пропущенное слово.', questions:[
+    {q:'Монахов называли ___ духовенством.',o:['чёрным','белым','красным'],e:'Священники и епископы — белое духовенство.'},
+    {q:'Городской совет заседал в ___.',o:['ратуше','донжоне','монастыре'],e:'Ратуша — главное здание города.'},
+    {q:'Объединение ремесленников одной профессии — это ___.',o:['цех','гильдия','коммуна'],e:'А купцы объединялись в гильдии.'},
+    {q:'«Городской воздух делает ___».',o:['свободным','богатым','здоровым'],e:'Через год и один день крепостной становился свободным.'},
+    {q:'Церковный суд над еретиками — ___.',o:['инквизиция','интердикт','десятина'],e:'Её создали в XIII веке.'}
+   ]}
+  ]
+}
+];
+
+/* ---------- ИТОГОВОЕ ИСПЫТАНИЕ ---------- */
+const FINAL=[{id:'fin',name:'Итоговое испытание',place:'Замок знаний',i:'🏰',x:200,y:200,gen:true,thr:[2,5],tasks:[],
+  lesson:`<p>Ты прошёл все главы учебника «История Средних веков»! Ворота <b>Замка знаний</b> открыты.</p>
+  <p>Тебя ждут <b>три зала</b>: вопросы на выбор ответа, «Правда или ложь» и пропущенные слова — всего <b>20 вопросов</b> из всех глав. Каждый раз вопросы выбираются заново.</p>
+  <p>Ответишь почти без ошибок — станешь <b>Магистром Средневековья</b>!</p>`}];
+function genFinal(){
+ const pool={quiz:[],tf:[],fill:[]};
+ Object.values(QUESTS).forEach(q=>{if(q.id==='final')return;q.stations.forEach(st=>st.tasks.forEach(t=>{if(pool[t.type])pool[t.type].push(...t.questions)}))});
+ return [
+  {type:'quiz',prompt:'Зал I · Выбери ответ',questions:shuffle(pool.quiz).slice(0,8)},
+  {type:'tf',prompt:'Зал II · Правда или ложь?',questions:shuffle(pool.tf).slice(0,6)},
+  {type:'fill',prompt:'Зал III · Вставь слово',questions:shuffle(pool.fill).slice(0,6)}
+ ];
+}
 function layout(arr){arr.forEach((s,i)=>{s.x=i===arr.length-1?200:(i%2?285:115);s.y=165+i*230})}
-[EARLY,ARAB,BLOOM].forEach(layout);
+[EARLY,ARAB,BLOOM,MED2].forEach(layout);
 const QUESTS={
+ med2:{id:'med2',title:'Средневековое европейское общество. Часть 2',short:'Средневековое общество. Ч. 2',stations:MED2,
+  hint:'Спускайся по карте вниз — от собора и монастыря к городским воротам, мастерским и ярмарке.',
+  intro:n=>`<div style="text-align:center;font-size:50px">⛪</div><h2 style="text-align:center">Церковь и горожане</h2><p style="line-height:1.5">${n?esc(n)+', теперь':'Теперь'} ты узнаешь, как жили монахи и священники, как рождались города и почему «городской воздух делает свободным».</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>5 испытаний</b> и получи <b>ключи от города</b>!</p>`,
+  reward:'ключи от города',rewardIcon:'🗝️🏘️🗝️',next:'Дальше по дороге — глава IV, <b>Расцвет Средневековья</b>!',bg:'linear-gradient(#5a4a2a,#2e2414)',svg:()=>genMap(ZONES.med2),down:true},
+ final:{id:'final',title:'Итоговое испытание по истории Средних веков',short:'Замок знаний',stations:FINAL,noMap:true,
+  reward:'звание Магистра Средневековья',rewardIcon:'🏰👑🏰',next:'Ты прошёл всю историю Средних веков! Скоро откроются новые предметы.',bg:'linear-gradient(#4a2a6a,#1d1030)'},
  early:{id:'early',title:'Европа в Раннее Средневековье',short:'Раннее Средневековье',stations:EARLY,
   hint:'Спускайся по карте вниз — от руин Рима через Византию и королевство франков к землям викингов.',
   intro:n=>`<div style="text-align:center;font-size:50px">⚜️</div><h2 style="text-align:center">Начало Средних веков</h2><p style="line-height:1.5">${n?esc(n)+', великая':'Великая'} Римская империя рушится под натиском варваров. На её обломках рождаются новые королевства, а на севере уже поднимают паруса викинги.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>5 испытаний</b> и получи <b>корону Карла Великого</b>!</p>`,
@@ -754,13 +871,20 @@ try{const r=localStorage.getItem(LS);if(r)save=Object.assign(save,JSON.parse(r))
 if(!save.qi)save.qi={};
 if(save.questIntro){save.qi.med1=true;delete save.questIntro}
 function persist(){try{localStorage.setItem(LS,JSON.stringify(save))}catch(e){}}
+/* журнал результатов для администратора (не стирается кнопкой «Начать заново») */
+const LOGK='pvsz_log',ADMK='pvsz_admin';
+let LOG=[],ADM={pin:'',unlockAll:false};
+try{LOG=JSON.parse(localStorage.getItem(LOGK)||'[]')}catch(e){LOG=[]}
+try{ADM=Object.assign(ADM,JSON.parse(localStorage.getItem(ADMK)||'{}'))}catch(e){}
+function saveLog(){try{localStorage.setItem(LOGK,JSON.stringify(LOG.slice(-800)))}catch(e){}}
+function saveAdm(){try{localStorage.setItem(ADMK,JSON.stringify(ADM))}catch(e){}}
 const starsOf=id=>save.stars[id]||0;
 const questStars=q=>q.stations.reduce((s,st)=>s+starsOf(st.id),0);
 const questDone=q=>q.stations.every(st=>starsOf(st.id)>0);
 const allStars=()=>Object.values(QUESTS).reduce((s,q)=>s+questStars(q),0);
 const totalStars=()=>STATIONS.reduce((s,st)=>s+starsOf(st.id),0);
 const allDone=()=>STATIONS.every(st=>starsOf(st.id)>0);
-const unlocked=i=>i===0||starsOf(STATIONS[i-1].id)>0;
+const unlocked=i=>ADM.unlockAll||i===0||starsOf(STATIONS[i-1].id)>0;
 
 /* ================= ЗВУК ================= */
 let AC=null,soundOn=true,audioUnlocked=false;
@@ -838,11 +962,12 @@ function classes(){
  <div class="guide"><div class="owl">🦉</div><div class="bubble">Привет${save.name?', <b>'+esc(save.name)+'</b>':''}! Я сова <b>Мудрослава</b>. Выбери свой класс — и отправимся в путь! ${ts?`У тебя уже ⭐ ${ts}.`:''}</div></div>
  <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
  <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>
- <div class="build">Сборка ${BUILD}</div>`,
+ <div class="build" id="bld">${BUILD}</div>`,
  'radial-gradient(circle at 50% 20%,#3d7fa6,#173b55)');
  bindSound();
  $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(g===6){SFX.click();world()}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
  $('#nm').onclick=()=>askName(classes);
+ let taps=0,tt;$('#bld').onclick=()=>{taps++;clearTimeout(tt);tt=setTimeout(()=>taps=0,2500);if(taps>=5){taps=0;adminGate()}};
  $('#rs').onclick=()=>{const o=modal(`<h2>Начать заново?</h2><p>Все звёзды и пройденные испытания будут стёрты.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn green" id="yes" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e">Стереть</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{save.stars={};save.qi={};persist();o.remove();classes();toast('Прогресс сброшен')}};
  if(!save.intro)askName(classes);
 }
@@ -914,11 +1039,14 @@ function finalCastle(x,y){
   <rect x="-65" y="-62" width="10" height="16" rx="5" fill="#3b2a1a"/><rect x="55" y="-62" width="10" height="16" rx="5" fill="#3b2a1a"/>
   <path d="M-26,0 v-38 a26,26 0 0 1 52,0 v38Z" fill="#5a3a1a" stroke="#3b2210" stroke-width="2"/>
   ${[0,1,2,3,4].map(k=>`<path d="M${-22+k*11},-58 v58" stroke="#2b1a0a" stroke-width="2" opacity=".7"/>`).join('')}<path d="M-24,-30 h48 M-26,-14 h52" stroke="#2b1a0a" stroke-width="2" opacity=".7"/>
-  <text x="0" y="-20" font-size="20" text-anchor="middle">🔒</text>
+  ${castleOpen()&&!starsOf('fin')?'<circle cx="0" cy="-28" r="30" fill="#ffd34d" class="pulse"/>':''}<text x="0" y="-20" font-size="20" text-anchor="middle">${castleOpen()?(starsOf('fin')?'🏅':'✨'):'🔒'}</text>
   ${ribbon(0,32,'Замок знаний · Итоговое испытание',14)}
  </g>`}
+const mainQuests=()=>Object.values(QUESTS).filter(q=>q.id!=='final');
+const castleOpen=()=>ADM.unlockAll||mainQuests().every(questDone);
 function finalModal(){
  SFX.click();
+ if(castleOpen()){const fs=starsOf('fin');const o=modal(`<div style="text-align:center;font-size:50px">🏰</div><h2 style="text-align:center">Ворота Замка знаний открыты!</h2><p style="line-height:1.45">Итоговое испытание: <b>20 вопросов</b> из всех глав учебника, три зала. Вопросы каждый раз новые.</p>${fs?`<p class="small" style="text-align:center">Твой рекорд: <b style="color:#e6a817">${starStr(fs)}</b></p>`:''}<button class="btn green wide" id="go">⚔️ Войти в замок</button><button class="btn ghost wide" style="background:#7a5a30;margin-top:8px" id="cl">Позже</button>`);$('#cl',o).onclick=()=>o.remove();$('#go',o).onclick=()=>{o.remove();setQuest('final');startStation(0)};return}
  const rows=CHAPTERS.map(c=>{const qs=c.quests.filter(q=>q.id).map(q=>QUESTS[q.id]);if(!qs.length)return `<div class="small" style="opacity:.55;margin:4px 0">🔒 Глава ${c.n} — скоро</div>`;const ok=qs.every(questDone);return `<div class="small" style="margin:4px 0">${ok?'✅':'⬜'} Глава ${c.n}: ${esc(c.t)}</div>`}).join('');
  const o=modal(`<div style="text-align:center;font-size:50px">🏰</div><h2 style="text-align:center">Замок знаний</h2><p style="line-height:1.45">Здесь будет <b>итоговое испытание</b> по всей истории Средних веков. Ворота пока закрыты — проходи главы и собирай звёзды!</p>${rows}<button class="btn wide" style="margin-top:12px" id="cl">Понятно</button>`);
  $('#cl',o).onclick=()=>o.remove();
@@ -945,6 +1073,13 @@ const kaaba=(x,y)=>`<g transform="translate(${x},${y})"><ellipse cx="0" cy="4" r
 const mosque=(x,y,c='#e8d6b0')=>`<g transform="translate(${x},${y})"><rect x="-36" y="-30" width="72" height="30" fill="${c}" stroke="#8a6a44"/>${[-24,-8,8,24].map(t=>`<path d="M${t-4},-6 v-10 a4,4 0 0 1 8,0 v10Z" fill="#5a3a20"/>`).join('')}<path d="M-22,-30 Q-24,-56 0,-66 Q24,-56 22,-30Z" fill="#3f8a7a" stroke="#1f5a4a"/><path d="M0,-66 v-8" stroke="#d9a234" stroke-width="2"/><path d="M-3,-78 a4,4 0 1 0 6,0" fill="none" stroke="#d9a234" stroke-width="1.6"/><rect x="42" y="-82" width="10" height="82" fill="${c}" stroke="#8a6a44"/><rect x="40" y="-62" width="14" height="4" fill="#8a6a44"/><path d="M41,-82 L47,-96 L53,-82Z" fill="#3f8a7a"/></g>`;
 function gothic(x,y){const tw=(t)=>`<rect x="${t-12}" y="-90" width="24" height="90" fill="#cfc6b4" stroke="#6d6458"/><path d="M${t-12},-90 L${t},-130 L${t+12},-90Z" fill="#8a8476" stroke="#6d6458"/>${[0,1].map(k=>`<path d="M${t-5},${-30-k*30} v-14 l5,-8 l5,8 v14Z" fill="#4a5a7a"/>`).join('')}`;return `<g transform="translate(${x},${y})">${tw(-34)}${tw(34)}<rect x="-22" y="-70" width="44" height="70" fill="#d6cdbb" stroke="#6d6458"/><circle cx="0" cy="-50" r="12" fill="#5a7ab0" stroke="#6d6458" stroke-width="2"/>${[0,45,90,135].map(a=>`<path d="M${-12*Math.cos(a*Math.PI/180)},${-50-12*Math.sin(a*Math.PI/180)} L${12*Math.cos(a*Math.PI/180)},${-50+12*Math.sin(a*Math.PI/180)}" stroke="#e9c46a" stroke-width="1.5"/>`).join('')}<path d="M-10,0 v-18 l10,-14 l10,14 v18Z" fill="#4a3a2a"/></g>`}
 const ZONES={
+ med2:[
+  {fill:'#d6d0c2',label:'Собор',col:'#3a4a6a',deco:(c,y)=>gothic(c,y+215)+emo(c-80,y+120,'🔔',22)+emo(c+80,y+130,'🕯️',20)},
+  {fill:'#a9c88a',label:'Монастырь',col:'#3a5a2a',deco:(c,y)=>romanesque(c,y+200)+emo(c-75,y+130,'📿',22)+tree(c+80,y+210)+tree(c-85,y+215)},
+  {fill:'#c9b08a',label:'Городские ворота',col:'#5a3a1a',deco:(c,y)=>cwall(c-80,c+80,y+215)+house(c-40,y+160)+house(c,y+150,'#b5793a')+house(c+40,y+165)+emo(c+70,y+110,'🗝️',22)},
+  {fill:'#d9b48a',label:'Мастерские',col:'#6b3a10',deco:(c,y)=>house(c-50,y+200,'#8a5a2e')+house(c+30,y+210)+emo(c-20,y+140,'🔨',26)+emo(c+40,y+130,'🧵',22)+emo(c-70,y+120,'👞',22)+emo(c+75,y+190,'🥖',22)},
+  {fill:'#e8dcc0',label:'Ярмарка',col:'#6b4a2a',deco:(c,y)=>tent(60,y+190,'fr')+tent(340,y+190,'en')+emo(80,y+120,'🪙',24)+emo(320,y+120,'⚖️',24)}
+ ],
  early:[
   {fill:'#cdbf9e',label:'Руины Рима',col:'#6b5a3a',deco:(c,y)=>columns(c,y+170)+cypress(c-75,y+190)+cypress(c+75,y+180,.9)+emo(c+30,y+80,'🏺',22)},
   {fill:'#9fc3d6',label:'Византия',col:'#2a4a6a',deco:(c,y)=>sofia(c,y+200)+emo(c-70,y+120,'⛵',22)+cypress(c+80,y+210,.8)},
@@ -1144,13 +1279,14 @@ function questMap(){
 
 /* ================= ИСПЫТАНИЯ ================= */
 let run=null;
-function startStation(i){run={i,st:STATIONS[i],t:0,mistakes:0};lesson()}
+function startStation(i){const st=STATIONS[i];if(st.gen)st.tasks=genFinal();run={i,st,t:0,mistakes:0,errs:[],t0:Date.now()};lesson()}
+function backToMap(){Q.noMap?historyMap():questMap()}
 function taskHead(sub){
  const st=run.st,n=st.tasks.length,frac=(run.t+(sub||0))/n;
  return `<div class="thead"><button class="btn ghost" id="quit">✕</button><div class="tt">${run.i+1}. ${esc(st.name)}</div><span class="chip">❌ <span id="mc">${run.mistakes}</span></span>${soundBtn()}</div>
  <div class="bar"><i style="width:${Math.round(frac*100)}%"></i></div>`}
-function bindHead(){bindSound();$('#quit').onclick=()=>{const o=modal(`<h2>Выйти из испытания?</h2><p>Прогресс этого испытания не сохранится.</p><div class="row"><button class="btn" id="st">Остаться</button><button class="btn ghost" style="background:#7a5a30" id="ex">Выйти</button></div>`);$('#st',o).onclick=()=>o.remove();$('#ex',o).onclick=()=>{o.remove();questMap()}}}
-function miss(){run.mistakes++;const m=$('#mc');if(m)m.textContent=run.mistakes;SFX.bad()}
+function bindHead(){bindSound();$('#quit').onclick=()=>{const o=modal(`<h2>Выйти из испытания?</h2><p>Прогресс этого испытания не сохранится.</p><div class="row"><button class="btn" id="st">Остаться</button><button class="btn ghost" style="background:#7a5a30" id="ex">Выйти</button></div>`);$('#st',o).onclick=()=>o.remove();$('#ex',o).onclick=()=>{o.remove();backToMap()}}}
+function miss(detail){run.mistakes++;if(detail)run.errs.push(detail);const m=$('#mc');if(m)m.textContent=run.mistakes;SFX.bad()}
 const BG_TASK='linear-gradient(#5a3e24,#2e1f12)';
 function lesson(){
  const st=run.st;
@@ -1184,7 +1320,7 @@ function quizTask(task,done){
   $$('.opt').forEach(b=>b.onclick=()=>{
    const k=+b.dataset.k,ok=isTF?(opts[k][1]===Q.a):opts[k][1];
    $$('.opt').forEach((x,j)=>{x.disabled=true;const right=isTF?(opts[j][1]===Q.a):opts[j][1];if(right)x.classList.add('ok');else if(x!==b)x.classList.add('dim')});
-   if(ok){SFX.ok()}else{b.classList.remove('dim');b.classList.add('bad');shake($('#qc'));miss()}
+   if(ok){SFX.ok()}else{b.classList.remove('dim');b.classList.add('bad');shake($('#qc'));miss(`${Q.q} — ответ: «${isTF?(opts[k][1]?'Правда':'Ложь'):opts[k][0]}», верно: «${isTF?(Q.a?'Правда':'Ложь'):Q.o[0]}»`)}
    if(isFill){const bl=$('#blank');bl.textContent=Q.o[0]}
    $('#ex').innerHTML=`<div class="expl ${ok?'good':'wrong'}"><b>${ok?'Верно!':'Не совсем.'}</b> ${esc(Q.e)}</div>`;
    const nx=$('#next');nx.style.display='block';nx.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1211,7 +1347,7 @@ function sortTask(task,done){
   bindHead();
   $$('.bin').forEach(b=>b.onclick=()=>{
    if(+b.dataset.b===+it[1]){SFX.ok();got[+it[1]].push(it[0]);k++;show()}
-   else{miss();shake($('#cardv'));b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),500);toast('Подумай ещё! Загляни в «Свиток знаний» в памяти 😉')}
+   else{miss(`«${it[0]}» отнёс к «${task.bins[+b.dataset.b].n}», верно: «${task.bins[+it[1]].n}»`);shake($('#cardv'));b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),500);toast('Подумай ещё! Загляни в «Свиток знаний» в памяти 😉')}
   });
  }
  show();
@@ -1232,7 +1368,7 @@ function matchTask(task,done){
   const a=sel.el,b=el;sel=null;$$('.sel').forEach(x=>x.classList.remove('sel'));
   if(a.dataset.i===b.dataset.i){SFX.ok();a.classList.add('done');b.classList.add('done');left--;
    if(left===0){const nx=$('#next');nx.style.display='block';nx.onclick=()=>{SFX.click();done()};nx.scrollIntoView({behavior:'smooth'});toast('Все слова на месте! 🎉')}}
-  else{miss();[a,b].forEach(x=>{x.classList.add('flash');shake(x)});setTimeout(()=>[a,b].forEach(x=>x.classList.remove('flash')),600)}
+  else{const tt=(a.classList.contains('term')?a:b),dd=(tt===a?b:a);miss(`Соединил «${tt.textContent}» с «${dd.textContent}»`);[a,b].forEach(x=>{x.classList.add('flash');shake(x)});setTimeout(()=>[a,b].forEach(x=>x.classList.remove('flash')),600)}
  };
  $$('.term').forEach(t=>t.onclick=()=>pick(t,'t'));
  $$('.def').forEach(d=>d.onclick=()=>pick(d,'d'));
@@ -1257,7 +1393,7 @@ function orderTask(task,done){
     $$('.step').forEach(x=>x.classList.add('ok'));$$('.step').forEach(x=>x.onclick=null);
     $('#ex').innerHTML=`<div class="expl good"><b>Отлично!</b> ${esc(task.e)}</div>`;
     const c=$('#chk');c.textContent='Дальше →';c.onclick=()=>{SFX.click();done()};
-   }else{miss();checked=true;show();shake($('#oc'));toast('Красные ступени стоят не на месте — нажми на них, чтобы убрать')}
+   }else{miss(`Неверный порядок: ${slots.map(x=>task.items[x]).join(' → ')}`);checked=true;show();shake($('#oc'));toast('Красные ступени стоят не на месте — нажми на них, чтобы убрать')}
   };
  }
  show();
@@ -1266,21 +1402,23 @@ function orderTask(task,done){
 /* --- итог испытания --- */
 const PRAISE=['Великолепно! Ты настоящий знаток Средневековья!','Хорошо! Ещё немного — и будет идеально.','Испытание пройдено! Попробуй ещё раз, чтобы собрать больше звёзд.'];
 function finish(){
- const m=run.mistakes,stars=m===0?3:m<=2?2:1,prev=starsOf(run.st.id),last=run.i===STATIONS.length-1;
+ const thr=run.st.thr||[0,2],m=run.mistakes,stars=m<=thr[0]?3:m<=thr[1]?2:1,prev=starsOf(run.st.id),last=run.i===STATIONS.length-1;
+ const nq=run.st.tasks.reduce((s,t)=>s+(t.questions?t.questions.length:t.items?t.items.length:t.pairs?t.pairs.length:1),0);
+ LOG.push({ts:Date.now(),name:save.name||'',quest:Q.id,qt:Q.short,st:run.st.name,stars,m,n:nq,dur:Math.round((Date.now()-run.t0)/1000),errs:run.errs.slice(0,40)});saveLog();
  if(stars>prev){save.stars[run.st.id]=stars;persist()}
  SFX.win();if(stars===3)confetti();
  const nextI=run.i+1<STATIONS.length?run.i+1:null;
  screen(`<div class="card res" style="margin-top:20px">
-  <div style="font-size:54px">${run.st.i}</div><h2>Испытание «${esc(run.st.name)}» пройдено!</h2>
+  <div style="font-size:54px">${run.st.i}</div><h2>${run.st.gen?'Итоговое испытание пройдено!':`Испытание «${esc(run.st.name)}» пройдено!`}</h2>
   <div class="bigstars">${[0,1,2].map(i=>`<span class="${i<stars?'gold':'gray'}">★</span>`).join('')}</div>
   <p>Ошибок: <b>${m}</b>${prev>stars?` · твой рекорд: ${starStr(prev)}`:''}</p>
   <div class="guide" style="text-align:left;margin-top:10px"><div class="owl">🦉</div><div class="bubble">${PRAISE[3-stars]}</div></div>
  </div>
  ${last&&allDone()?`<button class="btn green wide" id="cert">🏅 Получить грамоту</button>`:''}
  ${nextI!==null?`<button class="btn green wide" id="nx">Следующее испытание: ${esc(STATIONS[nextI].name)} →</button>`:''}
- <div class="row"><button class="btn" id="map">🗺️ На карту</button><button class="btn" id="again">↻ Ещё раз</button></div>`,BG_TASK);
+ <div class="row"><button class="btn" id="map">🗺️ ${Q.noMap?'К главам':'На карту'}</button><button class="btn" id="again">↻ Ещё раз</button></div>`,BG_TASK);
  const i=run.i;
- $('#map').onclick=()=>{SFX.click();questMap()};
+ $('#map').onclick=()=>{SFX.click();backToMap()};
  $('#again').onclick=()=>{SFX.click();startStation(i)};
  if($('#nx'))$('#nx').onclick=()=>{SFX.click();startStation(nextI)};
  if($('#cert'))$('#cert').onclick=certificate;
@@ -1292,14 +1430,72 @@ function certificate(){
   <div style="font-size:40px">${Q.rewardIcon}</div><h1>Грамота</h1>
   <p style="margin:10px 0 2px">Настоящим удостоверяется, что</p>
   <div class="who">${esc(save.name||'Отважный путешественник')}</div>
-  <p style="line-height:1.5">прошёл все испытания квеста<br><b>«${esc(Q.title)}»</b><br>и получает <b>${esc(Q.reward)}</b>!</p>
+  <p style="line-height:1.5">прошёл ${Q.noMap?'':'все испытания квеста<br>'}<b>«${esc(Q.title)}»</b><br>и получает <b>${esc(Q.reward)}</b>!</p>
   <div class="bigstars" style="font-size:30px"><span class="gold">★</span> ${ts} / ${max}</div>
   <p class="small">${ts===max?'Безупречно — все звёзды собраны!':'Перепройди испытания, чтобы собрать все звёзды.'}</p>
   <div class="seal">🦉</div>
  </div>
  <div class="guide"><div class="owl">🦉</div><div class="bubble">${Q.next}</div></div>
- <div class="row"><button class="btn" id="qm">🗺️ Карта квеста</button><button class="btn" id="hm">📜 Остров Истории</button></div>`,'linear-gradient(#7a2a12,#3b140a)');
- $('#qm').onclick=()=>{SFX.click();questMap()};$('#hm').onclick=()=>{SFX.click();historyMap()};
+ <div class="row">${Q.noMap?'':'<button class="btn" id="qm">🗺️ Карта квеста</button>'}<button class="btn" id="hm">📜 Остров Истории</button></div>`,'linear-gradient(#7a2a12,#3b140a)');
+ if($('#qm'))$('#qm').onclick=()=>{SFX.click();questMap()};$('#hm').onclick=()=>{SFX.click();historyMap()};
+}
+
+/* ================= АДМИНИСТРАТОР ================= */
+function adminGate(){
+ const first=!ADM.pin;
+ const o=modal(`<div style="text-align:center;font-size:44px">🔐</div><h2 style="text-align:center">Вход для администратора</h2><p class="small" style="text-align:center;color:#7a5a30">${first?'Придумайте PIN-код (4–6 цифр). Он понадобится для входа.':'Введите PIN-код'}</p><input class="name pinbox" id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">${first?'<input class="name pinbox" id="pin2" type="password" inputmode="numeric" maxlength="6" placeholder="ещё раз" autocomplete="off">':''}<div class="row"><button class="btn ghost" style="background:#7a5a30" id="cl">Отмена</button><button class="btn" id="ok">Войти</button></div>`);
+ const i1=$('#pin',o);setTimeout(()=>i1.focus(),100);
+ $('#cl',o).onclick=()=>o.remove();
+ const go=()=>{const v=i1.value.trim();
+  if(first){const v2=$('#pin2',o).value.trim();if(!/^\d{4,6}$/.test(v)){toast('PIN — от 4 до 6 цифр');return}if(v!==v2){toast('PIN-коды не совпадают');return}ADM.pin=v;saveAdm();o.remove();adminScreen();return}
+  if(v===ADM.pin){o.remove();adminScreen()}else{shake(i1);i1.value='';toast('Неверный PIN')}};
+ $('#ok',o).onclick=go;o.onkeydown=e=>{if(e.key==='Enter')go()};
+}
+const fmtDur=s=>{const m=Math.floor(s/60);return m>=60?`${Math.floor(m/60)} ч ${m%60} мин`:`${m}:${String(s%60).padStart(2,'0')}`};
+const fmtTs=ts=>new Date(ts).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+let admFilter='';
+function adminScreen(){
+ const names=[...new Set(LOG.map(l=>l.name||'Без имени'))];
+ const L=LOG.filter(l=>!admFilter||(l.name||'Без имени')===admFilter);
+ const time=L.reduce((s,l)=>s+l.dur,0),errs=L.reduce((s,l)=>s+l.m,0),avg=L.length?(L.reduce((s,l)=>s+l.stars,0)/L.length).toFixed(1):'—';
+ const days=new Set(L.map(l=>new Date(l.ts).toDateString())).size;
+ // прогресс по квестам (лучший результат из журнала по станциям)
+ const best={};L.forEach(l=>{const k=l.quest+'|'+l.st;best[k]=Math.max(best[k]||0,l.stars)});
+ const order=['early','arab','med1','med2','bloom','asia','autumn','final'];
+ const prog=order.filter(id=>QUESTS[id]).map(id=>{const q=QUESTS[id],got=q.stations.reduce((s,st)=>s+(best[id+'|'+st.name]||0),0),mx=q.stations.length*3,done=q.stations.filter(st=>best[id+'|'+st.name]).length;return `<div class="qrow"><span>${esc(q.short)} <span class="small" style="color:#7a5a30">· ${done}/${q.stations.length}</span></span><b style="color:#a8322a">★ ${got}/${mx}</b><div class="pb"><i style="width:${Math.round(got/mx*100)}%"></i></div></div>`}).join('');
+ // слабые места
+ const cnt={};L.forEach(l=>(l.errs||[]).forEach(e=>{const k=e.split(' — ответ:')[0].replace(/^«(.+?)» отнёс к.*$/,'«$1» (не та корзина)');cnt[k]=(cnt[k]||0)+1}));
+ const weak=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8);
+ const logs=L.slice().reverse().slice(0,150).map((l,i)=>`<div class="lg" data-i="${i}"><div class="l1"><span><b>${esc(l.qt)}</b> · ${esc(l.st)}</span><span style="color:#e6a817;white-space:nowrap">${starStr(l.stars)}</span></div><div class="l2">${fmtTs(l.ts)}${names.length>1&&!admFilter?' · '+esc(l.name||'Без имени'):''} · ошибок: ${l.m} · ⏱ ${fmtDur(l.dur)}${l.errs&&l.errs.length?' · ▾ подробнее':''}</div>${l.errs&&l.errs.length?`<ol class="errs">${l.errs.map(e=>`<li>${esc(e)}</li>`).join('')}</ol>`:''}</div>`).join('');
+ screen(`<div class="adm" style="display:flex;flex-direction:column;gap:12px">
+ <div class="top"><button class="btn ghost" id="back">← Выйти</button><h2 class="ttl">Кабинет администратора</h2></div>
+ ${names.length>1?`<select class="name" id="flt"><option value="">Все игроки</option>${names.map(n=>`<option ${n===admFilter?'selected':''}>${esc(n)}</option>`).join('')}</select>`:''}
+ <div class="card"><h3>📊 Сводка${admFilter?': '+esc(admFilter):''}</h3><div class="tiles">
+  <div class="tile"><b>${L.length}</b><span>пройдено испытаний</span></div>
+  <div class="tile"><b>${fmtDur(time)}</b><span>время в испытаниях</span></div>
+  <div class="tile"><b>${avg}</b><span>средняя оценка (из 3 ★)</span></div>
+  <div class="tile"><b>${errs}</b><span>ошибок всего · дней: ${days}</span></div>
+ </div></div>
+ <div class="card"><h3>📚 История · 6 класс — лучшие результаты</h3>${prog}</div>
+ <div class="card"><h3>⚠️ Где чаще ошибается</h3>${weak.length?weak.map(([k,c])=>`<div class="weak"><b>×${c}</b> ${esc(k)}</div>`).join(''):'<p class="small">Ошибок пока нет 🎉</p>'}</div>
+ <div class="card"><h3>🗒️ Журнал попыток</h3>${logs||'<p class="small">Пока нет ни одной попытки.</p>'}</div>
+ <div class="card"><h3>⚙️ Настройки</h3>
+  <label class="sw"><span>Открыть все испытания и Замок знаний без прохождения</span><input type="checkbox" id="ua" ${ADM.unlockAll?'checked':''}></label>
+  <div class="row" style="margin-top:10px"><button class="btn" id="csv">⬇️ Скачать CSV</button><button class="btn" id="cp">📋 Копировать отчёт</button></div>
+  <div class="row" style="margin-top:10px"><button class="btn ghost" style="background:#7a5a30" id="chp">Сменить PIN</button><button class="btn ghost" style="background:#a8322a" id="clr">Очистить журнал</button></div>
+  <p class="small" style="color:#7a5a30;margin-top:10px">Результаты хранятся на этом устройстве, в этом браузере. Кнопка «Начать заново» у ребёнка журнал не стирает.</p>
+ </div></div>`,'linear-gradient(#2a3a4a,#141c24)');
+ $('#back').onclick=()=>{admFilter='';classes()};
+ if($('#flt'))$('#flt').onchange=e=>{admFilter=e.target.value;adminScreen()};
+ $$('.lg').forEach(r=>r.onclick=()=>r.classList.toggle('open'));
+ $('#ua').onchange=e=>{ADM.unlockAll=e.target.checked;saveAdm();toast(ADM.unlockAll?'Все испытания открыты':'Испытания открываются по порядку')};
+ $('#csv').onclick=()=>{const rows=[['Дата','Игрок','Квест','Испытание','Звёзды','Ошибки','Заданий','Время, сек','Ошибки подробно']].concat(L.map(l=>[fmtTs(l.ts),l.name,l.qt,l.st,l.stars,l.m,l.n,l.dur,(l.errs||[]).join(' | ')]));
+  const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`rezultaty_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)};
+ $('#cp').onclick=()=>{const t=`Путешествие в страну знаний — отчёт (${fmtTs(Date.now())})\nИспытаний: ${L.length}, время: ${fmtDur(time)}, средняя оценка: ${avg}★, ошибок: ${errs}\n\n`+L.slice().reverse().slice(0,60).map(l=>`${fmtTs(l.ts)} — ${l.qt} · ${l.st}: ${l.stars}★, ошибок ${l.m}, ${fmtDur(l.dur)}`+((l.errs||[]).length?'\n   ✗ '+l.errs.join('\n   ✗ '):'')).join('\n');
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Отчёт скопирован — можно вставить в сообщение')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Отчёт скопирован')}catch(e){toast('Не удалось скопировать')}ta.remove()})};
+ $('#chp').onclick=()=>{ADM.pin='';saveAdm();adminGate()};
+ $('#clr').onclick=()=>{const o=modal(`<h2>Очистить журнал?</h2><p>Все записи о попытках будут удалены. Звёзды в игре останутся.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e;color:#fff" id="yes">Очистить</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{LOG=[];saveLog();o.remove();adminScreen()}};
 }
 
 classes();
