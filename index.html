@@ -160,7 +160,7 @@ const SUBJECTS=[
  {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a'},
  {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
 ];
-const BUILD='K001.006';
+const BUILD='K001.007';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -878,43 +878,8 @@ try{LOG=JSON.parse(localStorage.getItem(LOGK)||'[]')}catch(e){LOG=[]}
 try{ADM=Object.assign(ADM,JSON.parse(localStorage.getItem(ADMK)||'{}'))}catch(e){}
 function saveLog(){try{localStorage.setItem(LOGK,JSON.stringify(LOG.slice(-800)))}catch(e){}}
 function saveAdm(){try{localStorage.setItem(ADMK,JSON.stringify(ADM))}catch(e){}}
-/* ---- облачное сохранение: ветка results репозитория на GitHub ---- */
-const GH={owner:'KryukovMikhail',repo:'knowledge',branch:'results'};
-let DEV='';try{DEV=localStorage.getItem('pvsz_dev')||''}catch(e){}
-if(!DEV){DEV='d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);try{localStorage.setItem('pvsz_dev',DEV)}catch(e){}}
-const b64e=str=>{const by=new TextEncoder().encode(str);let bin='';for(let i=0;i<by.length;i+=8192)bin+=String.fromCharCode.apply(null,by.subarray(i,i+8192));return btoa(bin)};
-const b64d=b=>new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g,'')),c=>c.charCodeAt(0)));
-function gh(path,opt={},tok=ADM.token){const h={'Accept':'application/vnd.github+json'};if(tok)h.Authorization='Bearer '+tok;return fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}${path}`,Object.assign({cache:'no-store'},opt,{headers:Object.assign(h,opt.headers||{})}))}
-let syncBusy=false,syncAgain=false;
-async function cloudSync(){
- if(!ADM.token)return false;
- if(syncBusy){syncAgain=true;return false}
- syncBusy=true;let ok=false;
- try{
-  const path=`/contents/results/${DEV}.json`;
-  for(let attempt=0;attempt<2&&!ok;attempt++){
-   let sha;const g=await gh(`${path}?ref=${GH.branch}`);
-   if(g.ok)sha=(await g.json()).sha;else if(g.status!==404)throw new Error('чтение: '+g.status);
-   const body={message:`Результаты: ${save.name||'игрок'} · ${LOG.length} попыток`,branch:GH.branch,
-    content:b64e(JSON.stringify({device:DEV,name:save.name,updated:Date.now(),ua:navigator.userAgent.slice(0,120),log:LOG}))};
-   if(sha)body.sha=sha;
-   const r=await gh(path,{method:'PUT',body:JSON.stringify(body)});
-   if(r.ok)ok=true;else if(r.status!==409&&r.status!==422)throw new Error('запись: '+r.status+(r.status===401?' (токен недействителен)':r.status===403||r.status===404?' (у токена нет доступа к репозиторию)':''));
-  }
-  if(ok){ADM.lastSync=Date.now();ADM.syncErr=''}else ADM.syncErr='конфликт версий, повторю позже';
- }catch(e){ADM.syncErr=String(e.message||e)}
- saveAdm();syncBusy=false;
- if(syncAgain){syncAgain=false;cloudSync()}
- return ok;
-}
-async function cloudLoad(){
- const r=await gh(`/contents/results?ref=${GH.branch}`);
- if(!r.ok)throw new Error('GitHub ответил '+r.status);
- const files=(await r.json()).filter(f=>f.name.endsWith('.json'));
- const all=[];
- await Promise.all(files.map(async f=>{const x=await gh(`/contents/results/${f.name}?ref=${GH.branch}`);if(!x.ok)return;const j=JSON.parse(b64d((await x.json()).content));(j.log||[]).forEach(l=>all.push(Object.assign({},l,{dev:j.device,name:l.name||j.name||''})))}));
- return all.sort((a,b)=>a.ts-b.ts);
-}
+/* журнал хранится только на этом устройстве; режим администратора убран */
+ADM.unlockAll=false;delete ADM.token;delete ADM.pin;saveAdm();
 const starsOf=id=>save.stars[id]||0;
 const questStars=q=>q.stations.reduce((s,st)=>s+starsOf(st.id),0);
 const questDone=q=>q.stations.every(st=>starsOf(st.id)>0);
@@ -998,13 +963,14 @@ function classes(){
  <div class="top"><span style="width:44px"></span><h1 class="ttl">Путешествие<br>в страну знаний</h1>${soundBtn()}</div>
  <div class="guide"><div class="owl">🦉</div><div class="bubble">Привет${save.name?', <b>'+esc(save.name)+'</b>':''}! Я сова <b>Мудрослава</b>. Выбери свой класс — и отправимся в путь! ${ts?`У тебя уже ⭐ ${ts}.`:''}</div></div>
  <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
+ <button class="btn wide" id="myres">📊 Мои результаты</button>
  <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>
  <div class="build" id="bld">${BUILD}</div>`,
  'radial-gradient(circle at 50% 20%,#3d7fa6,#173b55)');
  bindSound();
  $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(g===6){SFX.click();world()}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
  $('#nm').onclick=()=>askName(classes);
- let taps=0,tt;$('#bld').onclick=()=>{taps++;clearTimeout(tt);tt=setTimeout(()=>taps=0,2500);if(taps>=5){taps=0;adminGate()}};
+ $('#myres').onclick=()=>{SFX.click();resultsScreen()};
  $('#rs').onclick=()=>{const o=modal(`<h2>Начать заново?</h2><p>Все звёзды и пройденные испытания будут стёрты.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn green" id="yes" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e">Стереть</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{save.stars={};save.qi={};persist();o.remove();classes();toast('Прогресс сброшен')}};
  if(!save.intro)askName(classes);
 }
@@ -1441,7 +1407,7 @@ const PRAISE=['Великолепно! Ты настоящий знаток Ср
 function finish(){
  const thr=run.st.thr||[0,2],m=run.mistakes,stars=m<=thr[0]?3:m<=thr[1]?2:1,prev=starsOf(run.st.id),last=run.i===STATIONS.length-1;
  const nq=run.st.tasks.reduce((s,t)=>s+(t.questions?t.questions.length:t.items?t.items.length:t.pairs?t.pairs.length:1),0);
- LOG.push({ts:Date.now(),name:save.name||'',quest:Q.id,qt:Q.short,st:run.st.name,stars,m,n:nq,dur:Math.round((Date.now()-run.t0)/1000),errs:run.errs.slice(0,40)});saveLog();cloudSync();
+ LOG.push({ts:Date.now(),name:save.name||'',quest:Q.id,qt:Q.short,st:run.st.name,stars,m,n:nq,dur:Math.round((Date.now()-run.t0)/1000),errs:run.errs.slice(0,40)});saveLog();
  if(stars>prev){save.stars[run.st.id]=stars;persist()}
  SFX.win();if(stars===3)confetti();
  const nextI=run.i+1<STATIONS.length?run.i+1:null;
@@ -1477,89 +1443,43 @@ function certificate(){
  if($('#qm'))$('#qm').onclick=()=>{SFX.click();questMap()};$('#hm').onclick=()=>{SFX.click();historyMap()};
 }
 
-/* ================= АДМИНИСТРАТОР ================= */
-function adminGate(){
- const first=!ADM.pin;
- const o=modal(`<div style="text-align:center;font-size:44px">🔐</div><h2 style="text-align:center">Вход для администратора</h2><p class="small" style="text-align:center;color:#7a5a30">${first?'Придумайте PIN-код (4–6 цифр). Он понадобится для входа.':'Введите PIN-код'}</p><input class="name pinbox" id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">${first?'<input class="name pinbox" id="pin2" type="password" inputmode="numeric" maxlength="6" placeholder="ещё раз" autocomplete="off">':''}<div class="row"><button class="btn ghost" style="background:#7a5a30" id="cl">Отмена</button><button class="btn" id="ok">Войти</button></div>`);
- const i1=$('#pin',o);setTimeout(()=>i1.focus(),100);
- $('#cl',o).onclick=()=>o.remove();
- const go=()=>{const v=i1.value.trim();
-  if(first){const v2=$('#pin2',o).value.trim();if(!/^\d{4,6}$/.test(v)){toast('PIN — от 4 до 6 цифр');return}if(v!==v2){toast('PIN-коды не совпадают');return}ADM.pin=v;saveAdm();o.remove();adminScreen();return}
-  if(v===ADM.pin){o.remove();adminScreen()}else{shake(i1);i1.value='';toast('Неверный PIN')}};
- $('#ok',o).onclick=go;o.onkeydown=e=>{if(e.key==='Enter')go()};
-}
+/* ================= МОИ РЕЗУЛЬТАТЫ (ученик видит только свои) ================= */
 const fmtDur=s=>{const m=Math.floor(s/60);return m>=60?`${Math.floor(m/60)} ч ${m%60} мин`:`${m}:${String(s%60).padStart(2,'0')}`};
 const fmtTs=ts=>new Date(ts).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-let admFilter='',admSrc='local',CLOUD=null;
-async function loadCloud(){
- screen(`<div class="card" style="margin-top:40px;text-align:center"><div style="font-size:44px">☁️</div><h2>Загружаю результаты с GitHub…</h2></div>`,'linear-gradient(#2a3a4a,#141c24)');
- try{CLOUD=await cloudLoad();admSrc='cloud';adminScreen()}catch(e){admSrc='local';adminScreen();toast('Не удалось загрузить: '+(e.message||e))}
-}
-function adminScreen(){
- const SRC=admSrc==='cloud'&&CLOUD?CLOUD:LOG;
- const names=[...new Set(SRC.map(l=>l.name||'Без имени'))];
- const L=SRC.filter(l=>!admFilter||(l.name||'Без имени')===admFilter);
+function resultsScreen(){
+ const me=save.name||'';
+ const L=LOG.filter(l=>(l.name||'')===me);
  const time=L.reduce((s,l)=>s+l.dur,0),errs=L.reduce((s,l)=>s+l.m,0),avg=L.length?(L.reduce((s,l)=>s+l.stars,0)/L.length).toFixed(1):'—';
  const days=new Set(L.map(l=>new Date(l.ts).toDateString())).size;
- // прогресс по квестам (лучший результат из журнала по станциям)
- const best={};L.forEach(l=>{const k=l.quest+'|'+l.st;best[k]=Math.max(best[k]||0,l.stars)});
  const order=['early','arab','med1','med2','bloom','asia','autumn','final'];
- const prog=order.filter(id=>QUESTS[id]).map(id=>{const q=QUESTS[id],got=q.stations.reduce((s,st)=>s+(best[id+'|'+st.name]||0),0),mx=q.stations.length*3,done=q.stations.filter(st=>best[id+'|'+st.name]).length;return `<div class="qrow"><span>${esc(q.short)} <span class="small" style="color:#7a5a30">· ${done}/${q.stations.length}</span></span><b style="color:#a8322a">★ ${got}/${mx}</b><div class="pb"><i style="width:${Math.round(got/mx*100)}%"></i></div></div>`}).join('');
- // слабые места
+ const prog=order.filter(id=>QUESTS[id]).map(id=>{const q=QUESTS[id],got=questStars(q),mx=q.stations.length*3,done=q.stations.filter(st=>starsOf(st.id)).length;return `<div class="qrow"><span>${esc(q.short)} <span class="small" style="color:#7a5a30">· ${done}/${q.stations.length}</span></span><b style="color:#a8322a">★ ${got}/${mx}</b><div class="pb"><i style="width:${Math.round(got/mx*100)}%"></i></div></div>`}).join('');
  const cnt={};L.forEach(l=>(l.errs||[]).forEach(e=>{const k=e.split(' — ответ:')[0].replace(/^«(.+?)» отнёс к.*$/,'«$1» (не та корзина)');cnt[k]=(cnt[k]||0)+1}));
  const weak=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8);
- const logs=L.slice().reverse().slice(0,150).map((l,i)=>`<div class="lg" data-i="${i}"><div class="l1"><span><b>${esc(l.qt)}</b> · ${esc(l.st)}</span><span style="color:#e6a817;white-space:nowrap">${starStr(l.stars)}</span></div><div class="l2">${fmtTs(l.ts)}${names.length>1&&!admFilter?' · '+esc(l.name||'Без имени'):''} · ошибок: ${l.m} · ⏱ ${fmtDur(l.dur)}${l.errs&&l.errs.length?' · ▾ подробнее':''}</div>${l.errs&&l.errs.length?`<ol class="errs">${l.errs.map(e=>`<li>${esc(e)}</li>`).join('')}</ol>`:''}</div>`).join('');
+ const logs=L.slice().reverse().slice(0,150).map(l=>`<div class="lg"><div class="l1"><span><b>${esc(l.qt)}</b> · ${esc(l.st)}</span><span style="color:#e6a817;white-space:nowrap">${starStr(l.stars)}</span></div><div class="l2">${fmtTs(l.ts)} · ошибок: ${l.m} · ⏱ ${fmtDur(l.dur)}${l.errs&&l.errs.length?' · ▾ мои ошибки':''}</div>${l.errs&&l.errs.length?`<ol class="errs">${l.errs.map(e=>`<li>${esc(e)}</li>`).join('')}</ol>`:''}</div>`).join('');
  screen(`<div class="adm" style="display:flex;flex-direction:column;gap:12px">
- <div class="top"><button class="btn ghost" id="back">← Выйти</button><h2 class="ttl">Кабинет администратора</h2></div>
- <div class="row"><button class="btn ${admSrc==='local'?'':'ghost'}" id="srcL">📱 Это устройство</button><button class="btn ${admSrc==='cloud'?'':'ghost'}" id="srcC">☁️ Все устройства</button></div>
- ${admSrc==='cloud'?`<p class="small" style="color:#cfe0ee;text-align:center;margin:-4px 0 0">Данные из GitHub · загружено ${CLOUD?CLOUD.length:0} попыток · <a href="#" id="rel" style="color:#ffd96b">обновить</a></p>`:''}
- ${names.length>1?`<select class="name" id="flt"><option value="">Все игроки</option>${names.map(n=>`<option ${n===admFilter?'selected':''}>${esc(n)}</option>`).join('')}</select>`:''}
- <div class="card"><h3>📊 Сводка${admFilter?': '+esc(admFilter):''}</h3><div class="tiles">
+ <div class="top"><button class="btn ghost" id="back">← Назад</button><h2 class="ttl">Мои результаты${me?' · '+esc(me):''}</h2>${soundBtn()}</div>
+ <div class="card"><h3>📊 Мои успехи</h3><div class="tiles">
   <div class="tile"><b>${L.length}</b><span>пройдено испытаний</span></div>
   <div class="tile"><b>${fmtDur(time)}</b><span>время в испытаниях</span></div>
   <div class="tile"><b>${avg}</b><span>средняя оценка (из 3 ★)</span></div>
-  <div class="tile"><b>${errs}</b><span>ошибок всего · дней: ${days}</span></div>
+  <div class="tile"><b>${days}</b><span>дней занятий · ошибок: ${errs}</span></div>
  </div></div>
- <div class="card"><h3>📚 История · 6 класс — лучшие результаты</h3>${prog}</div>
- <div class="card"><h3>⚠️ Где чаще ошибается</h3>${weak.length?weak.map(([k,c])=>`<div class="weak"><b>×${c}</b> ${esc(k)}</div>`).join(''):'<p class="small">Ошибок пока нет 🎉</p>'}</div>
- <div class="card"><h3>🗒️ Журнал попыток</h3>${logs||'<p class="small">Пока нет ни одной попытки.</p>'}</div>
- <div class="card"><h3>⚙️ Настройки</h3>
-  <div style="background:#fffaf0;border:1px solid #d9c08a;border-radius:12px;padding:10px;margin-bottom:12px">
-   <div style="font-weight:700;margin-bottom:4px">☁️ Сохранение в GitHub</div>
-   ${ADM.token?`<div class="small">Подключено · это устройство: <code>${DEV}</code><br>${ADM.lastSync?'Последняя отправка: '+fmtTs(ADM.lastSync):'Ещё не отправлялось'}${ADM.syncErr?`<br><span style="color:#a8322a">Ошибка: ${esc(ADM.syncErr)}</span>`:''}</div>
-   <div class="row" style="margin-top:8px"><button class="btn" id="snow">⟳ Отправить сейчас</button><button class="btn ghost" style="background:#7a5a30" id="toff">Отключить</button></div>`
-   :`<div class="small" style="color:#7a5a30;margin-bottom:6px">Вставьте токен GitHub с правом записи в репозиторий knowledge — тогда результаты с этого устройства будут сохраняться в репозиторий.</div><input class="name" id="tok" placeholder="github_pat_…" autocomplete="off" style="font-size:14px;margin:4px 0 8px"><button class="btn wide" id="ton">Подключить</button>`}
-  </div>
-  <label class="sw"><span>Открыть все испытания и Замок знаний без прохождения</span><input type="checkbox" id="ua" ${ADM.unlockAll?'checked':''}></label>
-  <div class="row" style="margin-top:10px"><button class="btn" id="csv">⬇️ Скачать CSV</button><button class="btn" id="cp">📋 Копировать отчёт</button></div>
-  <div class="row" style="margin-top:10px"><button class="btn ghost" style="background:#7a5a30" id="chp">Сменить PIN</button><button class="btn ghost" style="background:#a8322a" id="clr">Очистить журнал</button></div>
-  <p class="small" style="color:#7a5a30;margin-top:10px">Журнал хранится на устройстве и, если подключено, в ветке <b>results</b> репозитория. Кнопка «Начать заново» у ребёнка журнал не стирает.</p>
- </div></div>`,'linear-gradient(#2a3a4a,#141c24)');
- $('#back').onclick=()=>{admFilter='';admSrc='local';classes()};
- $('#srcL').onclick=()=>{admSrc='local';admFilter='';adminScreen()};
- $('#srcC').onclick=()=>{admFilter='';loadCloud()};
- if($('#rel'))$('#rel').onclick=e=>{e.preventDefault();loadCloud()};
- if($('#snow'))$('#snow').onclick=async()=>{toast('Отправляю…');const ok=await cloudSync();toast(ok?'Результаты сохранены в GitHub ✓':'Не получилось: '+ADM.syncErr);adminScreen()};
- if($('#toff'))$('#toff').onclick=()=>{ADM.token='';ADM.lastSync=0;ADM.syncErr='';saveAdm();adminScreen();toast('Сохранение в GitHub отключено')};
- if($('#ton'))$('#ton').onclick=async()=>{const t=$('#tok').value.trim();if(!t){toast('Вставьте токен');return}
-  toast('Проверяю токен…');
-  try{const r=await gh('',{},t);if(!r.ok)throw new Error(r.status===401?'токен недействителен':'нет доступа к репозиторию ('+r.status+')');const j=await r.json();if(j.permissions&&!j.permissions.push)throw new Error('у токена нет права записи (Contents: Read and write)');
-   ADM.token=t;saveAdm();const ok=await cloudSync();toast(ok?'Подключено! Результаты отправлены ✓':'Токен принят, но запись не удалась: '+ADM.syncErr);adminScreen()}
-  catch(e){toast('Ошибка: '+(e.message||e))}};
- if($('#flt'))$('#flt').onchange=e=>{admFilter=e.target.value;adminScreen()};
+ <div class="card"><h3>📚 История · 6 класс</h3>${prog}</div>
+ <div class="card"><h3>🔁 Что стоит повторить</h3>${weak.length?weak.map(([k,c])=>`<div class="weak"><b>×${c}</b> ${esc(k)}</div>`).join(''):'<p class="small">Ошибок пока нет — так держать! 🎉</p>'}</div>
+ <div class="card"><h3>🗒️ Мои попытки</h3>${logs||'<p class="small">Здесь появятся твои попытки, когда ты пройдёшь первое испытание.</p>'}</div>
+ <button class="btn green wide" id="cp">📤 Отправить результаты родителям</button>
+ <p class="small" style="color:#cfe0ee;text-align:center;margin:0">Результаты хранятся только на этом устройстве. Кнопка подготовит отчёт, который можно отправить в мессенджер.</p>
+ </div>`,'linear-gradient(#2a4a5a,#14242c)');
+ bindSound();
+ $('#back').onclick=()=>{SFX.click();classes()};
  $$('.lg').forEach(r=>r.onclick=()=>r.classList.toggle('open'));
- $('#ua').onchange=e=>{ADM.unlockAll=e.target.checked;saveAdm();toast(ADM.unlockAll?'Все испытания открыты':'Испытания открываются по порядку')};
- $('#csv').onclick=()=>{const rows=[['Дата','Игрок','Квест','Испытание','Звёзды','Ошибки','Заданий','Время, сек','Ошибки подробно']].concat(L.map(l=>[fmtTs(l.ts),l.name,l.qt,l.st,l.stars,l.m,l.n,l.dur,(l.errs||[]).join(' | ')]));
-  const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\r\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`rezultaty_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)};
- $('#cp').onclick=()=>{const t=`Путешествие в страну знаний — отчёт (${fmtTs(Date.now())})\nИспытаний: ${L.length}, время: ${fmtDur(time)}, средняя оценка: ${avg}★, ошибок: ${errs}\n\n`+L.slice().reverse().slice(0,60).map(l=>`${fmtTs(l.ts)} — ${l.qt} · ${l.st}: ${l.stars}★, ошибок ${l.m}, ${fmtDur(l.dur)}`+((l.errs||[]).length?'\n   ✗ '+l.errs.join('\n   ✗ '):'')).join('\n');
-  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Отчёт скопирован — можно вставить в сообщение')).catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Отчёт скопирован')}catch(e){toast('Не удалось скопировать')}ta.remove()})};
- $('#chp').onclick=()=>{ADM.pin='';saveAdm();adminGate()};
- $('#clr').onclick=()=>{const o=modal(`<h2>Очистить журнал?</h2><p>Все записи о попытках с этого устройства будут удалены (и в GitHub, если сохранение подключено). Звёзды в игре останутся.</p><div class="row"><button class="btn" id="no">Нет</button><button class="btn" style="background:#c0503f;box-shadow:0 4px 0 #7d2a1e;color:#fff" id="yes">Очистить</button></div>`);$('#no',o).onclick=()=>o.remove();$('#yes',o).onclick=()=>{LOG=[];saveLog();cloudSync();o.remove();adminScreen()}};
+ $('#cp').onclick=()=>{const t=`Путешествие в страну знаний — результаты${me?' ('+me+')':''}, ${fmtTs(Date.now())}\nИспытаний: ${L.length}, время: ${fmtDur(time)}, средняя оценка: ${avg}★, ошибок: ${errs}\n\n`+L.slice().reverse().slice(0,60).map(l=>`${fmtTs(l.ts)} — ${l.qt} · ${l.st}: ${l.stars}★, ошибок ${l.m}, ${fmtDur(l.dur)}`+((l.errs||[]).length?'\n   ✗ '+l.errs.join('\n   ✗ '):'')).join('\n');
+  const fallback=()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Отчёт скопирован — вставь его в сообщение')}catch(e){toast('Не удалось скопировать')}ta.remove()};
+  if(navigator.share){navigator.share({title:'Мои результаты',text:t}).catch(()=>{})}
+  else if(navigator.clipboard){navigator.clipboard.writeText(t).then(()=>toast('Отчёт скопирован — вставь его в сообщение')).catch(fallback)}else fallback()};
 }
 
 classes();
-if(ADM.token)setTimeout(cloudSync,1500);
 </script>
 </body>
 </html>
