@@ -157,6 +157,14 @@ select.name{font:inherit;padding:8px;border-radius:10px;border:2px solid #c09a58
 .dfinal>div.win{border-color:#e6a817;box-shadow:0 0 0 4px rgba(230,168,23,.35)}
 .dfinal .big{font-family:'Philosopher',serif;font-size:36px;font-weight:700;color:#7a2a12}
 .opt.sel{outline:4px solid #8a4ab0;outline-offset:1px}
+.book h3{margin:2px 0 4px;font-size:17px;line-height:1.25}
+.bk-top{display:flex;gap:14px;align-items:flex-start}
+.cover{flex:0 0 78px;height:108px;border-radius:4px 8px 8px 4px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8px 4px;box-shadow:inset 6px 0 0 rgba(0,0,0,.25),0 3px 8px rgba(0,0,0,.35);text-align:center}
+.cv-ic{font-size:30px}.cv-t{font-family:'Philosopher',serif;font-weight:700;font-size:11.5px;line-height:1.1}.cv-c{font-size:10px;opacity:.85}
+.bk-info{flex:1;min-width:0}.bk-subj{font-size:13px;font-weight:700;color:#a8322a;text-transform:uppercase;letter-spacing:.3px}
+.bk-auth{margin:0 0 4px;font-weight:700}
+.book details{margin:10px 0}.book summary{cursor:pointer;font-weight:700;color:#7a4a1a}
+.bk-ch{margin:8px 0 0;padding-left:22px;line-height:1.4}.bk-ch li{margin:4px 0}
 .hub{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hub button{font:inherit;border:none;border-radius:14px;background:rgba(255,248,230,.95);color:var(--ink);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;box-shadow:0 3px 0 #8a6232,var(--shadow)}
 .hub button:active{transform:translateY(2px)}
@@ -222,7 +230,7 @@ const SUBJECTS=[
  {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a',active:true},
  {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
 ];
-const BUILD='K001.012';
+const BUILD='K001.013';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -2176,6 +2184,7 @@ function classes(){
  <button class="btn wide" id="duel" style="background:#8a4ab0;color:#fff;box-shadow:0 4px 0 #4a1e5a,var(--shadow)">⚔️ Дуэль с родителем</button>
  <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
  <button class="btn wide" id="myres">📊 Мои результаты</button>
+ <button class="btn wide" id="lit">📚 Литература</button>
  <div class="foot"><button class="btn ghost small" id="tr">💾 Перенос прогресса</button><button class="btn ghost small" id="inst" ${isStandalone()?'style="display:none"':''}>📲 Установить</button></div>
  <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>
  <div class="build" id="bld">${BUILD}</div>`,
@@ -2184,6 +2193,7 @@ function classes(){
  $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(g===6){SFX.click();world()}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
  $('#nm').onclick=()=>askName(classes);
  $('#myres').onclick=()=>{SFX.click();resultsScreen()};
+ $('#lit').onclick=()=>{SFX.click();litScreen()};
  $('#tr').onclick=transferModal;
  $('#inst').onclick=installApp;
  $('#hero').onclick=heroModal;
@@ -3192,6 +3202,29 @@ function duelEnd(){
 /* ================= МОИ РЕЗУЛЬТАТЫ (ученик видит только свои) ================= */
 const fmtDur=s=>{const m=Math.floor(s/60);return m>=60?`${Math.floor(m/60)} ч ${m%60} мин`:`${m}:${String(s%60).padStart(2,'0')}`};
 const fmtTs=ts=>new Date(ts).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+/* ================= ЛИТЕРАТУРА ================= */
+const BOOKS=[
+ {sub:'w',cls:'6 класс',subj:'Всеобщая история',title:'История. Всеобщая история. История Средних веков',auth:'В. Р. Мединский, А. О. Чубарьян',pub:'Москва: Просвещение',col:'#7a2a12',ic:'🏰',ch:()=>CHAPTERS,unit:'Глава'},
+ {sub:'r',cls:'6 класс',subj:'История России',title:'История. История России. С древнейших времён до начала XVI века',auth:'В. Р. Мединский, А. В. Торкунов',pub:'Москва: Просвещение',col:'#2f5f8a',ic:'🦅',ch:()=>RCHAPTERS,unit:'Глава'},
+ {sub:'g',cls:'6 класс',subj:'География',title:'Федеральная рабочая программа по географии, 6 класс',auth:'Темы раздела «Оболочки Земли»',pub:'Подходит к учебникам 6 класса, например: А. И. Алексеев, В. В. Николина и др. «География. 5–6 классы» («Полярная звезда»), Москва: Просвещение',col:'#2f6b4a',ic:'🌍',ch:()=>GCHAPTERS,unit:'Тема',prog:true}
+];
+function litScreen(){
+ const card=b=>`<div class="card book">
+  <div class="bk-top"><div class="cover" style="background:${b.col}"><span class="cv-ic">${b.ic}</span><span class="cv-t">${esc(b.subj)}</span><span class="cv-c">${b.cls}</span></div>
+  <div class="bk-info"><div class="bk-subj">${esc(b.subj)} · ${b.cls}</div><h3>${b.prog?'':'«'}${esc(b.title)}${b.prog?'':'»'}</h3><p class="bk-auth">${esc(b.auth)}</p><p class="small">${esc(b.pub)}</p></div></div>
+  <details><summary>${b.prog?'Темы курса':'Главы учебника'} в игре (${b.ch().length})</summary><ol class="bk-ch">${b.ch().map(c=>`<li><span>${c.i||''}</span> <b>${b.unit} ${c.n}.</b> ${esc(c.t)}${c.p&&c.p.startsWith('§')?` <span class="small">(${c.p})</span>`:''}</li>`).join('')}</ol></details>
+  <button class="btn wide" data-isl="${b.sub}">🗺️ Открыть остров «${esc(SUBJ[b.sub].island)}»</button>
+ </div>`;
+ screen(`<div class="adm" style="display:flex;flex-direction:column;gap:12px">
+ <div class="top"><button class="btn ghost" id="back">← Назад</button><h2 class="ttl">Литература</h2>${soundBtn()}</div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Вот книги, по которым я готовила уроки и задания. Держи учебник под рукой — если ошибся, найди нужный параграф и перечитай!</div></div>
+ ${BOOKS.map(card).join('')}
+ <p class="small" style="color:#cfe0ee;text-align:center;margin:0">Игра — тренажёр к учебникам и не заменяет их. Уроки совы — короткий пересказ своими словами.</p>
+ </div>`,'linear-gradient(#4a3a2a,#231a12)');
+ bindSound();
+ $('#back').onclick=()=>{SFX.click();classes()};
+ $$('[data-isl]').forEach(b=>b.onclick=()=>{SFX.click();historyMap(b.dataset.isl)});
+}
 function resultsScreen(){
  const me=save.name||'';
  const L=LOG.filter(l=>(l.name||'')===me);
