@@ -1,7 +1,7 @@
 /* Сервис-воркер «Путешествия в страну знаний»: работа без интернета.
    Страница — «сначала сеть, потом кэш» (обновления приходят сразу),
    иконки и шрифты — «сначала кэш». Меняйте VERSION при каждом релизе. */
-const VERSION='K001.013';
+const VERSION='K001.014';
 const CACHE='pvsz-'+VERSION;
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
