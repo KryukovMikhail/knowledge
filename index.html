@@ -49,6 +49,11 @@ svg text{font-family:'Philosopher',Georgia,serif}
 .owl{font-size:44px;line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));flex:none}
 .bubble{background:#fffaf0;border-radius:16px 16px 16px 4px;padding:11px 14px;box-shadow:var(--shadow);font-size:15.5px;line-height:1.35}
 .foot{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.updbar,#updbar{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:60;width:min(440px,calc(100vw - 20px));display:flex;align-items:center;gap:10px;background:#fff8e6;color:var(--ink);border:3px solid #e6a817;border-radius:16px;padding:8px 8px 8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:ubIn .4s ease-out}
+#updbar .ub-owl{font-size:30px}#updbar .ub-t{flex:1;font-size:14px;line-height:1.3}#updbar .ub-t span{color:#7a5a30;font-size:13px}
+#updbar .btn{padding:9px 12px;font-size:15px;white-space:nowrap}
+#updbar .ub-x{font:inherit;border:none;background:none;font-size:18px;color:#7a5a30;cursor:pointer;padding:4px 6px}
+@keyframes ubIn{from{transform:translate(-50%,-120%)}to{transform:translate(-50%,0)}}
 .toast{pointer-events:none;position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(30,20,10,.92);color:#fff;padding:11px 16px;border-radius:12px;z-index:50;max-width:90vw;text-align:center;animation:fade .25s;font-size:15px}
 .overlay{position:fixed;inset:0;background:rgba(10,10,20,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:40;animation:fade .25s}
 .overlay .card{max-width:440px;width:100%}
@@ -230,7 +235,7 @@ const SUBJECTS=[
  {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a',active:true},
  {id:'bio',n:'Биология',i:'🌿',x:200,y:572,rx:72,ry:46,seed:51,land:'#9cc77a'}
 ];
-const BUILD='K001.015';
+const BUILD='K001.016';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -3402,7 +3407,46 @@ const isStandalone=()=>window.matchMedia&&matchMedia('(display-mode: standalone)
 const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
-if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+/* ---------- обновления: новая версия скачивается заранее и включается по кнопке «Обновить» ---------- */
+const WHATSNEW=['Уведомление об обновлении: когда выходит новая версия игры, сова предложит обновиться одной кнопкой.','Остров «Литература» с Библиотекой знаний.'];
+let swReg=null,updWorker=null,swReloading=false,updLater=false;
+function swVersion(w){return new Promise(res=>{try{const ch=new MessageChannel(),tm=setTimeout(()=>res(null),1500);ch.port1.onmessage=e=>{clearTimeout(tm);res(e.data)};w.postMessage({type:'version'},[ch.port2])}catch(e){res(null)}})}
+async function onSwWaiting(w){
+ const v=await swVersion(w);
+ if(v==='pvsz-'+BUILD){w.postMessage('skipWaiting');return} // страница уже новая — просто включаем новый кэш
+ updWorker=w;showUpdBar(v?v.replace('pvsz-',''):'');
+}
+function showUpdBar(nb){
+ if(updLater)return;let b=document.getElementById('updbar');if(b)b.remove();
+ b=document.createElement('div');b.id='updbar';
+ b.innerHTML=`<span class="ub-owl">🦉</span><span class="ub-t"><b>Вышла новая версия игры${nb?' '+nb:''}!</b><br><span>Звёзды и результаты сохранятся.</span></span><button class="btn green" id="ubGo">Обновить</button><button class="ub-x" id="ubX" aria-label="Позже">✕</button>`;
+ document.body.appendChild(b);
+ b.querySelector('#ubGo').onclick=applyUpdate;
+ b.querySelector('#ubX').onclick=()=>{updLater=true;b.remove();toast('Обновится, когда игра откроется заново')};
+}
+function applyUpdate(){
+ try{persist()}catch(e){}swReloading=true;
+ try{sessionStorage.setItem('pvsz_updated','1')}catch(e){}
+ if(updWorker)updWorker.postMessage('skipWaiting');else location.reload();
+ setTimeout(()=>location.reload(),2500);
+}
+try{
+ if('serviceWorker' in navigator&&window.isSecureContext&&window.self===window.top){
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(swReloading)location.reload()});
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(reg=>{
+   swReg=reg;
+   if(reg.waiting&&navigator.serviceWorker.controller)onSwWaiting(reg.waiting);
+   reg.addEventListener('updatefound',()=>{const nw=reg.installing;if(nw)nw.addEventListener('statechange',()=>{if(nw.state==='installed'&&navigator.serviceWorker.controller)onSwWaiting(nw)})});
+   setInterval(()=>{if(!document.hidden)reg.update().catch(()=>{})},15*60*1000);
+  }).catch(()=>{}));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&swReg)swReg.update().catch(()=>{})});
+ }
+}catch(e){}
+function whatsNew(){
+ const o=modal(`<div style="text-align:center;font-size:48px">🦉✨</div><h2 style="text-align:center">Игра обновлена до ${BUILD}</h2><p style="margin:6px 0">Что нового:</p><ul style="line-height:1.45;padding-left:20px;margin:0 0 12px">${WHATSNEW.map(x=>`<li>${x}</li>`).join('')}</ul><p class="small" style="text-align:center">Все звёзды и результаты на месте.</p><button class="btn green wide" id="ok">Отлично!</button>`);
+ $('#ok',o).onclick=()=>o.remove();
+}
+try{if(sessionStorage.getItem('pvsz_updated')){sessionStorage.removeItem('pvsz_updated');setTimeout(whatsNew,600)}}catch(e){}
 function installApp(){
  SFX.click();
  if(installEvt){installEvt.prompt();installEvt.userChoice.finally(()=>{installEvt=null;classes()});return}
