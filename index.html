@@ -170,6 +170,7 @@ select.name{font:inherit;padding:8px;border-radius:10px;border:2px solid #c09a58
 .bk-auth{margin:0 0 4px;font-weight:700}
 .book details{margin:10px 0}.book summary{cursor:pointer;font-weight:700;color:#7a4a1a}
 .bk-ch{margin:8px 0 0;padding-left:22px;line-height:1.4}.bk-ch li{margin:4px 0}
+.subhd{font-family:'Philosopher',serif;font-weight:700;font-size:17px;color:#7a2a12;margin:14px 0 4px;padding-bottom:3px;border-bottom:2px solid #d9c08a}.subhd:first-child{margin-top:4px}
 .hub{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hub button{font:inherit;border:none;border-radius:14px;background:rgba(255,248,230,.95);color:var(--ink);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;box-shadow:0 3px 0 #8a6232,var(--shadow)}
 .hub button:active{transform:translateY(2px)}
@@ -236,7 +237,7 @@ const SUBJECTS=[
  {id:'math',n:'Математика',i:'📐',x:100,y:588,rx:68,ry:50,seed:11,land:'#9cc77a',active:true},
  {id:'rus',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:21,land:'#9cc77a',active:true}
 ];
-const BUILD='K001.021';
+const BUILD='K001.022';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -5191,7 +5192,7 @@ const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
 /* ---------- обновления: новая версия скачивается заранее и включается по кнопке «Обновить» ---------- */
-const WHATSNEW=['Острова на карте теперь стоят по алфавиту — от Английского языка до Русского.','Все острова стали одного размера.','Остров «Английский язык» по учебнику «Spotlight 6» с Лондонской башней (K001.020).'];
+const WHATSNEW=['Предметы теперь везде идут по алфавиту: на карте, в «Моих результатах», «Литературе», грамотах и дуэли.','В «Моих результатах» прогресс разбит по предметам с заголовками.','Все острова на карте стали одного размера.'];
 let swReg=null,updWorker=null,swReloading=false,updLater=false;
 function swVersion(w){return new Promise(res=>{try{const ch=new MessageChannel(),tm=setTimeout(()=>res(null),1500);ch.port1.onmessage=e=>{clearTimeout(tm);res(e.data)};w.postMessage({type:'version'},[ch.port2])}catch(e){res(null)}})}
 async function onSwWaiting(w){
@@ -5321,7 +5322,7 @@ async function certImage(q){
  certCanvas(q).toBlob(b=>shareOrDownload(b,`gramota_${q.id}.png`,'Моя грамота'),'image/png');
 }
 function myCerts(){
- const done=Object.values(QUESTS).filter(q=>!q.special&&!q.noCert&&questDone(q));
+ const done=questsInOrder().map(id=>QUESTS[id]).filter(q=>q&&!q.special&&!q.noCert&&questDone(q));
  if(!done.length){toast('Грамоты появятся, когда пройдёшь квест целиком');return}
  SFX.click();
  const o=modal(`<div style="text-align:center;font-size:44px">🏅</div><h2 style="text-align:center">Мои грамоты</h2>${done.map(q=>`<button class="opt" data-cq="${q.id}"><b>${q.rewardIcon} ${esc(q.title)}</b><br><span class="small" style="color:#a8322a">★ ${questStars(q)} / ${q.stations.length*3}</span></button>`).join('')}<button class="btn ghost wide" style="background:#7a5a30;margin-top:6px" id="cl">Закрыть</button>`);
@@ -5333,7 +5334,9 @@ function myCerts(){
 /* ================= ДУЭЛЬ С РОДИТЕЛЕМ ================= */
 const DUEL_T=20;
 const pav=(i,n)=>i===0?'🧒':/^(мама|мамочка|мать)/i.test(n)?'👩':/^бабушк|^бабул/i.test(n)?'👵':/^дедушк|^дед/i.test(n)?'👴':/^(папа|папочка|отец)/i.test(n)?'🧔':'🧑';let DUEL=null,duelTimer=null;
-const DSUBJ=[['all','Все предметы','🌟'],['w','Всеобщая история','📜'],['r','История России','🦅'],['g','География','🌍'],['l','Литература','📖'],['y','Русский язык','✍️'],['m','Математика','📐'],['b','Биология','🌿'],['e','Английский язык','💂']];
+const DSUBJ=[['all','Все предметы','🌟'],['e','Английский язык','💂'],['b','Биология','🌿'],['w','Всеобщая история','📜'],['g','География','🌍'],['r','История России','🦅'],['l','Литература','📖'],['m','Математика','📐'],['y','Русский язык','✍️']];
+const SUB_ORDER=['e','b','w','g','r','l','m','y'];
+const questsInOrder=()=>SUB_ORDER.flatMap(k=>[...SUBJ[k].chapters.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),SUBJ[k].final]);
 function duelPool(sub,onlyPassed){
  let pool=[...QBYKEY.values()].filter(x=>{const q=QUESTS[x.quest];return (sub==='all'||qsub(q)===sub)&&['quiz','tf','fill','odd','who'].includes(x.type)});
  if(onlyPassed){const p=pool.filter(x=>questStars(QUESTS[x.quest])>0);if(p.length>=10)pool=p}
@@ -5440,14 +5443,14 @@ const fmtDur=s=>{const m=Math.floor(s/60);return m>=60?`${Math.floor(m/60)} ч $
 const fmtTs=ts=>new Date(ts).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
 /* ================= ЛИТЕРАТУРА ================= */
 const BOOKS=[
- {sub:'w',cls:'6 класс',subj:'Всеобщая история',title:'История. Всеобщая история. История Средних веков',auth:'В. Р. Мединский, А. О. Чубарьян',pub:'Москва: Просвещение',col:'#7a2a12',ic:'🏰',ch:()=>CHAPTERS,unit:'Глава'},
- {sub:'r',cls:'6 класс',subj:'История России',title:'История. История России. С древнейших времён до начала XVI века',auth:'В. Р. Мединский, А. В. Торкунов',pub:'Москва: Просвещение',col:'#2f5f8a',ic:'🦅',ch:()=>RCHAPTERS,unit:'Глава'},
  {sub:'e',cls:'6 класс',subj:'Английский язык',title:'Английский язык. 6 класс («Английский в фокусе. Spotlight 6»)',auth:'Ю. Е. Ваулина, Д. Дули, О. Е. Подоляко, В. Эванс',pub:'Москва: Просвещение',col:'#2a3a7a',ic:'🇬🇧',ch:()=>ECHAPTERS,unit:'Тема'},
  {sub:'b',cls:'6 класс',subj:'Биология',title:'Биология. 6 класс',auth:'В. В. Пасечник, С. В. Суматохин, Г. С. Калинова и др.; под ред. В. В. Пасечника',pub:'Москва: Просвещение. Темы — по федеральной рабочей программе',col:'#2f6b3a',ic:'🌿',ch:()=>BCHAPTERS,unit:'Тема'},
- {sub:'m',cls:'6 класс',subj:'Математика',title:'Математика. 6 класс',auth:'Н. Я. Виленкин, В. И. Жохов, А. С. Чесноков, Л. А. Александрова, С. И. Шварцбурд',pub:'В двух частях. Москва: Просвещение. Темы — по федеральной рабочей программе',col:'#2f4f9a',ic:'📐',ch:()=>MCHAPTERS,unit:'Тема'},
- {sub:'y',cls:'6 класс',subj:'Русский язык',title:'Русский язык. 6 класс',auth:'М. Т. Баранов, Т. А. Ладыженская, Л. А. Тростенцова и др.',pub:'В двух частях. Москва: Просвещение. Темы — по федеральной рабочей программе',col:'#8a2a24',ic:'✍️',ch:()=>YCHAPTERS,unit:'Тема'},
+ {sub:'w',cls:'6 класс',subj:'Всеобщая история',title:'История. Всеобщая история. История Средних веков',auth:'В. Р. Мединский, А. О. Чубарьян',pub:'Москва: Просвещение',col:'#7a2a12',ic:'🏰',ch:()=>CHAPTERS,unit:'Глава'},
+ {sub:'g',cls:'6 класс',subj:'География',title:'Федеральная рабочая программа по географии, 6 класс',auth:'Темы раздела «Оболочки Земли»',pub:'Подходит к учебникам 6 класса, например: А. И. Алексеев, В. В. Николина и др. «География. 5–6 классы» («Полярная звезда»), Москва: Просвещение',col:'#2f6b4a',ic:'🌍',ch:()=>GCHAPTERS,unit:'Тема',prog:true},
+ {sub:'r',cls:'6 класс',subj:'История России',title:'История. История России. С древнейших времён до начала XVI века',auth:'В. Р. Мединский, А. В. Торкунов',pub:'Москва: Просвещение',col:'#2f5f8a',ic:'🦅',ch:()=>RCHAPTERS,unit:'Глава'},
  {sub:'l',cls:'6 класс',subj:'Литература',title:'Литература. 6 класс',auth:'В. П. Полухина, В. Я. Коровина, В. П. Журавлёв, В. И. Коровин',pub:'В двух частях. Москва: Просвещение. Темы — по федеральной рабочей программе',col:'#5a2a6a',ic:'📖',ch:()=>LCHAPTERS,unit:'Тема'},
- {sub:'g',cls:'6 класс',subj:'География',title:'Федеральная рабочая программа по географии, 6 класс',auth:'Темы раздела «Оболочки Земли»',pub:'Подходит к учебникам 6 класса, например: А. И. Алексеев, В. В. Николина и др. «География. 5–6 классы» («Полярная звезда»), Москва: Просвещение',col:'#2f6b4a',ic:'🌍',ch:()=>GCHAPTERS,unit:'Тема',prog:true}
+ {sub:'m',cls:'6 класс',subj:'Математика',title:'Математика. 6 класс',auth:'Н. Я. Виленкин, В. И. Жохов, А. С. Чесноков, Л. А. Александрова, С. И. Шварцбурд',pub:'В двух частях. Москва: Просвещение. Темы — по федеральной рабочей программе',col:'#2f4f9a',ic:'📐',ch:()=>MCHAPTERS,unit:'Тема'},
+ {sub:'y',cls:'6 класс',subj:'Русский язык',title:'Русский язык. 6 класс',auth:'М. Т. Баранов, Т. А. Ладыженская, Л. А. Тростенцова и др.',pub:'В двух частях. Москва: Просвещение. Темы — по федеральной рабочей программе',col:'#8a2a24',ic:'✍️',ch:()=>YCHAPTERS,unit:'Тема'}
 ];
 function litScreen(){
  const card=b=>`<div class="card book">
@@ -5471,8 +5474,8 @@ function resultsScreen(){
  const L=LOG.filter(l=>(l.name||'')===me);
  const time=L.reduce((s,l)=>s+l.dur,0),errs=L.reduce((s,l)=>s+l.m,0),avg=L.length?(L.reduce((s,l)=>s+logGrade(l),0)/L.length).toFixed(1).replace('.',','):'—';
  const days=new Set(L.map(l=>new Date(l.ts).toDateString())).size;
- const order=[...CHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'final',...RCHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'rfinal',...GCHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'gfinal',...LCHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'lfinal',...YCHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'yfinal',...MCHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'mfinal',...BCHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'bfinal',...ECHAPTERS.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),'efinal'];
- const prog=order.filter(id=>QUESTS[id]).map(id=>{const q=QUESTS[id],got=questStars(q),mx=q.stations.length*3,done=q.stations.filter(st=>starsOf(st.id)).length;return `<div class="qrow"><span>${esc(q.short)} <span class="small" style="color:#7a5a30">· ${done}/${q.stations.length}</span></span><b style="color:#a8322a">★ ${got}/${mx}</b><div class="pb"><i style="width:${Math.round(got/mx*100)}%"></i></div></div>`}).join('');
+ const order=questsInOrder();
+ const prog=order.filter(id=>QUESTS[id]).map((id,k,arr)=>{const q=QUESTS[id],got=questStars(q),mx=q.stations.length*3,done=q.stations.filter(st=>starsOf(st.id)).length,sb=qsub(q),hd=k===0||qsub(QUESTS[arr[k-1]])!==sb?`<div class="subhd">${(SUBJECTS.find(x=>x.id===({e:'eng',b:'bio',w:'history',g:'geo',r:'rushist',l:'lit',m:'math',y:'rus'})[sb])||SUBJ[sb]).i||SUBJ[sb].icon} ${esc(SUBJ[sb].island)}</div>`:'';return hd+`<div class="qrow"><span>${esc(q.short)} <span class="small" style="color:#7a5a30">· ${done}/${q.stations.length}</span></span><b style="color:#a8322a">★ ${got}/${mx}</b><div class="pb"><i style="width:${Math.round(got/mx*100)}%"></i></div></div>`}).join('');
  const cnt={};L.forEach(l=>(l.errs||[]).forEach(e=>{const k=e.split(' — ответ:')[0].replace(/^«(.+?)» отнёс к.*$/,'«$1» (не та корзина)');cnt[k]=(cnt[k]||0)+1}));
  const weak=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8);
  const logs=L.slice().reverse().slice(0,150).map(l=>`<div class="lg"><div class="l1"><span><b>${esc(l.qt)}</b> · ${esc(l.st)}</span><span style="white-space:nowrap">${gradeBadge(logGrade(l),1)} <span style="color:#e6a817">${starStr(l.stars)}</span></span></div><div class="l2">${fmtTs(l.ts)} · ошибок: ${l.m}${l.n?' из '+l.n+' заданий':''} · ⏱ ${fmtDur(l.dur)}${l.errs&&l.errs.length?' · ▾ мои ошибки':''}</div>${l.errs&&l.errs.length?`<ol class="errs">${l.errs.map(e=>`<li>${esc(e)}</li>`).join('')}</ol>`:''}</div>`).join('');
