@@ -237,7 +237,7 @@ const SUBJECTS=[
  {id:'math',n:'Математика',i:'📐',x:100,y:588,rx:68,ry:50,seed:11,land:'#9cc77a',active:true},
  {id:'rus',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:21,land:'#9cc77a',active:true}
 ];
-const BUILD='K001.023';
+const BUILD='K001.024';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -3718,7 +3718,7 @@ const ECHAPTERS=[
 ];
 const EN1=[
 {id:'w1',name:'My family',place:'Who’s who',i:'👨‍👩‍👧',
- lesson:`<p>Члены семьи по-английски: <b>mother</b> (мама), <b>father</b> (папа), <b>parents</b> (родители), <b>sister</b>, <b>brother</b>, <b>grandmother</b>, <b>grandfather</b>, <b>grandparents</b> (бабушка и дедушка), <b>aunt</b> (тётя), <b>uncle</b> (дядя), <b>cousin</b> (двоюродный брат или сестра), <b>son</b> (сын), <b>daughter</b> (дочь).</p>
+ lesson:`<p>Члены семьи по-английски: <b>mother</b> (мама), <b>father</b> (папа), <b>parents</b> (родители), <b>sister</b> (сестра), <b>brother</b> (брат), <b>grandmother</b> (бабушка), <b>grandfather</b> (дедушка), <b>grandparents</b> (бабушка и дедушка), <b>aunt</b> (тётя), <b>uncle</b> (дядя), <b>cousin</b> (двоюродный брат или сестра), <b>son</b> (сын), <b>daughter</b> (дочь).</p>
  <p>Рассказывая о себе, говорят: <i>My name is Vanya. I’m twelve. I’m from Russia.</i></p>
  <p>Описывая внешность: <i>He’s <b>tall</b>. She’s got <b>long fair hair</b> and <b>blue eyes</b>.</i> <b>Tall</b> — высокий, <b>short</b> — низкий, <b>fair</b> — светлые (волосы), <b>dark</b> — тёмные.</p>`,
  tasks:[
@@ -5263,7 +5263,7 @@ const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
 /* ---------- обновления: новая версия скачивается заранее и включается по кнопке «Обновить» ---------- */
-const WHATSNEW=['Сова читает уроки живее: сама выбирает самый естественный голос на устройстве, делает паузы между фразами, читает века словами («девятнадцатый век»).','Английские слова и фразы теперь звучат английским голосом.','Новая кнопка «🗣️ Голос совы» на главной — выбери голос, который нравится.'];
+const WHATSNEW=['Английский язык: в уроке «My family» добавлены переводы слов sister, brother, grandmother, grandfather.','Сова читает уроки живее и сама выбирает лучший голос; кнопка «🗣️ Голос совы» на главной (K001.023).'];
 let swReg=null,updWorker=null,swReloading=false,updLater=false;
 function swVersion(w){return new Promise(res=>{try{const ch=new MessageChannel(),tm=setTimeout(()=>res(null),1500);ch.port1.onmessage=e=>{clearTimeout(tm);res(e.data)};w.postMessage({type:'version'},[ch.port2])}catch(e){res(null)}})}
 async function onSwWaiting(w){

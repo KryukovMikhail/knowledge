@@ -2,7 +2,7 @@
    Страница — «сначала сеть, потом кэш», иконки и шрифты — «сначала кэш».
    Новая версия скачивается заранее и ждёт: игра покажет плашку «Обновить»,
    и только по нажатию новая версия включится. Меняйте VERSION при каждом релизе вместе с BUILD. */
-const VERSION='K001.023';
+const VERSION='K001.024';
 const CACHE='pvsz-'+VERSION;
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL.map(u=>new Request(u,{cache:'reload'})))))});
