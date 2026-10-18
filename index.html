@@ -237,7 +237,7 @@ const SUBJECTS=[
  {id:'math',n:'Математика',i:'📐',x:100,y:588,rx:68,ry:50,seed:11,land:'#9cc77a',active:true},
  {id:'rus',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:21,land:'#9cc77a',active:true}
 ];
-const BUILD='K001.022';
+const BUILD='K001.023';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -4383,7 +4383,7 @@ function classes(){
  <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
  <button class="btn wide" id="myres">📊 Мои результаты</button>
  <button class="btn wide" id="lit">📚 Литература</button>
- <div class="foot"><button class="btn ghost small" id="tr">💾 Перенос прогресса</button><button class="btn ghost small" id="inst" ${isStandalone()?'style="display:none"':''}>📲 Установить</button></div>
+ <div class="foot"><button class="btn ghost small" id="tr">💾 Перенос прогресса</button><button class="btn ghost small" id="vc">🗣️ Голос совы</button><button class="btn ghost small" id="inst" ${isStandalone()?'style="display:none"':''}>📲 Установить</button></div>
  <div class="foot"><button class="btn ghost small" id="nm">✏️ Сменить имя</button><button class="btn ghost small" id="rs">↺ Начать заново</button></div>
  <div class="build" id="bld">${BUILD}</div>`,
  'radial-gradient(circle at 50% 20%,#3d7fa6,#173b55)');
@@ -4393,6 +4393,7 @@ function classes(){
  $('#myres').onclick=()=>{SFX.click();resultsScreen()};
  $('#lit').onclick=()=>{SFX.click();litScreen()};
  $('#tr').onclick=transferModal;
+ $('#vc').onclick=voiceModal;
  $('#inst').onclick=installApp;
  $('#hero').onclick=heroModal;
  $('#duel').onclick=duelSetup;
@@ -5165,17 +5166,87 @@ function timelineScreen(){
 }
 
 /* ================= ОЗВУЧКА ================= */
-let ttsOn=false;
+/* Голос берётся из браузера (Web Speech API). Выбираем самый живой из доступных:
+   нейронные «Natural/Online» (Edge), Google (Chrome/Android), «улучшенные» (iOS/macOS).
+   Текст готовим к чтению: века словами, паузы между фразами, английские фразы — английским голосом. */
+let ttsOn=false,ttsGen=0;
+const VOICE_KEY='pvsz_voice';
+function voiceScore(v){let s=0;const n=v.name||'';
+ if(/natural|neural/i.test(n))s+=60;if(/online/i.test(n))s+=20;if(/enhanced|premium|улучш|высок/i.test(n))s+=45;
+ if(/google/i.test(n))s+=30;if(/yandex|alice|алиса/i.test(n))s+=30;if(/svetlana|dariya|milena|милена|светлана|дария/i.test(n))s+=8;
+ if(/compact|espeak|robot/i.test(n))s-=40;if(!v.localService)s+=5;return s}
+function voicesFor(lang){const S=window.speechSynthesis;if(!S)return[];const re=lang==='en'?/^en/i:/^ru/i;return S.getVoices().filter(v=>re.test(v.lang)).sort((a,b)=>voiceScore(b)-voiceScore(a))}
+function pickVoice(lang){const all=voicesFor(lang);if(!all.length)return null;
+ if(lang==='ru'){let sv=null;try{sv=localStorage.getItem(VOICE_KEY)}catch(e){}const f=all.find(v=>v.name===sv);if(f)return f}
+ if(lang==='en'){const gb=all.filter(v=>/en[-_]GB/i.test(v.lang));if(gb.length)return gb[0]}
+ return all[0]}
+const ORD=['','перв','втор','трет','четвёрт','пят','шест','седьм','восьм','девят','десят','одиннадцат','двенадцат','тринадцат','четырнадцат','пятнадцат','шестнадцат','семнадцат','восемнадцат','девятнадцат','двадцат'];
+function romanNum(r){const m={I:1,V:5,X:10,L:50,C:100};let n=0;for(let i=0;i<r.length;i++){const a=m[r[i]],b=m[r[i+1]]||0;n+=a<b?-a:a}return n}
+function ordWord(n,cs){if(n>20)return 'двадцать '+ordWord(n-20,cs);const st=ORD[n];if(!st)return String(n);
+ const soft=n===3,hardO=[2,6,7,8].includes(n);
+ if(cs==='prep')return st+(soft?'ьем':'ом');
+ if(cs==='gen')return st+(soft?'ьего':'ого');
+ if(cs==='genpl')return st+(soft?'ьих':'ых');
+ if(cs==='nompl')return st+(soft?'ьи':'ые');
+ if(cs==='fem')return st+(soft?'ья':'ая');
+ return st+(soft?'ий':hardO?'ой':'ый')}
+function ttsText(html){
+ const d=document.createElement('div');d.innerHTML=html.replace(/<br\s*\/?>/g,'. ').replace(/<\/(p|li|h\d)>/g,'. ');
+ let t=d.textContent.replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu,' ');
+ const R='[IVXLC]{1,6}';
+ const NB='(?![а-яёА-ЯЁ])';
+ t=t.replace(new RegExp(`\\b(${R})\\s*[–—-]\\s*(${R})\\s+(вв\\.|веков|веках|века)${NB}`,'gu'),(m,a,b,w)=>{const cs={века:'nompl',веках:'prep'}[w]||'genpl';return `${ordWord(romanNum(a),cs)} — ${ordWord(romanNum(b),cs)} ${w==='вв.'?'веков':w}`});
+ t=t.replace(new RegExp(`\\b(${R})\\s+(веке|века|веков|век)${NB}`,'gu'),(m,a,w)=>`${ordWord(romanNum(a),{веке:'prep',века:'gen',веков:'genpl',век:'nom'}[w])} ${w}`);
+ t=t.replace(new RegExp(`(Глава|глава|Тема|тема|Часть|часть)\\s+(${R})(?![A-Za-z])`,'gu'),(m,w,a)=>`${w} ${ordWord(romanNum(a),'fem')}`);
+ t=t.replace(new RegExp(`([А-ЯЁ][а-яё]+)\\s+(${R})(?![A-Za-z])`,'gu'),(m,w,a)=>{const o=ordWord(romanNum(a),'nom');return `${w} ${o[0].toUpperCase()+o.slice(1)}`});
+ t=t.replace(/§\s*/g,'параграф ').replace(/‰/g,' промилле').replace(/№\s*/g,'номер ').replace(/°\s*C/g,' градусов').replace(/(\d)\s*%/g,'$1 процентов')
+  .replace(/\bт\.\s*е\./g,'то есть').replace(/\bн\.\s*э\./g,'нашей эры').replace(/\bг\.\s/g,'год ').replace(/\bвв\./g,'века')
+  .replace(/\s*[—–]\s*/g,', ').replace(/[«»"“”]/g,'').replace(/\.\s*\./g,'.').replace(/\s+/g,' ').trim();
+ return t}
+function ttsChunks(text){
+ const sents=text.split(/(?<=[.!?…:;])\s+/).filter(s=>/[\p{L}\d]/u.test(s));const out=[];
+ for(const s of sents){
+  const parts=s.split(/((?:[A-Za-z][A-Za-z0-9’'\-]*)(?:[\s,]+[A-Za-z][A-Za-z0-9’'\-]*)*[.!?]?)/);
+  parts.forEach((p,i)=>{const x=p.trim();if(!x||!/[\p{L}\d]/u.test(x))return;
+   const en=i%2===1&&/[A-Za-z]{2,}/.test(x)&&!/^[IVXLC\s,.]+$/.test(x);out.push({t:x,lang:en?'en':'ru'})});
+ }
+ const merged=[];for(const c of out){const l=merged[merged.length-1];if(l&&l.lang===c.lang&&l.t.length+c.t.length<220)l.t+=' '+c.t;else merged.push({...c})}
+ return merged}
+function ttsUtter(c){const u=new SpeechSynthesisUtterance(c.t);
+ if(c.lang==='en'){u.lang='en-GB';u.rate=.88;u.pitch=1.05}else{u.lang='ru-RU';u.rate=.97;u.pitch=1.06}
+ const v=pickVoice(c.lang);if(v){u.voice=v;u.lang=v.lang}return u}
+function speakText(text,onDone){
+ const S=window.speechSynthesis;if(!S)return false;S.cancel();const gen=++ttsGen;const q=ttsChunks(text);let i=0;
+ const next=()=>{if(gen!==ttsGen)return;if(i>=q.length){ttsOn=false;onDone&&onDone();return}
+  const u=ttsUtter(q[i++]);u.onend=()=>setTimeout(next,/[.!?…]$/.test(q[i-1].t)?260:120);u.onerror=()=>next();S.speak(u)};
+ ttsOn=true;next();return true}
 function speak(html){
  const S=window.speechSynthesis;if(!S){toast('Этот браузер не умеет читать вслух');return}
- if(S.speaking){S.cancel();ttsOn=false;return false}
- const d=document.createElement('div');d.innerHTML=html.replace(/<br>/g,'. ').replace(/<\/p>/g,'. ');
- const u=new SpeechSynthesisUtterance(d.textContent.replace(/\p{Extended_Pictographic}/gu,'').replace(/\s+/g,' '));
- u.lang='ru-RU';u.rate=.95;const v=S.getVoices().find(x=>/^ru/i.test(x.lang));if(v)u.voice=v;
- u.onend=()=>{ttsOn=false;const b=$('#tts');if(b)b.textContent='🔊 Послушать'};
- S.speak(u);ttsOn=true;return true;
+ if(ttsOn||S.speaking){stopSpeak();return false}
+ return speakText(ttsText(html),()=>{const b=$('#tts');if(b)b.textContent='🔊 Послушать'});
 }
-function stopSpeak(){try{if(window.speechSynthesis&&speechSynthesis.speaking)speechSynthesis.cancel()}catch(e){}ttsOn=false}
+function stopSpeak(){ttsGen++;try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}ttsOn=false}
+function voiceModal(){
+ const S=window.speechSynthesis;if(!S){toast('Этот браузер не умеет читать вслух');return}
+ SFX.click();
+ const o=modal('<div id="vm"></div>');
+ const render=()=>{
+  const list=voicesFor('ru');let sv=null;try{sv=localStorage.getItem(VOICE_KEY)}catch(e){}
+  const cur=pickVoice('ru'),best=list[0];
+  const good=list.some(v=>voiceScore(v)>=30);
+  $('#vm',o).innerHTML=`<div style="text-align:center;font-size:44px">🗣️🦉</div><h2 style="text-align:center">Голос совы</h2>
+  <p class="small" style="text-align:center">Нажми на голос, чтобы послушать, и выбери самый приятный.</p>
+  ${list.length?list.map(v=>`<button class="opt${cur&&v.name===cur.name?' sel':''}" data-vn="${esc(v.name)}"><b>${esc(v.name.replace(/Microsoft |Google /,''))}</b>${v===best?' <span style="color:#2e8b3e">⭐ лучший</span>':''}<br><span class="small">${esc(v.lang)}${voiceScore(v)>=45?' · живой голос':''}</span></button>`).join(''):'<p>Русских голосов в этом браузере не найдено.</p>'}
+  ${good?'':`<div class="guide" style="margin-top:8px"><div class="owl">🦉</div><div class="bubble" style="font-size:14px;line-height:1.4">Самые живые голоса: в браузере <b>Microsoft Edge</b> (голоса <b>Natural</b> — Светлана, Дария), в <b>Google Chrome</b> и на <b>Android</b> (голос Google). На <b>iPhone</b> скачай голос: <i>Настройки → Универсальный доступ → Устный контент → Голоса → Русский → Милена (улучшенный)</i>.</div></div>`}
+  <div class="row" style="margin-top:8px"><button class="btn ghost" style="background:#7a5a30" id="vauto">Выбрать лучший</button><button class="btn green" id="vok">Готово</button></div>`;
+  $$('[data-vn]',o).forEach(b=>b.onclick=()=>{try{localStorage.setItem(VOICE_KEY,b.dataset.vn)}catch(e){}render();speakText('Привет! Я сова Мудрослава. Давай учиться вместе — это будет интересно!')});
+  $('#vauto',o).onclick=()=>{try{localStorage.removeItem(VOICE_KEY)}catch(e){}render();speakText('Привет! Я сова Мудрослава. Давай учиться вместе!')};
+  $('#vok',o).onclick=()=>{stopSpeak();o.remove()};
+ };
+ render();
+ if(!voicesFor('ru').length)S.onvoiceschanged=()=>{if(document.body.contains(o))render()};
+}
+if(window.speechSynthesis){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}}
 
 /* ================= НАГРАДЫ ПОСЛЕ ИСПЫТАНИЯ ================= */
 function showAwards(list){
@@ -5192,7 +5263,7 @@ const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
 /* ---------- обновления: новая версия скачивается заранее и включается по кнопке «Обновить» ---------- */
-const WHATSNEW=['Предметы теперь везде идут по алфавиту: на карте, в «Моих результатах», «Литературе», грамотах и дуэли.','В «Моих результатах» прогресс разбит по предметам с заголовками.','Все острова на карте стали одного размера.'];
+const WHATSNEW=['Сова читает уроки живее: сама выбирает самый естественный голос на устройстве, делает паузы между фразами, читает века словами («девятнадцатый век»).','Английские слова и фразы теперь звучат английским голосом.','Новая кнопка «🗣️ Голос совы» на главной — выбери голос, который нравится.'];
 let swReg=null,updWorker=null,swReloading=false,updLater=false;
 function swVersion(w){return new Promise(res=>{try{const ch=new MessageChannel(),tm=setTimeout(()=>res(null),1500);ch.port1.onmessage=e=>{clearTimeout(tm);res(e.data)};w.postMessage({type:'version'},[ch.port2])}catch(e){res(null)}})}
 async function onSwWaiting(w){
