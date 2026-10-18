@@ -227,16 +227,16 @@ select.name{font:inherit;padding:8px;border-radius:10px;border:2px solid #c09a58
 'use strict';
 /* ================= ДАННЫЕ ================= */
 const SUBJECTS=[
- {id:'history',n:'Всеобщая история',i:'📜',x:108,y:138,rx:84,ry:62,seed:3,land:'#b9cf6c',active:true},
- {id:'rushist',n:'История России',i:'🦅',x:296,y:140,rx:82,ry:62,seed:61,land:'#c9d87c',active:true},
- {id:'math',n:'Математика',i:'📐',x:95,y:288,rx:68,ry:50,seed:11,land:'#9cc77a',active:true},
- {id:'rus',n:'Русский язык',i:'✍️',x:305,y:292,rx:70,ry:52,seed:21,land:'#9cc77a',active:true},
- {id:'lit',n:'Литература',i:'📖',x:100,y:442,rx:66,ry:50,seed:31,land:'#9cc77a',active:true},
- {id:'geo',n:'География',i:'🧭',x:300,y:446,rx:70,ry:52,seed:41,land:'#9cc77a',active:true},
- {id:'bio',n:'Биология',i:'🌿',x:100,y:590,rx:66,ry:48,seed:51,land:'#9cc77a',active:true},
- {id:'eng',n:'Английский язык',i:'💂',x:300,y:594,rx:68,ry:48,seed:71,land:'#a8cf7c',active:true}
+ {id:'eng',n:'Английский язык',i:'💂',x:100,y:132,rx:68,ry:50,seed:71,land:'#a8cf7c',active:true},
+ {id:'bio',n:'Биология',i:'🌿',x:300,y:134,rx:68,ry:50,seed:51,land:'#9cc77a',active:true},
+ {id:'history',n:'Всеобщая история',i:'📜',x:100,y:284,rx:68,ry:50,seed:3,land:'#b9cf6c',active:true},
+ {id:'geo',n:'География',i:'🧭',x:300,y:286,rx:68,ry:50,seed:41,land:'#9cc77a',active:true},
+ {id:'rushist',n:'История России',i:'🦅',x:100,y:436,rx:68,ry:50,seed:61,land:'#c9d87c',active:true},
+ {id:'lit',n:'Литература',i:'📖',x:300,y:438,rx:68,ry:50,seed:31,land:'#9cc77a',active:true},
+ {id:'math',n:'Математика',i:'📐',x:100,y:588,rx:68,ry:50,seed:11,land:'#9cc77a',active:true},
+ {id:'rus',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:21,land:'#9cc77a',active:true}
 ];
-const BUILD='K001.020';
+const BUILD='K001.021';
 const GRADES=[5,6,7,8,9,10,11];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -5191,7 +5191,7 @@ const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
 /* ---------- обновления: новая версия скачивается заранее и включается по кнопке «Обновить» ---------- */
-const WHATSNEW=['На карте появился остров «Английский язык» по учебнику «Spotlight 6»: семья и дом, город и время, праздники и прошлое, правила, еда и каникулы — 24 испытания, загадки и Лондонская башня.','Новые карточки «Wonders of Britain» и английский в дуэли с родителем.'];
+const WHATSNEW=['Острова на карте теперь стоят по алфавиту — от Английского языка до Русского.','Все острова стали одного размера.','Остров «Английский язык» по учебнику «Spotlight 6» с Лондонской башней (K001.020).'];
 let swReg=null,updWorker=null,swReloading=false,updLater=false;
 function swVersion(w){return new Promise(res=>{try{const ch=new MessageChannel(),tm=setTimeout(()=>res(null),1500);ch.port1.onmessage=e=>{clearTimeout(tm);res(e.data)};w.postMessage({type:'version'},[ch.port2])}catch(e){res(null)}})}
 async function onSwWaiting(w){
