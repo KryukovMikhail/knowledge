@@ -237,8 +237,20 @@ const SUBJECTS=[
  {id:'math',n:'Математика',i:'📐',x:100,y:588,rx:68,ry:50,seed:11,land:'#9cc77a',active:true},
  {id:'rus',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:21,land:'#9cc77a',active:true}
 ];
-const BUILD='K001.024';
+const BUILD='K001.025';
 const GRADES=[5,6,7,8,9,10,11];
+const OPEN_GRADES=[5,6];
+/* острова 5 класса (по учебному плану ФГОС ООО): пока в тумане, задания добавляются по одному предмету */
+const SUBJECTS5=[
+ {id:'eng5',n:'Английский язык',i:'💂',x:100,y:132,rx:68,ry:50,seed:72,land:'#a8cf7c',fog:true,book:'«Английский в фокусе. Spotlight 5» — Ю. Е. Ваулина, Д. Дули, О. Е. Подоляко, В. Эванс'},
+ {id:'bio5',n:'Биология',i:'🔬',x:300,y:134,rx:68,ry:50,seed:52,land:'#9cc77a',fog:true,book:'«Биология. 5 класс» — В. В. Пасечник, С. В. Суматохин и др.'},
+ {id:'geo5',n:'География',i:'🧭',x:100,y:284,rx:68,ry:50,seed:42,land:'#9cc77a',fog:true,book:'«География. 5–6 классы» — А. И. Алексеев, В. В. Николина и др.'},
+ {id:'hist5',n:'История Древнего мира',i:'🏺',x:300,y:286,rx:68,ry:50,seed:4,land:'#c9d87c',fog:true,book:'«История. Всеобщая история. История Древнего мира. 5 класс» — В. Р. Мединский, А. О. Чубарьян'},
+ {id:'lit5',n:'Литература',i:'📖',x:100,y:436,rx:68,ry:50,seed:32,land:'#9cc77a',fog:true,book:'«Литература. 5 класс» — В. Я. Коровина, В. П. Журавлёв, В. И. Коровин'},
+ {id:'math5',n:'Математика',i:'📐',x:300,y:438,rx:68,ry:50,seed:12,land:'#9cc77a',fog:true,book:'«Математика. 5 класс» — Н. Я. Виленкин, В. И. Жохов, А. С. Чесноков и др.'},
+ {id:'odnk5',n:'ОДНКНР',i:'🕊️',x:100,y:588,rx:68,ry:50,seed:81,land:'#b8d48a',fog:true,book:'«Основы духовно-нравственной культуры народов России. 5 класс» — Н. Ф. Виноградова, В. И. Власенко, А. В. Поляков'},
+ {id:'rus5',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:22,land:'#9cc77a',fog:true,book:'«Русский язык. 5 класс» — Т. А. Ладыженская, М. Т. Баранов, Л. А. Тростенцова и др.'}
+];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
  {n:'I',t:'Европа в Раннее Средневековье',p:'§ 1–4',i:'⚜️',quests:[{id:'early',t:'От Рима к империи Карла Великого'},{id:'xI',t:'🧩 Загадки и контурная карта'}]},
@@ -4338,20 +4350,21 @@ function soundBtn(){return `<button class="btn ghost" data-snd>${soundOn?'🔊':
 function bindSound(){$$('[data-snd]').forEach(b=>b.onclick=()=>{soundOn=!soundOn;try{localStorage.setItem('pvsz_sound',soundOn?'1':'0')}catch(e){}b.textContent=soundOn?'🔊':'🔇';SFX.click()})}
 
 /* ================= ЭКРАН 1: КАРТА ПРЕДМЕТОВ ================= */
-function worldSVG(){
+function worldSVG(list=SUBJECTS){
  const r=rng(7);let waves='';
  for(let i=0;i<46;i++){const x=r()*380+5,y=r()*670+10;waves+=`<path d="M${x.toFixed(0)},${y.toFixed(0)} q5,-4 10,0 q5,-4 10,0" stroke="#fff" stroke-width="1.6" fill="none" opacity=".35"/>`}
  let isl='';
- for(const s of SUBJECTS){
-  isl+=`<g class="node ${s.active?'':'locked'}" data-sub="${s.id}">
+ for(const s of list){
+  isl+=`<g class="node ${s.active||s.fog?'':'locked'}" data-sub="${s.id}">
    <path d="${blob(s.x+5,s.y+9,s.rx,s.ry,s.seed)}" fill="rgba(0,40,70,.35)"/>
    <path d="${blob(s.x,s.y,s.rx+11,s.ry+9,s.seed)}" fill="#8fd6ec" opacity=".55"/>
    <path d="${blob(s.x,s.y,s.rx,s.ry,s.seed)}" fill="#f0d99c" stroke="#c9a65a" stroke-width="2"/>
    <path d="${blob(s.x,s.y-4,s.rx*.8,s.ry*.72,s.seed+5)}" fill="${s.land}"/>
    ${s.active?`<circle cx="${s.x}" cy="${s.y-6}" r="34" fill="#fff59a" class="pulse"/>`:''}
    <text x="${s.x}" y="${s.y+8}" font-size="${s.active?44:34}" text-anchor="middle" class="${s.active?'bob':''}">${s.i}</text>
-   ${ribbon(s.x,s.y+s.ry+8,s.n,s.active?16:13,s.active?'#7a2a12':'#5b5b5b')}
-   ${s.active?'':`<text x="${s.x+s.rx*.62}" y="${s.y-s.ry*.35}" font-size="20" text-anchor="middle">🔒</text>`}
+   ${ribbon(s.x,s.y+s.ry+8,s.n,s.active||s.fog?16:13,s.active?'#7a2a12':s.fog?'#4a5a6a':'#5b5b5b')}
+   ${s.fog?`<g opacity=".78"><ellipse cx="${s.x-22}" cy="${s.y+14}" rx="34" ry="14" fill="#eef4f8"/><ellipse cx="${s.x+18}" cy="${s.y+20}" rx="38" ry="15" fill="#e4edf3"/><ellipse cx="${s.x+4}" cy="${s.y+6}" rx="26" ry="13" fill="#f6fafc"/></g>`:''}
+   ${s.active||s.fog?'':`<text x="${s.x+s.rx*.62}" y="${s.y-s.ry*.35}" font-size="20" text-anchor="middle">🔒</text>`}
   </g>`}
  return `<svg viewBox="0 0 400 690" class="map">
  <defs><radialGradient id="sea" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#5fb7d8"/><stop offset="1" stop-color="#2a7aa3"/></radialGradient></defs>
@@ -4359,7 +4372,8 @@ function worldSVG(){
  <g transform="translate(46,48)" opacity=".85"><circle r="26" fill="#f6e7c6" stroke="#7a5a30" stroke-width="2"/><path d="M0,-24 L5,0 L0,24 L-5,0Z" fill="#a8322a"/><path d="M-24,0 L0,-5 L24,0 L0,5Z" fill="#3b2a1a"/><text y="-28" font-size="11" text-anchor="middle" fill="#fff" font-weight="700">С</text></g>
  <text x="345" y="62" font-size="26" class="bob">⛵</text><text x="20" y="372" font-size="24">🐋</text><text x="185" y="520" font-size="22" class="bob">⛵</text><text x="356" y="378" font-size="20">🐬</text>
  ${isl}</svg>`}
-function world(){
+function world(grade=6){
+ if(grade===5)return world5();
  const ts=allStars();
  screen(`
  <div class="top"><button class="btn ghost" id="cls">← Классы</button><h2 class="ttl" style="text-align:center">6 класс</h2>${soundBtn()}</div>
@@ -4371,6 +4385,18 @@ function world(){
  $('#cls').onclick=()=>{SFX.click();classes()};
  $$('[data-sub]').forEach(g=>g.onclick=()=>{const s=SUBJECTS.find(x=>x.id===g.dataset.sub);if(s.active){SFX.click();historyMap(s.id==='rushist'?'r':s.id==='geo'?'g':s.id==='lit'?'l':s.id==='rus'?'y':s.id==='math'?'m':s.id==='bio'?'b':s.id==='eng'?'e':'w')}else{SFX.bad();toast(`Остров «${s.n}» пока окутан туманом — откроется в следующих путешествиях!`)}});
 }
+function world5(){
+ screen(`
+ <div class="top"><button class="btn ghost" id="cls">← Классы</button><h2 class="ttl" style="text-align:center">5 класс</h2>${soundBtn()}</div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Это острова <b>5 класса</b>${save.name?', <b>'+esc(save.name)+'</b>':''}! Пока они окутаны туманом — мы готовим для них уроки и испытания. Нажми на остров, чтобы узнать, по какому учебнику он будет.</div></div>
+ ${worldSVG(SUBJECTS5)}
+ `,'linear-gradient(#3a7a98,#1a4a5e)');
+ bindSound();
+ $('#cls').onclick=()=>{SFX.click();classes()};
+ $$('[data-sub]').forEach(g=>g.onclick=()=>{const s=SUBJECTS5.find(x=>x.id===g.dataset.sub);SFX.click();
+  const o=modal(`<div style="text-align:center;font-size:48px">${s.i}</div><h2 style="text-align:center">${esc(s.n)} · 5 класс</h2><p style="line-height:1.45">Остров пока в тумане 🌫️ — сова Мудрослава готовит для него уроки и испытания.</p><p class="small" style="line-height:1.4">Учебник: ${esc(s.book)}</p><button class="btn green wide" id="ok">Буду ждать!</button>`);
+  $('#ok',o).onclick=()=>o.remove()});
+}
 /* ================= ЭКРАН 0: ВЫБОР КЛАССА ================= */
 function classes(){
  const ts=allStars();
@@ -4380,7 +4406,7 @@ function classes(){
  ${heroCard()}
  <button class="btn wide ${dailyDone()?'':'green'}" id="daily">☀️ Вопрос дня${dailyDone()?' · ✅ пройден':''} · 🔥 ${streakNow()}</button>
  <button class="btn wide" id="duel" style="background:#8a4ab0;color:#fff;box-shadow:0 4px 0 #4a1e5a,var(--shadow)">⚔️ Дуэль с родителем</button>
- <div class="grades">${GRADES.map(g=>`<button class="grade ${g===6?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${g===6?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
+ <div class="grades">${GRADES.map(g=>`<button class="grade ${OPEN_GRADES.includes(g)?'on':''}" data-g="${g}"><span class="gn">${g}</span><span class="gl">класс</span>${OPEN_GRADES.includes(g)?'':'<span class="gk">🔒</span>'}</button>`).join('')}</div>
  <button class="btn wide" id="myres">📊 Мои результаты</button>
  <button class="btn wide" id="lit">📚 Литература</button>
  <div class="foot"><button class="btn ghost small" id="tr">💾 Перенос прогресса</button><button class="btn ghost small" id="vc">🗣️ Голос совы</button><button class="btn ghost small" id="inst" ${isStandalone()?'style="display:none"':''}>📲 Установить</button></div>
@@ -4388,7 +4414,7 @@ function classes(){
  <div class="build" id="bld">${BUILD}</div>`,
  'radial-gradient(circle at 50% 20%,#3d7fa6,#173b55)');
  bindSound();
- $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(g===6){SFX.click();world()}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
+ $$('[data-g]').forEach(b=>b.onclick=()=>{const g=+b.dataset.g;if(OPEN_GRADES.includes(g)){SFX.click();world(g)}else{SFX.bad();shake(b);toast(`${g} класс пока в пути — скоро откроется!`)}});
  $('#nm').onclick=()=>askName(classes);
  $('#myres').onclick=()=>{SFX.click();resultsScreen()};
  $('#lit').onclick=()=>{SFX.click();litScreen()};
@@ -5263,7 +5289,7 @@ const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
 /* ---------- обновления: новая версия скачивается заранее и включается по кнопке «Обновить» ---------- */
-const WHATSNEW=['Английский язык: в уроке «My family» добавлены переводы слов sister, brother, grandmother, grandfather.','Сова читает уроки живее и сама выбирает лучший голос; кнопка «🗣️ Голос совы» на главной (K001.023).'];
+const WHATSNEW=['Открылся 5 класс! На его карте восемь островов: английский, биология, география, история Древнего мира, литература, математика, ОДНКНР и русский язык.','Острова 5 класса пока в тумане — уроки для них появятся в следующих обновлениях.'];
 let swReg=null,updWorker=null,swReloading=false,updLater=false;
 function swVersion(w){return new Promise(res=>{try{const ch=new MessageChannel(),tm=setTimeout(()=>res(null),1500);ch.port1.onmessage=e=>{clearTimeout(tm);res(e.data)};w.postMessage({type:'version'},[ch.port2])}catch(e){res(null)}})}
 async function onSwWaiting(w){
