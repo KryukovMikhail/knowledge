@@ -237,19 +237,18 @@ const SUBJECTS=[
  {id:'math',n:'Математика',i:'📐',x:100,y:588,rx:68,ry:50,seed:11,land:'#9cc77a',active:true},
  {id:'rus',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:21,land:'#9cc77a',active:true}
 ];
-const BUILD='K001.025';
+const BUILD='K001.026';
 const GRADES=[5,6,7,8,9,10,11];
 const OPEN_GRADES=[5,6];
 /* острова 5 класса (по учебному плану ФГОС ООО): пока в тумане, задания добавляются по одному предмету */
 const SUBJECTS5=[
- {id:'eng5',n:'Английский язык',i:'💂',x:100,y:132,rx:68,ry:50,seed:72,land:'#a8cf7c',fog:true,book:'«Английский в фокусе. Spotlight 5» — Ю. Е. Ваулина, Д. Дули, О. Е. Подоляко, В. Эванс'},
- {id:'bio5',n:'Биология',i:'🔬',x:300,y:134,rx:68,ry:50,seed:52,land:'#9cc77a',fog:true,book:'«Биология. 5 класс» — В. В. Пасечник, С. В. Суматохин и др.'},
- {id:'geo5',n:'География',i:'🧭',x:100,y:284,rx:68,ry:50,seed:42,land:'#9cc77a',fog:true,book:'«География. 5–6 классы» — А. И. Алексеев, В. В. Николина и др.'},
- {id:'hist5',n:'История Древнего мира',i:'🏺',x:300,y:286,rx:68,ry:50,seed:4,land:'#c9d87c',fog:true,book:'«История. Всеобщая история. История Древнего мира. 5 класс» — В. Р. Мединский, А. О. Чубарьян'},
+ {id:'eng5',n:'Английский язык',i:'💂',x:100,y:132,rx:68,ry:50,seed:72,land:'#a8cf7c',active:true,sub:'e5',book:'«Gateway 2nd Edition A1+» — Дэвид Спенсер'},
+ {id:'bio5',n:'Биология',i:'🔬',x:300,y:134,rx:68,ry:50,seed:52,land:'#9cc77a',fog:true,book:'«Биология. 5 класс. Базовый уровень» — В. В. Пасечник, С. В. Суматохин, З. Г. Гапонюк, Г. Г. Швецов'},
+ {id:'geo5',n:'География',i:'🧭',x:100,y:284,rx:68,ry:50,seed:42,land:'#9cc77a',fog:true,book:'«География. 5 класс» — А. И. Алексеев, В. В. Николина, Е. К. Липкина и др.'},
+ {id:'hist5',n:'История Древнего мира',i:'🏺',x:300,y:286,rx:68,ry:50,seed:4,land:'#c9d87c',fog:true,book:'«История Древнего мира. 5 класс» — А. А. Вигасин, Г. И. Годер, И. С. Свенцицкая'},
  {id:'lit5',n:'Литература',i:'📖',x:100,y:436,rx:68,ry:50,seed:32,land:'#9cc77a',fog:true,book:'«Литература. 5 класс» — В. Я. Коровина, В. П. Журавлёв, В. И. Коровин'},
- {id:'math5',n:'Математика',i:'📐',x:300,y:438,rx:68,ry:50,seed:12,land:'#9cc77a',fog:true,book:'«Математика. 5 класс» — Н. Я. Виленкин, В. И. Жохов, А. С. Чесноков и др.'},
- {id:'odnk5',n:'ОДНКНР',i:'🕊️',x:100,y:588,rx:68,ry:50,seed:81,land:'#b8d48a',fog:true,book:'«Основы духовно-нравственной культуры народов России. 5 класс» — Н. Ф. Виноградова, В. И. Власенко, А. В. Поляков'},
- {id:'rus5',n:'Русский язык',i:'✍️',x:300,y:590,rx:68,ry:50,seed:22,land:'#9cc77a',fog:true,book:'«Русский язык. 5 класс» — Т. А. Ладыженская, М. Т. Баранов, Л. А. Тростенцова и др.'}
+ {id:'math5',n:'Математика',i:'📐',x:300,y:438,rx:68,ry:50,seed:12,land:'#9cc77a',fog:true,book:'«Математика. 5 класс. Базовый уровень» — Н. Я. Виленкин, В. И. Жохов, А. С. Чесноков'},
+ {id:'rus5',n:'Русский язык',i:'✍️',x:200,y:590,rx:68,ry:50,seed:22,land:'#9cc77a',fog:true,book:'«Русский язык. 5 класс» — Т. А. Ладыженская, М. Т. Баранов, Л. А. Тростенцова и др.'}
 ];
 /* Главы учебника «Всеобщая история. История Средних веков. 6 класс» (Мединский, Чубарьян) */
 const CHAPTERS=[
@@ -4140,9 +4139,418 @@ const EZONES={
   {fill:'#e8dcc0',label:'Свиток знатока английского',col:'#6b4a2a',deco:(c,y)=>emo(70,y+170,'🔑',30)+emo(330,y+170,'📜',28)}]
 };
 
-CARDS.push(...RCARDS,...GCARDS,...LCARDS,...YCARDS,...MCARDS,...BCARDS,...ECARDS);EVENTS.push(...REVENTS);
+
+/* ================= 5 КЛАСС · АНГЛИЙСКИЙ ЯЗЫК (Gateway 2nd Edition A1+, David Spencer, Macmillan) ================= */
+const E5CHAPTERS=[
+ {n:'I',t:'My ID & School days',p:'Units 1–2',i:'🎒',quests:[{id:'g5a',t:'Me, my family, my school'},{id:'xG5a',t:'🧩 Загадки и кроссворд'}]},
+ {n:'II',t:'24/7 & Home time',p:'Units 3–4',i:'🏡',quests:[{id:'g5b',t:'Every day, my town, my home, food'},{id:'xG5b',t:'🧩 Загадки и кроссворд'}]},
+ {n:'III',t:'Connected & Good buys',p:'Units 5–6',i:'💻',quests:[{id:'g5c',t:'Gadgets, shopping, Present Continuous'},{id:'xG5c',t:'🧩 Загадки и кроссворд'}]},
+ {n:'IV',t:'Sport, jobs, nature, holidays',p:'Units 7–10',i:'🏆',quests:[{id:'g5d',t:'Past Simple, comparisons, plans'},{id:'xG5d',t:'🧩 Загадки и кроссворд'}]}
+];
+const E5A=[
+{id:'ge1',name:'My ID: to be',place:'Unit 1',i:'🪪',
+ lesson:`<p>Глагол <b>to be</b> (быть) в настоящем времени: <b>I am</b> (I’m), <b>he / she / it is</b> (’s), <b>we / you / they are</b> (’re).</p>
+ <p><i>I’m Kate. I’m eleven. I’m from Russia. My friends are British.</i></p>
+ <p>Отрицание — с <b>not</b>: <i>I’m <b>not</b> tired. He <b>isn’t</b> at home. They <b>aren’t</b> teachers.</i></p>
+ <p>Вопрос — <b>be</b> ставим вперёд: <i><b>Are</b> you twelve? — Yes, I am. / No, I’m not. <b>Is</b> she Spanish? — Yes, she is.</i></p>
+ <p>Страны и национальности: <b>Russia — Russian</b>, <b>the UK — British</b>, <b>Australia — Australian</b>, <b>Brazil — Brazilian</b>, <b>Mexico — Mexican</b>, <b>Poland — Polish</b>, <b>Turkey — Turkish</b>, <b>Portugal — Portuguese</b>.</p>`,
+ tasks:[
+  EQ('Выбери правильный вариант',['My brother ___ eleven.',['is','am','are','be'],'He → is.'],
+   ['We ___ from Russia.',['are','is','am','be'],'We → are.'],
+   ['___ you from Brazil? — No, I’m not.',['Are','Is','Am','Do'],'Вопрос: Are you…?'],
+   ['Is Tom British? — Yes, he…',['is','are','does','has'],'Краткий ответ: Yes, he is.'],
+   ['They ___ at school today. (не)',['aren’t','isn’t','amn’t','don’t'],'They → aren’t.']),
+  {type:'match',prompt:'Соедини страну с национальностью.',pairs:[['Brazil','Brazilian'],['Mexico','Mexican'],['Poland','Polish'],['Turkey','Turkish'],['Portugal','Portuguese'],['Australia','Australian']]},
+  ET(['«I’m» — краткая форма «I am».',true,'Верно.'],['«She are my friend» — правильно.',false,'Правильно: She is my friend.'],['Национальности в английском пишутся с заглавной буквы.',true,'Polish, Turkish.'])]},
+{id:'ge2',name:'Family: have got',place:'Unit 1',i:'👪',
+ lesson:`<p>Семья: <b>mum, dad, parents, brother, sister, grandma, grandad, uncle, aunt, cousin, son, daughter, husband</b> (муж), <b>wife</b> (жена).</p>
+ <p><b>Have got / has got</b> — «у меня есть»: <i>I’ve got two sisters. She’s got a cat.</i> Отрицание: <i>I <b>haven’t got</b> a dog. He <b>hasn’t got</b> a phone.</i> Вопрос: <i><b>Have</b> you <b>got</b> a brother? — Yes, I have.</i></p>
+ <p><b>Притяжательные прилагательные</b>: my, your, his, her, its, our, their — <i>This is <b>my</b> dad. <b>His</b> name is Ivan.</i></p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с переводом.',pairs:[['Husband','Муж'],['Wife','Жена'],['Grandad','Дедушка'],['Grandma','Бабушка'],['Son','Сын'],['Daughter','Дочь']]},
+  EQ('Выбери правильный вариант',['My cousin ___ got a new bike.',['has','have','is','are'],'He/she → has got.'],
+   ['I ___ got a sister. I’ve only got a brother.',['haven’t','hasn’t','don’t','am not'],'I → haven’t got.'],
+   ['This is Anna. ___ dad is a doctor.',['Her','His','She','Their'],'Anna — она → her.'],
+   ['Our grandparents live in Kazan. ___ house is big.',['Their','There','They','His'],'They → their.']),
+  ET(['«Has she got a dog? — Yes, she has» — правильно.',true,'Верно.'],['Брат папы — aunt.',false,'Брат папы — uncle, aunt — тётя.'],['«Its» используют для животных и предметов.',true,'The cat has got its toy.'])]},
+{id:'ge3',name:'School days',place:'Unit 2',i:'🏫',
+ lesson:`<p>Школьные предметы: <b>Maths, English, History, Geography, Science</b> (естествознание), <b>Art</b> (рисование), <b>Music, PE</b> (физкультура), <b>ICT</b> (информатика).</p>
+ <p>Предметы в портфеле: <b>pencil case</b> (пенал), <b>ruler</b> (линейка), <b>rubber</b> (ластик), <b>sharpener</b> (точилка), <b>notebook</b> (тетрадь), <b>dictionary</b> (словарь).</p>
+ <p><b>Притяжательный падеж</b>: <i>Tom<b>’s</b> ruler</i>, <i>the teacher<b>’s</b> desk</i>. <b>Притяжательные местоимения</b> (без существительного после них): <b>mine, yours, his, hers, ours, theirs</b> — <i>This pen is <b>mine</b>. Is that bag <b>yours</b>?</i></p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с переводом.',pairs:[['Ruler','Линейка'],['Rubber','Ластик'],['Pencil case','Пенал'],['Sharpener','Точилка'],['PE','Физкультура'],['ICT','Информатика']]},
+  EQ('Выбери правильный вариант',['This book isn’t mine. It’s ___. (her)',['hers','her','she’s','herself'],'Her → hers.'],
+   ['That is ___ dictionary. (Mike)',['Mike’s','Mikes','Mikes’','Mike'],'Притяжательный падеж.'],
+   ['Is this pencil ___? (ты)',['yours','your','you','you’s'],'Your → yours.'],
+   ['На каком уроке рисуют?',['Art','Maths','PE','Science'],'Art — изобразительное искусство.']),
+  ET(['«Mine» значит «мой» (без существительного после него).',true,'The bag is mine.'],['«PE» — это урок музыки.',false,'PE — physical education, физкультура.'],['«This is our’s classroom» — правильно.',false,'Правильно: This is our classroom.'])]},
+{id:'ge4',name:'Plurals & this/these',place:'Unit 2',i:'✏️',
+ lesson:`<p><b>Множественное число</b>: обычно <b>-s</b> (book → books), после s, sh, ch, x — <b>-es</b> (box → boxes, watch → watches), согласная + y → <b>-ies</b> (dictionary → dictionaries), f/fe → <b>-ves</b> (knife → knives).</p>
+ <p>Неправильные: <b>man → men, woman → women, child → children, person → people, foot → feet, tooth → teeth, mouse → mice</b>.</p>
+ <p><b>This</b> (этот, рядом, ед. ч.), <b>these</b> (эти, рядом, мн. ч.), <b>that</b> (тот, далеко), <b>those</b> (те, далеко): <i>This is my pen. These are my books. Those boys are my friends.</i></p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с формой множественного числа.',pairs:[['child','children'],['person','people'],['foot','feet'],['tooth','teeth'],['mouse','mice'],['knife','knives']]},
+  EQ('Выбери правильный вариант',['Как будет множественное число от «box»?',['boxes','boxs','boxies','box'],'После x — -es.'],
+   ['___ are my new trainers. (рядом)',['These','This','That','Those'],'Мн. ч., рядом — these.'],
+   ['Look at ___ bird in the sky! (далеко)',['that','these','those','this'],'Ед. ч., далеко — that.'],
+   ['Two ___ are in the classroom.',['women','womans','womens','woman']   ,'Woman → women.']),
+  ET(['Множественное число от «dictionary» — «dictionaries».',true,'Согласная + y → -ies.'],['«Those» — «эти» (рядом с нами).',false,'Those — те (далеко); these — эти.'],['«Childs» — правильное множественное число.',false,'Правильно: children.'])]},
+{id:'ge5',name:'Questions & articles',place:'Unit 2',i:'❓',
+ lesson:`<p><b>Вопросительные слова</b>: <b>What</b> (что), <b>Who</b> (кто), <b>Where</b> (где), <b>When</b> (когда), <b>Why</b> (почему), <b>How</b> (как), <b>How old</b> (сколько лет), <b>How many</b> (сколько), <b>Whose</b> (чей).</p>
+ <p><b>Артикли</b>: <b>a / an</b> — один какой-то предмет, впервые: <i>a cat, <b>an</b> apple, <b>an</b> hour</i> (an — перед гласным звуком). <b>The</b> — конкретный, уже известный: <i>I’ve got a cat. <b>The</b> cat is black.</i></p>
+ <p>Описание лица: <b>long / short hair, curly</b> (кудрявые), <b>straight</b> (прямые), <b>fair / dark hair, blue / brown eyes, glasses</b> (очки), <b>a beard</b> (борода), <b>a moustache</b> (усы).</p>`,
+ tasks:[
+  EQ('Выбери правильный вариант',['___ is your birthday? — In May.',['When','Where','Who','Whose'],'When — когда.'],
+   ['___ is that boy? — He’s my cousin.',['Who','What','Where','How'],'Who — кто.'],
+   ['___ bag is this? — It’s Lisa’s.',['Whose','Who','What','Which is'],'Whose — чей.'],
+   ['I’ve got ___ orange.',['an','a','the','—'],'Перед гласным звуком — an.'],
+   ['My dad has got a ___. (борода)',['beard','moustache','glasses','curly'],'Beard — борода.']),
+  ET(['«How old are you?» значит «Сколько тебе лет?».',true,'Верно.'],['Правильно говорить «a umbrella».',false,'Перед гласным звуком — an umbrella.'],['«Curly hair» — кудрявые волосы.',true,'Верно.'])]},
+{id:'ge6',name:'Свиток новичка',place:'Итог темы',i:'📜',
+ lesson:`<p>Ты рассказал о себе, семье и школе! Осталось последнее испытание — <b>Свиток новичка</b>.</p><p>Пройдёшь — получишь <b>школьный значок Gateway</b> и грамоту!</p>`,
+ tasks:[
+  {type:'sort',prompt:'Am, is или are?',done:'Глагол to be тебе покорился!',bins:[{n:'am',i:'🙋'},{n:'is',i:'👤'},{n:'are',i:'👥'}],
+   items:[['I',0],['He',1],['She',1],['It',1],['My mum',1],['We',2],['You',2],['They',2],['My friends',2]]},
+  EF(['This bag is ___. (мой)',['mine','my','me'],'Mine — мой (без существительного).'],
+   ['I’ve got ___ apple.',['an','a','the'],'Перед гласным — an.'],
+   ['___ is your teacher? — Mrs Smith.',['Who','What','Where'],'Who — кто.'],
+   ['Two ___ (child) are in the park.',['children','childs','childrens'],'Child → children.'],
+   ['She ___ got blue eyes.',['has','have','is'],'She → has got.']),
+  EQ('Выбери правильный вариант',['___ are your shoes. (далеко)',['Those','These','This','That'],'Мн. ч., далеко — those.'])]}
+];
+const E5B=[
+{id:'ge7',name:'Everyday activities',place:'Unit 3 · 24/7',i:'⏰',
+ lesson:`<p>Повседневные дела: <b>wake up, get up, have a shower, get dressed, have breakfast, go to school, have lunch, do homework, have dinner, go to bed</b>.</p>
+ <p><b>Present Simple</b> — то, что делаем обычно: <i>I <b>get up</b> at 7. My sister <b>gets</b> up at 8.</i> С he/she/it — окончание <b>-s</b> (watch<b>es</b>, go<b>es</b>, stud<b>ies</b>, <b>has</b>).</p>
+ <p>Отрицание: <i>I <b>don’t</b> watch TV in the morning. Dad <b>doesn’t</b> drink coffee.</i></p>`,
+ tasks:[
+  {type:'order',plain:true,prompt:'Расставь дела по порядку дня.',labels:['1-е','2-е','3-е','4-е','5-е'],items:['wake up','have a shower','have breakfast','go to school','go to bed'],e:'Good morning — good night!'},
+  EQ('Выбери правильный вариант',['My dad ___ to work by bus.',['goes','go','going','gos'],'He → goes.'],
+   ['We ___ have lessons on Sunday.',['don’t','doesn’t','aren’t','not'],'We → don’t.'],
+   ['She ___ her homework after lunch.',['does','do','dos','doing'],'Do → does.'],
+   ['Как сказать «принимать душ»?',['have a shower','do a shower','make a shower','take shower a'],'Have a shower.']),
+  ET(['«He watchs TV» — правильно.',false,'Правильно: He watches TV.'],['«Get dressed» значит «одеваться».',true,'Верно.'],['После «doesn’t» глагол без -s.',true,'She doesn’t like milk.'])]},
+{id:'ge8',name:'Questions & how often',place:'Unit 3 · 24/7',i:'🔁',
+ lesson:`<p>Вопросы в Present Simple: <i><b>Do</b> you play chess? — Yes, I do. / No, I don’t. <b>Does</b> he like pizza? — Yes, he does.</i></p>
+ <p>Wh-вопросы: <i><b>What time do</b> you get up? <b>Where does</b> she live?</i></p>
+ <p><b>Наречия частоты</b>: always (всегда), usually (обычно), often (часто), sometimes (иногда), hardly ever (почти никогда), never (никогда). Стоят <b>перед</b> глаголом, но <b>после</b> be: <i>I <b>often</b> read. She <b>is never</b> late.</i></p>`,
+ tasks:[
+  EQ('Выбери правильный вариант',['___ your brother play football?',['Does','Do','Is','Has'],'He → Does.'],
+   ['Where ___ you live?',['do','does','are','is'],'You → do.'],
+   ['Do you like cats? — Yes, I…',['do','does','am','like'],'Краткий ответ: Yes, I do.'],
+   ['Где правильно стоит наречие?',['I usually walk to school.','I walk usually to school.','Usually I walk to school usually.','I walk to usually school.'],'Перед смысловым глаголом.'],
+   ['Что значит «hardly ever»?',['Почти никогда','Всегда','Часто','Иногда'],'Hardly ever — почти никогда.']),
+  ET(['«He is always happy» — наречие стоит правильно.',true,'После be.'],['«Does she likes music?» — правильно.',false,'Правильно: Does she like music?'],['«Never» значит «никогда».',true,'Верно.'])]},
+{id:'ge9',name:'Free time & my town',place:'Unit 3 · 24/7',i:'🏙️',
+ lesson:`<p>Свободное время: <b>play computer games, listen to music, read magazines, go skateboarding, chat online, play an instrument, watch films</b>.</p>
+ <p>Места в городе: <b>bank, cinema, library</b> (библиотека), <b>museum, park, post office</b> (почта), <b>sports centre, supermarket, train station, hospital, café</b>.</p>
+ <p>Как объяснить дорогу: <i><b>Go straight on</b> (идите прямо). <b>Turn left / right</b> (поверните налево / направо). <b>It’s on the left / right. It’s next to the bank. It’s opposite the park.</b></i></p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини место с переводом.',pairs:[['Library','Библиотека'],['Post office','Почта'],['Train station','Вокзал'],['Sports centre','Спортивный центр'],['Hospital','Больница'],['Museum','Музей']]},
+  EQ('Выбери правильный вариант',['Как сказать «идите прямо»?',['Go straight on','Turn left','Go back','It’s opposite'],'Go straight on.'],
+   ['Where can you borrow books?',['At the library','At the bank','At the hospital','At the cinema'],'В библиотеке.'],
+   ['Where can you watch a film?',['At the cinema','At the post office','At the station','At the bank'],'В кинотеатре.']),
+  ET(['«Turn right» значит «поверните направо».',true,'Верно.'],['«Opposite» значит «рядом».',false,'Opposite — напротив, next to — рядом.'],['В «post office» отправляют письма.',true,'Это почта.'])]},
+{id:'ge10',name:'My home',place:'Unit 4 · Home time',i:'🛋️',
+ lesson:`<p>Комнаты: <b>bedroom, bathroom, kitchen, living room, dining room</b> (столовая), <b>garage, garden</b>.</p>
+ <p>Мебель: <b>bed, wardrobe</b> (шкаф для одежды), <b>desk, chair, armchair</b> (кресло), <b>sofa, shelf</b> (полка), <b>fridge</b> (холодильник), <b>cooker</b> (плита), <b>mirror</b> (зеркало).</p>
+ <p><b>There is</b> + ед. ч., <b>there are</b> + мн. ч.: <i>There’s a mirror in the bathroom. There are two chairs in the kitchen. Is there a garden? — Yes, there is.</i></p>
+ <p>Предлоги места: <b>in, on, under, next to, behind, in front of, between, opposite, above</b> (над).</p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с переводом.',pairs:[['Wardrobe','Шкаф для одежды'],['Armchair','Кресло'],['Shelf','Полка'],['Fridge','Холодильник'],['Cooker','Плита'],['Mirror','Зеркало']]},
+  EQ('Выбери правильный вариант',['There ___ a big sofa in the living room.',['is','are','am','have'],'Один диван — there is.'],
+   ['There ___ three bedrooms in our flat.',['are','is','be','has'],'Три спальни — there are.'],
+   ['The picture is ___ the sofa. (над)',['above','under','between','in'],'Above — над.'],
+   ['Where do you keep milk cold?',['In the fridge','In the wardrobe','On the shelf','Under the bed'],'Fridge — холодильник.']),
+  ET(['«Is there a garage? — Yes, there is» — правильно.',true,'Верно.'],['«Wardrobe» — это кухонная плита.',false,'Wardrobe — шкаф для одежды, cooker — плита.'],['«Between» значит «между».',true,'Between the bed and the desk.'])]},
+{id:'ge11',name:'Food and drink',place:'Unit 4 · Home time',i:'🥪',
+ lesson:`<p>Еда и напитки: <b>bread, butter, cheese, eggs, milk, juice, water, rice, pasta, meat, chicken, fish, fruit, vegetables, apples, carrots, tomatoes</b>.</p>
+ <p><b>Исчисляемые</b> (apple → apples) и <b>неисчисляемые</b> (milk, bread, water, rice — без -s и без a/an).</p>
+ <p><b>a / an</b> — с одним исчисляемым: <i>an egg</i>. <b>some</b> — в утвердительных: <i>There’s <b>some</b> cheese. There are <b>some</b> apples.</i> <b>any</b> — в вопросах и отрицаниях: <i>Is there <b>any</b> milk? There aren’t <b>any</b> eggs.</i></p>
+ <p>Предложить еду: <i><b>Would you like</b> some juice? — Yes, please. / No, thank you.</i></p>`,
+ tasks:[
+  {type:'sort',prompt:'Исчисляемое или неисчисляемое?',done:'Ты различаешь исчисляемые и неисчисляемые!',bins:[{n:'Исчисляемое',i:'🔢'},{n:'Неисчисляемое',i:'💧'}],
+   items:[['egg',0],['carrot',0],['tomato',0],['sandwich',0],['rice',1],['butter',1],['juice',1],['pasta',1],['cheese',1]]},
+  EQ('Выбери правильный вариант',['There aren’t ___ bananas.',['any','some','a','an'],'Отрицание — any.'],
+   ['I’d like ___ water, please.',['some','any','a','an'],'Просьба/утверждение — some.'],
+   ['___ you like some cake? — Yes, please.',['Would','Do','Are','Have'],'Would you like…?'],
+   ['Is there ___ bread?',['any','some','a','many'],'Вопрос — any.']),
+  ET(['«Milk» — неисчисляемое существительное.',true,'Нельзя сказать «two milks».'],['«An egg» — правильно.',true,'Перед гласным звуком — an.'],['«There is some apples» — правильно.',false,'Правильно: There are some apples.'])]},
+{id:'ge12',name:'Свиток горожанина',place:'Итог темы',i:'📜',
+ lesson:`<p>Ты рассказал о своём дне, городе и доме! Осталось последнее испытание — <b>Свиток горожанина</b>.</p><p>Пройдёшь — получишь <b>ключ от английского домика</b> 🏠 и грамоту!</p>`,
+ tasks:[
+  {type:'sort',prompt:'Какое окончание у глагола с he/she?',done:'Окончания освоены!',bins:[{n:'-s',i:'➕'},{n:'-es',i:'➕'},{n:'-ies',i:'🔤'}],
+   items:[['read',0],['play',0],['live',0],['watch',1],['go',1],['finish',1],['study',2],['carry',2],['tidy',2]]},
+  EF(['___ your sister speak English?',['Does','Do','Is'],'She → Does.'],
+   ['There ___ two sofas in the room.',['are','is','am'],'Мн. ч. — are.'],
+   ['Is there ___ juice in the fridge?',['any','some','an'],'Вопрос — any.'],
+   ['I ___ go to bed late. (никогда)',['never','always','often'],'Never — никогда.'],
+   ['Go straight on and turn ___. (налево)',['left','right','back'],'Left — налево.']),
+  EQ('Выбери правильный вариант',['What time ___ he have lunch?',['does','do','is','has'],'He → does.'])]}
+];
+const E5C=[
+{id:'ge13',name:'Computers & can',place:'Unit 5 · Connected',i:'💻',
+ lesson:`<p>Компьютеры и гаджеты: <b>keyboard</b> (клавиатура), <b>mouse, screen, laptop</b> (ноутбук), <b>tablet, printer, headphones, speakers, smartphone, webcam</b>. Действия: <b>click, type, download</b> (скачать), <b>upload, print, save, search the Internet, send a message</b>.</p>
+ <p><b>Can / can’t</b> — уметь, мочь: <i>I <b>can</b> type fast. My grandad <b>can’t</b> use a tablet.</i> Вопрос: <i><b>Can</b> you swim? — Yes, I can. / No, I can’t.</i> После can глагол без to и без -s.</p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с переводом.',pairs:[['Keyboard','Клавиатура'],['Laptop','Ноутбук'],['Screen','Экран'],['Headphones','Наушники'],['Download','Скачать'],['Search','Искать']]},
+  EQ('Выбери правильный вариант',['My little sister ___ read. She’s three.',['can’t','can','cans','doesn’t can'],'Трёхлетний ребёнок ещё не умеет читать.'],
+   ['___ you play the piano? — Yes, I can.',['Can','Do','Are','Does'],'Can you…?'],
+   ['He can ___ very fast.',['type','types','to type','typing'],'После can — глагол без изменений.'],
+   ['Чем печатают документы?',['Printer','Webcam','Mouse','Speakers'],'Printer — принтер.']),
+  ET(['«She cans swim» — правильно.',false,'Can не меняется: She can swim.'],['«Download» значит «скачать».',true,'Верно.'],['«Can’t» — сокращение от «cannot».',true,'Верно.'])]},
+{id:'ge14',name:'How? Imperative, like + -ing',place:'Unit 5 · Connected',i:'🎧',
+ lesson:`<p><b>Наречия образа действия</b> отвечают на вопрос <b>How?</b> (как?): quick → quick<b>ly</b>, slow → slow<b>ly</b>, careful → careful<b>ly</b>, easy → eas<b>ily</b>. Исключения: <b>good → well</b>, <b>fast → fast</b>, <b>hard → hard</b>. <i>She sings <b>well</b>. He types <b>quickly</b>.</i></p>
+ <p><b>Повелительное наклонение</b>: <i><b>Click</b> here. <b>Don’t share</b> your password!</i></p>
+ <p>После <b>like, love, hate, don’t mind</b> — глагол с <b>-ing</b>: <i>I <b>love playing</b> games. She <b>hates getting up</b> early.</i></p>`,
+ tasks:[
+  EQ('Выбери правильный вариант',['She speaks English very ___.',['well','good','goodly','best'],'Good → well.'],
+   ['Drive ___! (осторожно)',['carefully','careful','carefuly','care'],'Careful → carefully.'],
+   ['___ tell anyone your password!',['Don’t','Not','No','Doesn’t'],'Запрет — Don’t.'],
+   ['I love ___ films.',['watching','watch','to watching','watches'],'Love + -ing.'],
+   ['He runs very ___.',['fast','fastly','fasts','faster than'],'Fast → fast.']),
+  ET(['Наречие от «easy» — «easily».',true,'Y → ily.'],['«I hate do homework» — правильно.',false,'Правильно: I hate doing homework.'],['«Well» — наречие от «good».',true,'Верно.'])]},
+{id:'ge15',name:'Shops and clothes',place:'Unit 6 · Good buys',i:'🛍️',
+ lesson:`<p>Магазины: <b>baker’s</b> (булочная), <b>butcher’s</b> (мясная лавка), <b>chemist’s</b> (аптека), <b>newsagent’s</b> (газетный киоск), <b>clothes shop, shoe shop, bookshop, sports shop, supermarket</b>.</p>
+ <p>Одежда: <b>T-shirt, shirt, jumper</b> (свитер), <b>jacket, coat, dress, skirt, jeans, trousers</b> (брюки), <b>shorts, trainers</b> (кроссовки), <b>boots, cap, hat, scarf</b>.</p>
+ <p>В магазине: <i><b>How much is</b> this T-shirt? — It’s £10. <b>Can I try it on?</b> (Можно примерить?) What <b>size</b> are you?</i></p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини магазин с тем, что там покупают.',pairs:[['Baker’s','Хлеб и булочки'],['Butcher’s','Мясо'],['Chemist’s','Лекарства'],['Newsagent’s','Газеты и журналы'],['Shoe shop','Обувь'],['Bookshop','Книги']]},
+  EQ('Выбери правильный вариант',['Как будет «свитер»?',['jumper','jacket','skirt','scarf'],'Jumper — свитер.'],
+   ['___ is this cap? — It’s £5.',['How much','How many','What','Whose'],'How much — сколько стоит.'],
+   ['Как спросить «Можно примерить?»',['Can I try it on?','Can I put it?','May I wear?','Can I buy on?'],'Try on — примерять.'],
+   ['Что надевают на ноги для бега?',['Trainers','Scarf','Coat','Cap'],'Trainers — кроссовки.']),
+  ET(['«Trousers» — брюки.',true,'Всегда во множественном числе.'],['В «chemist’s» продают мясо.',false,'Chemist’s — аптека, мясо — в butcher’s.'],['«Scarf» — шарф.',true,'Верно.'])]},
+{id:'ge16',name:'Present Continuous',place:'Unit 6 · Good buys',i:'▶️',
+ lesson:`<p><b>Present Continuous</b> — то, что происходит <b>прямо сейчас</b>: <b>am / is / are + глагол-ing</b>.</p>
+ <p><i>I <b>am wearing</b> a red jumper. Look! Mum <b>is buying</b> a dress. They <b>are trying</b> on jeans.</i></p>
+ <p>Отрицание: <i>He <b>isn’t</b> listening.</i> Вопрос: <i><b>Are</b> you <b>waiting</b> for the bus? — Yes, I am.</i></p>
+ <p>Правописание: write → writ<b>ing</b> (е выпадает), shop → shop<b>ping</b>, run → run<b>ning</b>, sit → sit<b>ting</b> (согласная удваивается).</p>`,
+ tasks:[
+  EQ('Выбери правильный вариант',['Look! The girl ___ a new dress.',['is wearing','wears','are wearing','wearing'],'Look! — сейчас.'],
+   ['We ___ shopping at the moment.',['are going','go','is going','goes'],'We → are.'],
+   ['I ___ listening to music now.',['am not','don’t','isn’t','not'],'I → am not.'],
+   ['Как пишется «shop» + -ing?',['shopping','shoping','shopeing','shopping’'],'Удваиваем p.'],
+   ['___ he sleeping? — No, he isn’t.',['Is','Does','Are','Do'],'He → Is.']),
+  ET(['«She are reading» — правильно.',false,'Правильно: She is reading.'],['Present Continuous образуется с am/is/are и -ing.',true,'Верно.'],['«Write» + ing = «writing».',true,'E выпадает.'])]},
+{id:'ge17',name:'Simple or Continuous?',place:'Unit 6 · Good buys',i:'⚖️',
+ lesson:`<p><b>Present Simple</b> — обычно, регулярно: <i>I <b>wear</b> a uniform every day.</i> Подсказки: <b>every day, usually, often, on Saturdays</b>.</p>
+ <p><b>Present Continuous</b> — сейчас: <i>Today I <b>am wearing</b> jeans.</i> Подсказки: <b>now, at the moment, today, Look!, Listen!</b></p>
+ <p>Глаголы <b>like, love, want, know, need</b> обычно не бывают в Continuous: <i>I <b>want</b> a new phone</i> (не «I’m wanting»).</p>`,
+ tasks:[
+  {type:'sort',prompt:'Present Simple или Present Continuous?',done:'Ты различаешь времена!',bins:[{n:'Present Simple',i:'🔁'},{n:'Present Continuous',i:'▶️'}],
+   items:[['every day',0],['usually',0],['on Mondays',0],['never',0],['now',1],['at the moment',1],['Look!',1],['today',1]]},
+  EQ('Выбери правильный вариант',['My dad usually ___ coffee in the morning.',['drinks','is drinking','drink','drinking'],'Usually — Present Simple.'],
+   ['Listen! Someone ___ at the door.',['is knocking','knocks','knock','are knocking'],'Listen! — сейчас.'],
+   ['I ___ a new bike for my birthday.',['want','am wanting','wants','wanting'],'Want — не в Continuous.']),
+  ET(['«At the moment» — подсказка Present Continuous.',true,'Прямо сейчас.'],['«I am knowing the answer» — правильно.',false,'Правильно: I know the answer.'],['«Every day» — подсказка Present Simple.',true,'Регулярно.'])]},
+{id:'ge18',name:'Свиток покупателя',place:'Итог темы',i:'📜',
+ lesson:`<p>Ты освоил гаджеты, магазины и время Present Continuous! Осталось последнее испытание — <b>Свиток покупателя</b>.</p><p>Пройдёшь — получишь <b>подарочную карту лондонского магазина</b> 🎁 и грамоту!</p>`,
+ tasks:[
+  {type:'sort',prompt:'Что это: одежда или гаджет?',done:'Ты разбираешься в покупках!',bins:[{n:'Clothes',i:'👕'},{n:'Gadgets',i:'📱'}],
+   items:[['jumper',0],['trousers',0],['trainers',0],['scarf',0],['laptop',1],['tablet',1],['headphones',1],['printer',1]]},
+  EF(['She can ___ the guitar.',['play','plays','playing'],'После can — без изменений.'],
+   ['He sings very ___.',['well','good','goodly'],'Good → well.'],
+   ['Look! They ___ playing football.',['are','is','am'],'They → are.'],
+   ['I love ___ new clothes.',['buying','buy','buys'],'Love + -ing.'],
+   ['How ___ are these trainers?',['much','many','old'],'How much — сколько стоит.']),
+  EQ('Выбери правильный вариант',['Don’t ___ your password!',['share','sharing','shares','to share'],'Don’t + глагол.'])]}
+];
+const E5D=[
+{id:'ge19',name:'Sport & was/were',place:'Unit 7 · Teamwork',i:'⚽',
+ lesson:`<p>Спорт: <b>football, basketball, volleyball, tennis, swimming, cycling, athletics</b> (лёгкая атлетика), <b>gymnastics, ice hockey, skiing</b>. Люди: <b>player, team, coach</b> (тренер), <b>referee</b> (судья), <b>fan, winner, champion</b>.</p>
+ <p><b>Past Simple глагола be</b>: <b>was</b> (I, he, she, it), <b>were</b> (we, you, they): <i>I <b>was</b> at the match yesterday. The fans <b>were</b> happy.</i> Отрицание: <b>wasn’t, weren’t</b>.</p>
+ <p><b>There was / there were</b> — «был/были»: <i>There <b>was</b> a big stadium. There <b>were</b> a lot of people.</i></p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с переводом.',pairs:[['Coach','Тренер'],['Referee','Судья'],['Team','Команда'],['Winner','Победитель'],['Athletics','Лёгкая атлетика'],['Cycling','Велоспорт']]},
+  EQ('Выбери правильный вариант',['We ___ at the stadium last Saturday.',['were','was','are','is'],'We → were.'],
+   ['The match ___ exciting!',['was','were','did','been'],'It → was.'],
+   ['There ___ twenty players on the pitch.',['were','was','is','be'],'Мн. ч. в прошлом — there were.'],
+   ['___ you at school yesterday? — Yes, I was.',['Were','Was','Did','Are'],'You → Were.']),
+  ET(['«There was a lot of fans» — правильно.',false,'Мн. ч.: There were a lot of fans.'],['«Referee» — судья в матче.',true,'Верно.'],['«I wasn’t tired» — отрицание в прошлом.',true,'Was not.'])]},
+{id:'ge20',name:'Past Simple & jobs',place:'Units 7–8',i:'👩‍🚒',
+ lesson:`<p><b>Past Simple</b> — действие в прошлом. Правильные глаголы + <b>-ed</b>: play → play<b>ed</b>, watch → watch<b>ed</b>, live → liv<b>ed</b>, stop → stop<b>ped</b>, study → stud<b>ied</b>.</p>
+ <p>Неправильные: <b>win → won</b>, <b>go → went</b>, <b>have → had</b>, <b>see → saw</b>, <b>make → made</b>, <b>get → got</b>, <b>run → ran</b>, <b>swim → swam</b>, <b>become → became</b>.</p>
+ <p>Профессии: <b>doctor, nurse</b> (медсестра), <b>vet</b> (ветеринар), <b>firefighter</b> (пожарный), <b>police officer, pilot, chef</b> (повар), <b>engineer, farmer, shop assistant</b> (продавец), <b>journalist, scientist</b>.</p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини глагол с его формой в прошедшем времени.',pairs:[['win','won'],['run','ran'],['swim','swam'],['get','got'],['become','became'],['make','made']]},
+  EQ('Выбери правильный вариант',['Our team ___ the match yesterday.',['won','winned','wins','win'],'Win → won.'],
+   ['She ___ in London for two years.',['lived','liveed','lives','living'],'Live → lived.'],
+   ['Who helps sick animals?',['A vet','A pilot','A chef','A firefighter'],'Vet — ветеринар.'],
+   ['Who cooks in a restaurant?',['A chef','A nurse','A farmer','A journalist'],'Chef — повар.']),
+  ET(['«Stop» в прошедшем — «stopped».',true,'Удваиваем p.'],['«Firefighter» — полицейский.',false,'Firefighter — пожарный.'],['«Went» — прошедшая форма «go».',true,'Верно.'])]},
+{id:'ge21',name:'Did you…?',place:'Unit 8 · Great job!',i:'❔',
+ lesson:`<p>Отрицание в Past Simple: <b>didn’t + глагол</b> в начальной форме: <i>I <b>didn’t go</b> to school yesterday. She <b>didn’t win</b>.</i></p>
+ <p>Вопрос: <b>Did + подлежащее + глагол</b>: <i><b>Did</b> you <b>watch</b> the match? — Yes, I did. / No, I didn’t. Where <b>did</b> he <b>work</b>?</i></p>
+ <p>Качества человека: <b>hard-working</b> (трудолюбивый), <b>friendly, patient</b> (терпеливый), <b>creative, brave</b> (смелый), <b>organised, polite</b> (вежливый), <b>clever</b>.</p>`,
+ tasks:[
+  EQ('Выбери правильный вариант',['___ you play tennis last week?',['Did','Do','Were','Was'],'Вопрос в прошлом — Did.'],
+   ['He didn’t ___ the bus.',['catch','caught','catches','catching'],'После didn’t — начальная форма.'],
+   ['Did they win? — No, they…',['didn’t','don’t','weren’t','wasn’t'],'Краткий ответ: No, they didn’t.'],
+   ['Как будет «терпеливый»?',['patient','polite','brave','creative'],'Patient — терпеливый.'],
+   ['A firefighter must be…',['brave','lazy','rude','slow'],'Пожарный должен быть смелым.']),
+  ET(['«Did she went?» — правильно.',false,'Правильно: Did she go?'],['«Hard-working» — трудолюбивый.',true,'Верно.'],['Отрицание в Past Simple — с «didn’t».',true,'I didn’t see.'])]},
+{id:'ge22',name:'Mother nature',place:'Unit 9',i:'🐘',
+ lesson:`<p>Животные: <b>elephant, giraffe, lion, tiger, monkey, snake, dolphin, whale, eagle, bee, spider, butterfly, ant</b>. Части тела: <b>head, neck, arm, hand, leg, foot (feet), wing</b> (крыло), <b>tail</b> (хвост).</p>
+ <p><b>Сравнительная степень</b>: short → short<b>er</b>, big → big<b>ger</b>, heavy → heav<b>ier</b>, dangerous → <b>more</b> dangerous; + <b>than</b>. <b>Превосходная</b>: <b>the</b> short<b>est</b>, <b>the</b> big<b>gest</b>, <b>the most</b> dangerous. Исключения: <b>good — better — the best</b>, <b>bad — worse — the worst</b>.</p>
+ <p><b>Present Perfect с ever / never</b> — опыт: <i><b>Have</b> you <b>ever seen</b> a whale? — No, I’ve <b>never</b> seen a whale.</i></p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с переводом.',pairs:[['Wing','Крыло'],['Tail','Хвост'],['Neck','Шея'],['Eagle','Орёл'],['Bee','Пчела'],['Whale','Кит']]},
+  EQ('Выбери правильный вариант',['A giraffe is ___ than a horse.',['taller','more tall','tallest','the tallest'],'Tall → taller.'],
+   ['The blue whale is ___ animal in the world.',['the biggest','the bigest','bigger','the most big'],'Big → the biggest.'],
+   ['Snakes are ___ than spiders.',['more dangerous','dangerouser','most dangerous','the dangerous'],'Длинное прилагательное — more.'],
+   ['Have you ___ been to a zoo?',['ever','never','yet','already ever'],'Have you ever…?']),
+  ET(['Сравнительная степень от «good» — «better».',true,'Good — better — the best.'],['«I have never seen a lion» — правильно.',true,'Never — никогда.'],['«Heavy» → «heavyer».',false,'Правильно: heavier.'])]},
+{id:'ge23',name:'Holiday planner',place:'Unit 10',i:'🧳',
+ lesson:`<p>Погода: <b>sunny, cloudy, rainy, windy, snowy, foggy, hot, warm, cold</b>. Транспорт: <b>by plane, by train, by coach</b> (междугородний автобус), <b>by ship, by car</b>. В отпуск берут: <b>suitcase</b> (чемодан), <b>passport, sunglasses, sun cream, map, camera, tent</b> (палатка).</p>
+ <p><b>Be going to</b> — планы: <i>We <b>are going to</b> visit London in July.</i></p>
+ <p><b>Should / shouldn’t</b> — совет: <i>You <b>should</b> take an umbrella. You <b>shouldn’t</b> forget your passport.</i> <b>Must / have to</b> — обязанность: <i>You <b>must</b> show your passport.</i></p>
+ <p>Предлоги времени: <b>at</b> 5 o’clock, <b>on</b> Monday / on 5th May, <b>in</b> July / in summer / in 2026.</p>`,
+ tasks:[
+  {type:'match',prompt:'Соедини слово с переводом.',pairs:[['Suitcase','Чемодан'],['Tent','Палатка'],['Sun cream','Солнцезащитный крем'],['Passport','Паспорт'],['Coach','Междугородний автобус'],['Foggy','Туманно']]},
+  EQ('Выбери правильный вариант',['We ___ going to fly to Spain.',['are','is','will','am'],'We are going to.'],
+   ['It’s raining. You ___ take an umbrella.',['should','shouldn’t','can’t','mustn’t'],'Совет — should.'],
+   ['My birthday is ___ May.',['in','on','at','by'],'Месяцы — in.'],
+   ['The train leaves ___ 7 o’clock.',['at','in','on','by'],'Время на часах — at.'],
+   ['Our holiday starts ___ Monday.',['on','in','at','by'],'Дни недели — on.']),
+  ET(['«Should» используют, чтобы дать совет.',true,'You should rest.'],['«In summer» — правильно.',true,'Времена года — in.'],['«Suitcase» — солнцезащитные очки.',false,'Suitcase — чемодан, sunglasses — солнцезащитные очки.'])]},
+{id:'ge24',name:'Свиток путешественника',place:'Итог темы',i:'📜',
+ lesson:`<p>Ты прошёл весь курс английского 5 класса! Осталось последнее испытание — <b>Свиток путешественника</b>.</p><p>Пройдёшь — получишь <b>корону Виндзора</b> 👑 и грамоту, а дальше тебя ждёт <b>Виндзорский замок</b> с итоговым испытанием!</p>`,
+ tasks:[
+  {type:'sort',prompt:'Какое это время?',done:'Ты разбираешься во временах!',bins:[{n:'Present Simple',i:'🔁'},{n:'Present Continuous',i:'▶️'},{n:'Past Simple',i:'⏪'}],
+   items:[['I get up at seven.',0],['She doesn’t like fish.',0],['They are playing now.',1],['Look! It is snowing.',1],['We won the match.',2],['Did you see the lion?',2],['I was at home yesterday.',2]]},
+  EF(['A lion is ___ than a cat.',['bigger','biger','more big'],'Big → bigger.'],
+   ['___ you go to the cinema yesterday?',['Did','Do','Were'],'Вопрос в прошлом.'],
+   ['We are ___ to visit Scotland.',['going','go','will'],'Be going to.'],
+   ['You ___ forget your passport!',['mustn’t','should','can'],'Нельзя забывать.'],
+   ['Have you ___ seen a dolphin?',['ever','never','yet'],'Have you ever…?']),
+  EQ('Выбери правильный вариант',['This is ___ day of my life!',['the best','the goodest','better','best than'],'Good → the best.'])]}
+];
+/* ---------- загадки по английскому, 5 класс ---------- */
+const E5BONUS={
+ xG5a:{ch:'I',tasks:[
+  {type:'cross',prompt:'Кроссворд: напиши английское слово',words:[['RULER','Линейка'],['RUBBER','Ластик'],['COUSIN','Двоюродный брат'],['POLISH','Польский, поляк'],['WHOSE','Чей?'],['CHILDREN','Дети'],['MINE','Мой (без существительного)']]},
+  {type:'odd',prompt:'Найди лишнее',questions:[
+   {q:'Какое слово лишнее?',o:['Ruler','Maths','History','Science'],e:'Ruler — линейка, остальное — школьные предметы.'},
+   {q:'Какое слово лишнее?',o:['Brazil','Mexican','Polish','Turkish'],e:'Brazil — страна, остальные — национальности.'},
+   {q:'Какое слово лишнее?',o:['mine','my','your','their'],e:'Mine — притяжательное местоимение, остальные стоят перед существительным.'}]},
+  {type:'who',prompt:'Who am I?',questions:[
+   {q:'«I am your dad’s father».',o:['Grandad','Uncle','Cousin','Husband'],e:'Отец папы — дедушка.'},
+   {q:'«I help you rub out mistakes».',o:['Rubber','Ruler','Sharpener','Notebook'],e:'Ластик.'},
+   {q:'«I am the plural of “person”».',o:['People','Persons','Peoples','Personas'],e:'Person → people.'}]},
+  {type:'mistake',prompt:'Найди ошибку в письме английского друга',stories:[
+   {parts:['My name','are','Tom','and I’m eleven.'],bad:1,fix:'is',e:'My name is…'},
+   {parts:['I’ve got','two','childs','in my class who are my best friends.'],bad:2,fix:'children',e:'Child → children.'}]}
+ ]},
+ xG5b:{ch:'II',tasks:[
+  {type:'cross',prompt:'Кроссворд: напиши английское слово',words:[['LIBRARY','Библиотека'],['FRIDGE','Холодильник'],['MIRROR','Зеркало'],['BREAKFAST','Завтрак'],['CHEESE','Сыр'],['ALWAYS','Всегда'],['LEFT','Налево']]},
+  {type:'odd',prompt:'Найди лишнее',questions:[
+   {q:'Какое слово лишнее?',o:['Fridge','Library','Museum','Cinema'],e:'Fridge — холодильник, остальное — места в городе.'},
+   {q:'Какое слово лишнее?',o:['egg','milk','water','rice'],e:'Egg — исчисляемое, остальные — неисчисляемые.'},
+   {q:'Какое слово лишнее?',o:['Wardrobe','Never','Often','Sometimes'],e:'Wardrobe — шкаф, остальные — наречия частоты.'}]},
+  {type:'who',prompt:'Who am I?',questions:[
+   {q:'«You keep your clothes in me».',o:['Wardrobe','Fridge','Cooker','Shelf'],e:'Шкаф для одежды.'},
+   {q:'«You can borrow books from me».',o:['Library','Bank','Hospital','Café'],e:'Библиотека.'},
+   {q:'«I am the word for 0% of the time».',o:['Never','Always','Usually','Often'],e:'Никогда.'}]},
+  {type:'mistake',prompt:'Найди ошибку в письме английского друга',stories:[
+   {parts:['My sister','don’t','like','vegetables.'],bad:1,fix:'doesn’t',e:'She → doesn’t.'},
+   {parts:['There is','some apples','on the table','in the kitchen.'],bad:0,fix:'There are',e:'Apples — мн. ч.'}]}
+ ]},
+ xG5c:{ch:'III',tasks:[
+  {type:'cross',prompt:'Кроссворд: напиши английское слово',words:[['KEYBOARD','Клавиатура'],['LAPTOP','Ноутбук'],['JUMPER','Свитер'],['TRAINERS','Кроссовки'],['WELL','Хорошо (наречие от good)'],['WEARING','Wear + -ing'],['CHEMIST','… ’s — аптека']]},
+  {type:'odd',prompt:'Найди лишнее',questions:[
+   {q:'Какое слово лишнее?',o:['Printer','Skirt','Jacket','Coat'],e:'Printer — гаджет, остальное — одежда.'},
+   {q:'Какое слово лишнее?',o:['now','every day','at the moment','Look!'],e:'Every day — Present Simple, остальное — Present Continuous.'},
+   {q:'Какое слово лишнее?',o:['good','quickly','slowly','carefully'],e:'Good — прилагательное, остальные — наречия.'}]},
+  {type:'who',prompt:'Who am I?',questions:[
+   {q:'«You type on me».',o:['Keyboard','Mouse','Screen','Speakers'],e:'Клавиатура.'},
+   {q:'«I am the shop where you buy medicine».',o:['Chemist’s','Baker’s','Butcher’s','Newsagent’s'],e:'Аптека.'},
+   {q:'«I am am / is / are + -ing».',o:['Present Continuous','Present Simple','Past Simple','be going to'],e:'Present Continuous.'}]},
+  {type:'mistake',prompt:'Найди ошибку в письме английского друга',stories:[
+   {parts:['My brother','cans','play','the guitar.'],bad:1,fix:'can',e:'Can не меняется.'},
+   {parts:['Look!','Mum','buy','a new dress.'],bad:2,fix:'is buying',e:'Look! — сейчас: is buying.'}]}
+ ]},
+ xG5d:{ch:'IV',tasks:[
+  {type:'cross',prompt:'Кроссворд: напиши английское слово',words:[['COACH','Тренер (и междугородний автобус)'],['WON','Прошедшая форма win'],['BRAVE','Смелый'],['WING','Крыло'],['WHALE','Кит'],['TENT','Палатка'],['SHOULD','Модальный глагол совета']]},
+  {type:'odd',prompt:'Найди лишнее',questions:[
+   {q:'Какое слово лишнее?',o:['played','won','ran','swam'],e:'Played — правильный глагол, остальные — неправильные.'},
+   {q:'Какое слово лишнее?',o:['vet','eagle','bee','spider'],e:'Vet — профессия, остальные — животные.'},
+   {q:'Какое слово лишнее?',o:['suitcase','sunny','windy','foggy'],e:'Suitcase — чемодан, остальные — погода.'}]},
+  {type:'who',prompt:'Who am I?',questions:[
+   {q:'«I am the biggest animal in the world».',o:['Blue whale','Elephant','Giraffe','Lion'],e:'Синий кит.'},
+   {q:'«I help sick animals».',o:['Vet','Chef','Pilot','Nurse'],e:'Ветеринар.'},
+   {q:'«I am the past of “be” for they».',o:['were','was','been','did'],e:'They were.'}]},
+  {type:'mistake',prompt:'Найди ошибку в письме английского друга',stories:[
+   {parts:['Yesterday','our team','winned','the match!'],bad:2,fix:'won',e:'Win → won.'},
+   {parts:['A cheetah','is','more fast','than a lion.'],bad:2,fix:'faster',e:'Fast → faster.'}]}
+ ]}
+};
+const E5BONUS_Q={};
+Object.entries(E5BONUS).forEach(([id,b],k)=>{
+ E5BONUS_Q[id]={id,sub:'e5',bonus:true,noMap:true,noCert:true,title:`Загадки темы ${b.ch} (Английский, 5 класс)`,short:`Загадки: английский 5, тема ${b.ch}`,
+  stations:[{id:'xge'+(k+1),name:`Загадки темы ${b.ch}`,place:'Бонус',i:'🧩',x:200,y:200,tasks:b.tasks,lesson:EBONUS_LESSON(b.ch)}],
+  reward:'',rewardIcon:'🧩',next:'',bg:'linear-gradient(#2a4a7a,#121e3e)'};
+});
+const E5FINAL=[{id:'gefin',name:'Итоговое испытание',place:'Виндзорский замок',i:'👑',x:200,y:200,gen:()=>genFinal('e5'),final:true,tasks:[],
+  lesson:`<p>Ты прошёл весь курс английского 5 класса! Ворота <b>Виндзорского замка</b> открыты.</p><p>Тебя ждут <b>три зала</b>: вопросы на выбор ответа, «Правда или ложь» и пропущенные слова — всего <b>30 вопросов</b>. Каждый раз вопросы выбираются заново.</p><p>Ответишь почти без ошибок — станешь <b>Рыцарем английского</b>! Good luck!</p>`}];
+
+/* ---------- карточки «Hello, world!» ---------- */
+const E5CARDS=[
+ {id:'e5_passport',st:'ge1',n:'My ID',y:'знакомство',i:'🪪',f:'«Hi! I’m… I’m from…» — так начинается любое знакомство по-английски.'},
+ {id:'e5_family',st:'ge2',n:'Royal family',y:'британская семья',i:'👑',f:'Британская королевская семья живёт во дворцах Лондона и Виндзора.'},
+ {id:'e5_uniform',st:'ge3',n:'School uniform',y:'британская школа',i:'🎒',f:'Почти все британские школьники носят форму с галстуком и эмблемой школы.'},
+ {id:'e5_mice',st:'ge4',n:'Mouse — mice',y:'неправильное мн. ч.',i:'🐭',f:'Одна мышка — a mouse, много мышек — mice. И компьютерная тоже mouse!'},
+ {id:'e5_quiz',st:'ge5',n:'Wh-questions',y:'What? Who? Where?',i:'❓',f:'Почти все вопросительные слова в английском начинаются с Wh-.'},
+ {id:'e5_bigben',st:'ge7',n:'Big Ben',y:'время по Лондону',i:'🕰️',f:'Колокол Биг-Бен отбивает каждый час с 1859 года.'},
+ {id:'e5_doubledecker',st:'ge9',n:'Double-decker',y:'двухэтажный автобус',i:'🚌',f:'Красные двухэтажные автобусы — символ Лондона.'},
+ {id:'e5_cottage',st:'ge10',n:'Cottage',y:'английский домик',i:'🏡',f:'Маленький уютный загородный дом с садом англичане называют cottage.'},
+ {id:'e5_breakfast',st:'ge11',n:'Full English breakfast',y:'английский завтрак',i:'🍳',f:'Яичница, бекон, фасоль, тосты и грибы — плотный английский завтрак.'},
+ {id:'e5_www',st:'ge13',n:'World Wide Web',y:'1989 год',i:'🌐',f:'Всемирную паутину придумал британский учёный Тим Бернерс-Ли.'},
+ {id:'e5_oxford',st:'ge15',n:'Oxford Street',y:'Лондон',i:'🛍️',f:'Самая длинная торговая улица Лондона — около 300 магазинов.'},
+ {id:'e5_wimbledon',st:'ge19',n:'Wimbledon',y:'с 1877 года',i:'🎾',f:'Старейший теннисный турнир в мире проходит в Лондоне.'},
+ {id:'e5_firefighter',st:'ge20',n:'Firefighter',y:'профессия',i:'👩‍🚒',f:'Номер экстренных служб в Великобритании — 999.'},
+ {id:'e5_whale',st:'ge22',n:'Blue whale',y:'до 30 метров',i:'🐋',f:'Синий кит — самое большое животное, когда-либо жившее на Земле.'},
+ {id:'e5_rain',st:'ge23',n:'British weather',y:'take an umbrella!',i:'☂️',f:'В Лондоне дождь идёт примерно каждый третий день.'},
+ {id:'e5_windsor',st:'ge17',n:'Windsor Castle',y:'XI век',i:'🏰',f:'Самый большой обитаемый замок в мире, одна из резиденций британских монархов.'},
+ {id:'e5_tea',st:'ge8',n:'Afternoon tea',y:'традиция',i:'🫖',f:'Чай с молоком, сэндвичи и булочки-сконы — британская традиция.'},
+ {id:'e5_gold',st:'gefin',n:'Золотой ключ Виндзора',y:'итоговое испытание',i:'🗝️',f:'Золотая карточка за итоговое испытание по английскому языку, 5 класс.',gold:true}
+];
+E5CARDS.forEach(c=>c.sub='e5');
+
+const E5ZONES={
+ g5a:[
+  {fill:'#e8e0f0',label:'My ID',col:'#3a2a5a',deco:(c,y)=>emo(c-40,y+180,'🪪',30)+emo(c+40,y+190,'🌍',26)},
+  {fill:'#f0e4d8',label:'My family',col:'#5a3a1a',deco:(c,y)=>emo(c-40,y+180,'👪',30)+emo(c+40,y+190,'🏠',24)},
+  {fill:'#dce8f4',label:'School subjects',col:'#1f3a5a',deco:(c,y)=>emo(c-40,y+180,'🏫',30)+emo(c+40,y+190,'📏',24)},
+  {fill:'#e8ecd8',label:'Plurals',col:'#3a4a1a',deco:(c,y)=>emo(c-40,y+180,'🐭',26)+emo(c+40,y+190,'🐭',22)+emo(c,y+225,'🐭',18)},
+  {fill:'#f0dce4',label:'Questions',col:'#5a1a3a',deco:(c,y)=>emo(c-40,y+180,'❓',30)+emo(c+40,y+190,'🧔',26)},
+  {fill:'#e8dcc0',label:'Свиток новичка',col:'#6b4a2a',deco:(c,y)=>emo(70,y+170,'🎒',30)+emo(330,y+170,'📜',28)}],
+ g5b:[
+  {fill:'#f2e6c8',label:'24/7',col:'#5a4a1a',deco:(c,y)=>emo(c-40,y+180,'⏰',30)+emo(c+40,y+190,'🚿',24)},
+  {fill:'#e0d8f0',label:'How often?',col:'#3a2a5a',deco:(c,y)=>emo(c-40,y+180,'🔁',28)+letterD(c+40,y+200,'Do?','#3a2a5a',.9)},
+  {fill:'#d8e4f0',label:'My town',col:'#1f3a5a',deco:(c,y)=>emo(c-40,y+180,'🏙️',30)+emo(c+40,y+190,'🚌',26)},
+  {fill:'#f0e0d0',label:'Home time',col:'#5a3a1a',deco:(c,y)=>emo(c-40,y+180,'🛋️',30)+emo(c+40,y+190,'🪞',24)},
+  {fill:'#f0dccc',label:'Food and drink',col:'#5a2a1a',deco:(c,y)=>emo(c-40,y+180,'🥪',28)+emo(c+40,y+190,'🧃',24)+emo(c,y+225,'🍳',20)},
+  {fill:'#e8dcc0',label:'Свиток горожанина',col:'#6b4a2a',deco:(c,y)=>emo(70,y+170,'🏠',30)+emo(330,y+170,'📜',28)}],
+ g5c:[
+  {fill:'#d8e8f0',label:'Connected',col:'#1f3a4a',deco:(c,y)=>emo(c-40,y+180,'💻',30)+emo(c+40,y+190,'🖱️',24)},
+  {fill:'#e4dcf0',label:'How?',col:'#3a2a5a',deco:(c,y)=>emo(c-40,y+180,'🎧',28)+emo(c+40,y+190,'🎮',26)},
+  {fill:'#f4dce4',label:'Shops',col:'#5a1a3a',deco:(c,y)=>emo(c-40,y+180,'🛍️',30)+emo(c+40,y+190,'👟',24)},
+  {fill:'#f0e8d0',label:'Right now',col:'#5a4a1a',deco:(c,y)=>emo(c-40,y+180,'▶️',28)+emo(c+40,y+190,'👗',26)},
+  {fill:'#e8e0d0',label:'Simple or Continuous?',col:'#5a4a2a',deco:(c,y)=>emo(c-40,y+180,'⚖️',30)+emo(c+40,y+190,'🔁',24)},
+  {fill:'#e8dcc0',label:'Свиток покупателя',col:'#6b4a2a',deco:(c,y)=>emo(70,y+170,'🎁',30)+emo(330,y+170,'📜',28)}],
+ g5d:[
+  {fill:'#d8ecd0',label:'Teamwork',col:'#2a4a2a',deco:(c,y)=>emo(c-40,y+180,'⚽',30)+emo(c+40,y+190,'🏆',26)},
+  {fill:'#e8e0d8',label:'Great job!',col:'#4a3a2a',deco:(c,y)=>emo(c-40,y+180,'👩‍🚒',28)+emo(c+40,y+190,'👨‍🍳',26)},
+  {fill:'#dce4f0',label:'Did you…?',col:'#1f3a5a',deco:(c,y)=>letterD(c-40,y+200,'did','#1f3a5a')+emo(c+40,y+180,'❔',26)},
+  {fill:'#cfe6c0',label:'Mother nature',col:'#2a4a1a',deco:(c,y)=>emo(c-40,y+180,'🐘',30)+emo(c+40,y+190,'🦒',28)+emo(c,y+130,'🦅',20)},
+  {fill:'#d8ecf4',label:'Holiday planner',col:'#1f4a5a',deco:(c,y)=>emo(c-40,y+180,'🧳',28)+emo(c+40,y+180,'✈️',26)+emo(c,y+225,'☀️',20)},
+  {fill:'#e8dcc0',label:'Свиток путешественника',col:'#6b4a2a',deco:(c,y)=>emo(70,y+170,'👑',30)+emo(330,y+170,'📜',28)}]
+};
+
+CARDS.push(...RCARDS,...GCARDS,...LCARDS,...YCARDS,...MCARDS,...BCARDS,...ECARDS,...E5CARDS);EVENTS.push(...REVENTS);
 function layout(arr){arr.forEach((s,i)=>{s.x=i===arr.length-1?200:(i%2?285:115);s.y=165+i*230})}
-[EARLY,ARAB,BLOOM,MED2,RU1,RU2,RU3,RU4,GH,GA,GB,GP,LFQ,LPQ,LNQ,LXQ,YSQ,YWQ,YNQ,YVQ,MNQ,MFQ,MGQ,MZQ,BOQ,BPQ,BTQ,BRQ,EN1,EN2,EN3,EN4].forEach(layout);
+[EARLY,ARAB,BLOOM,MED2,RU1,RU2,RU3,RU4,GH,GA,GB,GP,LFQ,LPQ,LNQ,LXQ,YSQ,YWQ,YNQ,YVQ,MNQ,MFQ,MGQ,MZQ,BOQ,BPQ,BTQ,BRQ,EN1,EN2,EN3,EN4,E5A,E5B,E5C,E5D].forEach(layout);
 const QUESTS={
  ...RBONUS_Q,
  ...GBONUS_Q,
@@ -4151,6 +4559,20 @@ const QUESTS={
  ...MBONUS_Q,
  ...BBONUS_Q,
  ...EBONUS_Q,
+ ...E5BONUS_Q,
+ g5a:{id:'g5a',sub:'e5',title:'My ID & School days',short:'Английский 5: я и школа',stations:E5A,hint:'Спускайся по карте вниз — от знакомства и семьи к школе и вопросам.',
+  intro:n=>`<div style="text-align:center;font-size:50px">🎒</div><h2 style="text-align:center">Hello, Gateway!</h2><p style="line-height:1.5">${n?esc(n)+', тебя':'Тебя'} ждёт знакомство по-английски: to be, страны, семья, have got, школьные предметы, притяжательные формы, множественное число и вопросы.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>6 испытаний</b> и получи <b>школьный значок Gateway</b>!</p>`,
+  reward:'школьный значок Gateway',rewardIcon:'🎒⭐🎒',next:'Дальше — тема II, <b>24/7 и Home time</b>!',bg:'linear-gradient(#2a4a7a,#121e3e)',svg:()=>genMap(E5ZONES.g5a),down:true},
+ g5b:{id:'g5b',sub:'e5',title:'24/7 & Home time',short:'Английский 5: день и дом',stations:E5B,hint:'Спускайся по карте вниз — от распорядка дня к городу, дому и еде.',
+  intro:n=>`<div style="text-align:center;font-size:50px">🏡</div><h2 style="text-align:center">Every day</h2><p style="line-height:1.5">${n?esc(n)+', тебя':'Тебя'} ждёт Present Simple, наречия частоты, места в городе, дом и мебель, there is/are, еда и some/any.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>6 испытаний</b> и получи <b>ключ от английского домика</b>!</p>`,
+  reward:'ключ от английского домика',rewardIcon:'🏠🔑🏠',next:'Дальше — тема III, <b>Connected и Good buys</b>!',bg:'linear-gradient(#6a3a2a,#2e1a10)',svg:()=>genMap(E5ZONES.g5b),down:true},
+ g5c:{id:'g5c',sub:'e5',title:'Connected & Good buys',short:'Английский 5: гаджеты и покупки',stations:E5C,hint:'Спускайся по карте вниз — от компьютеров к магазинам и Present Continuous.',
+  intro:n=>`<div style="text-align:center;font-size:50px">💻</div><h2 style="text-align:center">Click and shop</h2><p style="line-height:1.5">${n?esc(n)+', тебя':'Тебя'} ждёт гаджеты и can, наречия и повелительное наклонение, магазины и одежда, Present Continuous.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>6 испытаний</b> и получи <b>подарочную карту</b>!</p>`,
+  reward:'подарочную карту',rewardIcon:'🎁🛍️🎁',next:'Дальше — тема IV, <b>спорт, профессии, природа и каникулы</b>!',bg:'linear-gradient(#5a2a5a,#2a1028)',svg:()=>genMap(E5ZONES.g5c),down:true},
+ g5d:{id:'g5d',sub:'e5',title:'Sport, jobs, nature, holidays',short:'Английский 5: прошлое и планы',stations:E5D,hint:'Спускайся по карте вниз — от стадиона к профессиям, животным и каникулам.',
+  intro:n=>`<div style="text-align:center;font-size:50px">🏆</div><h2 style="text-align:center">Go for it!</h2><p style="line-height:1.5">${n?esc(n)+', тебя':'Тебя'} ждёт was/were и Past Simple, профессии, сравнение животных, Present Perfect с ever/never, be going to и should.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>6 испытаний</b> и получи <b>корону Виндзора</b>!</p>`,
+  reward:'корону Виндзора',rewardIcon:'👑🏆👑',next:'В конце пути тебя ждёт <b>Виндзорский замок</b> с итоговым испытанием!',bg:'linear-gradient(#1f5a4a,#0e2a22)',svg:()=>genMap(E5ZONES.g5d),down:true},
+ g5final:{id:'g5final',sub:'e5',final:true,title:'Итоговое испытание по английскому языку, 5 класс',short:'Виндзорский замок',stations:E5FINAL,noMap:true,reward:'звание Рыцаря английского',rewardIcon:'👑🏅👑',next:'Ты прошёл весь курс английского 5 класса! Well done!',bg:'linear-gradient(#2a3a6a,#101830)'},
  en1:{id:'en1',sub:'e',title:'Who’s who & Here we are!',short:'Английский: семья и дом',stations:EN1,hint:'Спускайся по карте вниз — от семейного древа к странам и своему дому.',
   intro:n=>`<div style="text-align:center;font-size:50px">🏠</div><h2 style="text-align:center">Hello, England!</h2><p style="line-height:1.5">${n?esc(n)+', тебя':'Тебя'} ждёт знакомство по-английски: семья, притяжательный падеж, страны и национальности, have got, дом и предлоги места.</p><p style="line-height:1.5">Спускайся по карте <b>сверху вниз</b>, пройди <b>6 испытаний</b> и получи <b>британский флажок</b>!</p>`,
   reward:'британский флажок',rewardIcon:'🇬🇧🏠🇬🇧',next:'Дальше — тема II, <b>город и распорядок дня</b>!',bg:'linear-gradient(#2a3a7a,#121a3e)',svg:()=>genMap(EZONES.en1),down:true},
@@ -4288,7 +4710,7 @@ const QUESTS={
 let Q=QUESTS.med1,STATIONS=Q.stations;
 let CUR='w';
 function setQuest(id){Q=QUESTS[id];STATIONS=Q.stations;if(!Q.special)CUR=Q.sub||'w'}
-const SUBJ={w:{chapters:CHAPTERS,title:'История Средних веков',island:'Всеобщая история',book:'главы учебника «История Средних веков»',unit:'Глава',final:'final',fin:'fin',castle:'Замок знаний',castleGen:'Замка знаний',enter:'Войти в замок',icon:'🏰',kremlin:false},r:{chapters:RCHAPTERS,title:'История России',island:'История России',book:'главы учебника «История России. IX — начало XVI в.»',unit:'Глава',final:'rfinal',fin:'rfin',castle:'Кремль знаний',castleGen:'Кремля знаний',enter:'Войти в Кремль',icon:'🦅',kremlin:true,pal:{wall:'#c0503a',tower:'#a8402e',roof:'fill="#2f6b4a" stroke="#1d4a32"',flag:'🦅'}},g:{chapters:GCHAPTERS,title:'География',island:'География',book:'темы курса «География. 6 класс»: оболочки Земли',unit:'Тема',final:'gfinal',fin:'gfin',castle:'Обсерватория знаний',castleGen:'Обсерватории знаний',enter:'Войти в обсерваторию',icon:'🔭',pal:{wall:'#dfe6ea',tower:'#c9d6dc',roof:'fill="#2f6fa8" stroke="#1d4a72"',flag:'🔭'}},l:{chapters:LCHAPTERS,title:'Литература',island:'Литература',book:'темы курса «Литература. 6 класс»',unit:'Тема',final:'lfinal',fin:'lfin',castle:'Библиотека знаний',castleGen:'Библиотеки знаний',enter:'Войти в библиотеку',icon:'📚',pal:{wall:'#e6d6b4',tower:'#d4c098',roof:'fill="#6a3a8a" stroke="#3e1e5a"',flag:'📖'}},y:{chapters:YCHAPTERS,title:'Русский язык',island:'Русский язык',book:'темы курса «Русский язык. 6 класс»',unit:'Тема',final:'yfinal',fin:'yfin',castle:'Терем грамоты',castleGen:'Терема грамоты',enter:'Войти в терем',icon:'✒️',pal:{wall:'#f0e2c4',tower:'#e2cfa6',roof:'fill="#b0302a" stroke="#6a1a14"',flag:'✍️'}},m:{chapters:MCHAPTERS,title:'Математика',island:'Математика',book:'темы курса «Математика. 6 класс»',unit:'Тема',final:'mfinal',fin:'mfin',castle:'Академия чисел',castleGen:'Академии чисел',enter:'Войти в академию',icon:'🎓',pal:{wall:'#e4e8f0',tower:'#cfd6e4',roof:'fill="#2f4f9a" stroke="#1a2e62"',flag:'📐'}},b:{chapters:BCHAPTERS,title:'Биология',island:'Биология',book:'темы курса «Биология. 6 класс»: растительный организм',unit:'Тема',final:'bfinal',fin:'bfin',castle:'Оранжерея знаний',castleGen:'Оранжереи знаний',enter:'Войти в оранжерею',icon:'🌺',pal:{wall:'#e8f0e0',tower:'#d4e4c8',roof:'fill="#3a8a4a" stroke="#1f5a2a"',flag:'🌿'}},e:{chapters:ECHAPTERS,title:'Английский язык',island:'Английский язык',book:'модули учебника «Английский в фокусе. Spotlight 6»',unit:'Тема',final:'efinal',fin:'efin',castle:'Лондонская башня',castleGen:'Лондонской башни',enter:'Войти в башню',icon:'💂',pal:{wall:'#e4dccc',tower:'#cfc4ae',roof:'fill="#2a3a7a" stroke="#121e4a"',flag:'🇬🇧'}}};
+const SUBJ={w:{chapters:CHAPTERS,title:'История Средних веков',island:'Всеобщая история',book:'главы учебника «История Средних веков»',unit:'Глава',final:'final',fin:'fin',castle:'Замок знаний',castleGen:'Замка знаний',enter:'Войти в замок',icon:'🏰',kremlin:false},r:{chapters:RCHAPTERS,title:'История России',island:'История России',book:'главы учебника «История России. IX — начало XVI в.»',unit:'Глава',final:'rfinal',fin:'rfin',castle:'Кремль знаний',castleGen:'Кремля знаний',enter:'Войти в Кремль',icon:'🦅',kremlin:true,pal:{wall:'#c0503a',tower:'#a8402e',roof:'fill="#2f6b4a" stroke="#1d4a32"',flag:'🦅'}},g:{chapters:GCHAPTERS,title:'География',island:'География',book:'темы курса «География. 6 класс»: оболочки Земли',unit:'Тема',final:'gfinal',fin:'gfin',castle:'Обсерватория знаний',castleGen:'Обсерватории знаний',enter:'Войти в обсерваторию',icon:'🔭',pal:{wall:'#dfe6ea',tower:'#c9d6dc',roof:'fill="#2f6fa8" stroke="#1d4a72"',flag:'🔭'}},l:{chapters:LCHAPTERS,title:'Литература',island:'Литература',book:'темы курса «Литература. 6 класс»',unit:'Тема',final:'lfinal',fin:'lfin',castle:'Библиотека знаний',castleGen:'Библиотеки знаний',enter:'Войти в библиотеку',icon:'📚',pal:{wall:'#e6d6b4',tower:'#d4c098',roof:'fill="#6a3a8a" stroke="#3e1e5a"',flag:'📖'}},y:{chapters:YCHAPTERS,title:'Русский язык',island:'Русский язык',book:'темы курса «Русский язык. 6 класс»',unit:'Тема',final:'yfinal',fin:'yfin',castle:'Терем грамоты',castleGen:'Терема грамоты',enter:'Войти в терем',icon:'✒️',pal:{wall:'#f0e2c4',tower:'#e2cfa6',roof:'fill="#b0302a" stroke="#6a1a14"',flag:'✍️'}},m:{chapters:MCHAPTERS,title:'Математика',island:'Математика',book:'темы курса «Математика. 6 класс»',unit:'Тема',final:'mfinal',fin:'mfin',castle:'Академия чисел',castleGen:'Академии чисел',enter:'Войти в академию',icon:'🎓',pal:{wall:'#e4e8f0',tower:'#cfd6e4',roof:'fill="#2f4f9a" stroke="#1a2e62"',flag:'📐'}},b:{chapters:BCHAPTERS,title:'Биология',island:'Биология',book:'темы курса «Биология. 6 класс»: растительный организм',unit:'Тема',final:'bfinal',fin:'bfin',castle:'Оранжерея знаний',castleGen:'Оранжереи знаний',enter:'Войти в оранжерею',icon:'🌺',pal:{wall:'#e8f0e0',tower:'#d4e4c8',roof:'fill="#3a8a4a" stroke="#1f5a2a"',flag:'🌿'}},e:{chapters:ECHAPTERS,title:'Английский язык',island:'Английский язык',book:'модули учебника «Английский в фокусе. Spotlight 6»',unit:'Тема',final:'efinal',fin:'efin',castle:'Лондонская башня',castleGen:'Лондонской башни',enter:'Войти в башню',icon:'💂',pal:{wall:'#e4dccc',tower:'#cfc4ae',roof:'fill="#2a3a7a" stroke="#121e4a"',flag:'🇬🇧'}},e5:{chapters:E5CHAPTERS,title:'Английский язык',island:'Английский язык',grade:5,book:'юниты учебника «Gateway 2nd Edition A1+»',unit:'Тема',final:'g5final',fin:'gefin',castle:'Виндзорский замок',castleGen:'Виндзорского замка',enter:'Войти в замок',icon:'👑',pal:{wall:'#ddd6c8',tower:'#c8beaa',roof:'fill="#7a1a2a" stroke="#4a0a14"',flag:'👑'}}};
 const qsub=q=>q.sub||'w';
 
 /* ================= СОХРАНЕНИЕ ================= */
@@ -4388,12 +4810,12 @@ function world(grade=6){
 function world5(){
  screen(`
  <div class="top"><button class="btn ghost" id="cls">← Классы</button><h2 class="ttl" style="text-align:center">5 класс</h2>${soundBtn()}</div>
- <div class="guide"><div class="owl">🦉</div><div class="bubble">Это острова <b>5 класса</b>${save.name?', <b>'+esc(save.name)+'</b>':''}! Пока они окутаны туманом — мы готовим для них уроки и испытания. Нажми на остров, чтобы узнать, по какому учебнику он будет.</div></div>
+ <div class="guide"><div class="owl">🦉</div><div class="bubble">Это острова <b>5 класса</b>${save.name?', <b>'+esc(save.name)+'</b>':''}! Остров <b>Английский язык</b> уже открыт! Остальные пока в тумане — мы готовим для них уроки. Нажми на остров, чтобы узнать, по какому учебнику он будет.</div></div>
  ${worldSVG(SUBJECTS5)}
  `,'linear-gradient(#3a7a98,#1a4a5e)');
  bindSound();
  $('#cls').onclick=()=>{SFX.click();classes()};
- $$('[data-sub]').forEach(g=>g.onclick=()=>{const s=SUBJECTS5.find(x=>x.id===g.dataset.sub);SFX.click();
+ $$('[data-sub]').forEach(g=>g.onclick=()=>{const s=SUBJECTS5.find(x=>x.id===g.dataset.sub);SFX.click();if(s.active&&s.sub){historyMap(s.sub);return}
   const o=modal(`<div style="text-align:center;font-size:48px">${s.i}</div><h2 style="text-align:center">${esc(s.n)} · 5 класс</h2><p style="line-height:1.45">Остров пока в тумане 🌫️ — сова Мудрослава готовит для него уроки и испытания.</p><p class="small" style="line-height:1.4">Учебник: ${esc(s.book)}</p><button class="btn green wide" id="ok">Буду ждать!</button>`);
   $('#ok',o).onclick=()=>o.remove()});
 }
@@ -4463,11 +4885,11 @@ function historyMap(sub){
   <text x="${x}" y="${y+66+lines.length*16}" font-size="12" text-anchor="middle" fill="#7a5a30" class="halo">${c.p}${act?` · <tspan fill="#a8322a" font-weight="700">★ ${got}/${max}</tspan>`:''}</text>
   </g>`});
  screen(`
- <div class="top"><button class="btn ghost" id="back">← Предметы</button><h2 class="ttl">${SB.island} · 6 класс</h2>${soundBtn()}</div>
+ <div class="top"><button class="btn ghost" id="back">← Предметы</button><h2 class="ttl">${SB.island} · ${SB.grade||6} класс</h2>${soundBtn()}</div>
  <div class="guide"><div class="owl">🦉</div><div class="bubble">Это ${SB.book}. Иди по дороге <b>сверху вниз</b>. В конце пути тебя ждёт <b>${SB.castle}</b> с итоговым испытанием.</div></div>
  <div class="hub">
   <button id="hRev"><span>🔁</span><em>Работа над ошибками</em><b>${dueList().length?dueList().length+' к повтору':'нечего повторять'}</b></button>
-  ${subEvents().length?`<button id="hTL"><span>📜</span><em>Лента времени</em><b>${subEvents().filter(evOpen).length} / ${subEvents().length}</b></button>`:`<button id="hTL"><span>⚔️</span><em>Дуэль с родителем</em><b>вопросы по ${({g:'географии',l:'литературе',y:'русскому языку',m:'математике',b:'биологии',e:'английскому'})[CUR]||'предмету'}</b></button>`}
+  ${subEvents().length?`<button id="hTL"><span>📜</span><em>Лента времени</em><b>${subEvents().filter(evOpen).length} / ${subEvents().length}</b></button>`:`<button id="hTL"><span>⚔️</span><em>Дуэль с родителем</em><b>вопросы по ${({g:'географии',l:'литературе',y:'русскому языку',m:'математике',b:'биологии',e:'английскому',e5:'английскому'})[CUR]||'предмету'}</b></button>`}
   <button id="hCol"><span>🃏</span><em>Коллекция</em><b>${subCards().filter(c=>(save.cards||{})[c.id]).length} / ${subCards().length}</b></button>
   <button id="hDay"><span>☀️</span><em>Вопрос дня</em><b>${dailyDone()?'✅ ':''}🔥 ${streakNow()}</b></button>
  </div>
@@ -4483,7 +4905,7 @@ function historyMap(sub){
   ${nodes}
  </svg>`,'linear-gradient(#6b4a2a,#3e2a17)');
  bindSound();
- $('#back').onclick=()=>{SFX.click();world()};
+ $('#back').onclick=()=>{SFX.click();world(SUBJ[CUR].grade||6)};
  $$('[data-ch]').forEach(g=>g.onclick=()=>chapterModal(+g.dataset.ch));
  $('#hRev').onclick=()=>{if(!dueList().length){SFX.bad();toast(Object.keys(save.srs||{}).length?'На сегодня всё повторено! Следующие вопросы вернутся позже':'Ошибок для повторения пока нет — так держать!');return}SFX.click();setQuest('review');startStation(0)};
  $('#hTL').onclick=()=>{if(subEvents().length){SFX.click();timelineScreen()}else{save.duel=Object.assign({p2:'Папа',n:7,only:true},save.duel||{},{sub:CUR});duelSetup()}};
@@ -5289,7 +5711,7 @@ const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platfo
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=$('#inst');if(b)b.style.display=''});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('Приложение установлено! Ищи сову на главном экране 🦉')});
 /* ---------- обновления: новая версия скачивается заранее и включается по кнопке «Обновить» ---------- */
-const WHATSNEW=['Открылся 5 класс! На его карте восемь островов: английский, биология, география, история Древнего мира, литература, математика, ОДНКНР и русский язык.','Острова 5 класса пока в тумане — уроки для них появятся в следующих обновлениях.'];
+const WHATSNEW=['В 5 классе открыт остров «Английский язык» по учебнику «Gateway A1+»: 4 темы по юнитам 1–10, 24 испытания, загадки и Виндзорский замок.','Учебники 5 класса сверены с официальным списком.'];
 let swReg=null,updWorker=null,swReloading=false,updLater=false;
 function swVersion(w){return new Promise(res=>{try{const ch=new MessageChannel(),tm=setTimeout(()=>res(null),1500);ch.port1.onmessage=e=>{clearTimeout(tm);res(e.data)};w.postMessage({type:'version'},[ch.port2])}catch(e){res(null)}})}
 async function onSwWaiting(w){
@@ -5410,7 +5832,7 @@ function certCanvas(q){
  x.fillStyle='#b8860b';x.font=`bold 60px ${sans}`;x.fillText(`★ ${ts} / ${mx}`,W/2,sy);
  x.beginPath();x.arc(cx,cy,78,0,7);const sg=x.createRadialGradient(cx-24,cy-24,8,cx,cy,78);sg.addColorStop(0,'#d4473b');sg.addColorStop(1,'#8e1d14');x.fillStyle=sg;x.fill();
  x.font=`80px ${sans}`;x.fillText('🦉',cx,cy+5);x.strokeStyle='#f2c94c';x.lineWidth=3;x.beginPath();x.arc(cx,cy,66,0,7);x.stroke();
- x.fillStyle='#7a5a30';x.font=`30px ${sans}`;x.fillText(`Путешествие в страну знаний · ${SUBJ[q.sub||'w'].title}, 6 класс`,W/2,1310);
+ x.fillStyle='#7a5a30';x.font=`30px ${sans}`;x.fillText(`Путешествие в страну знаний · ${SUBJ[q.sub||'w'].title}, ${SUBJ[q.sub||'w'].grade||6} класс`,W/2,1310);
  x.fillText(new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}),W/2,1352);
  return c;
 }
@@ -5431,8 +5853,8 @@ function myCerts(){
 /* ================= ДУЭЛЬ С РОДИТЕЛЕМ ================= */
 const DUEL_T=20;
 const pav=(i,n)=>i===0?'🧒':/^(мама|мамочка|мать)/i.test(n)?'👩':/^бабушк|^бабул/i.test(n)?'👵':/^дедушк|^дед/i.test(n)?'👴':/^(папа|папочка|отец)/i.test(n)?'🧔':'🧑';let DUEL=null,duelTimer=null;
-const DSUBJ=[['all','Все предметы','🌟'],['e','Английский язык','💂'],['b','Биология','🌿'],['w','Всеобщая история','📜'],['g','География','🌍'],['r','История России','🦅'],['l','Литература','📖'],['m','Математика','📐'],['y','Русский язык','✍️']];
-const SUB_ORDER=['e','b','w','g','r','l','m','y'];
+const DSUBJ=[['all','Все предметы','🌟'],['e5','Английский (5 класс)','👑'],['e','Английский язык','💂'],['b','Биология','🌿'],['w','Всеобщая история','📜'],['g','География','🌍'],['r','История России','🦅'],['l','Литература','📖'],['m','Математика','📐'],['y','Русский язык','✍️']];
+const SUB_ORDER=['e5','e','b','w','g','r','l','m','y'];
 const questsInOrder=()=>SUB_ORDER.flatMap(k=>[...SUBJ[k].chapters.flatMap(c=>c.quests.filter(q=>q.id).map(q=>q.id)),SUBJ[k].final]);
 function duelPool(sub,onlyPassed){
  let pool=[...QBYKEY.values()].filter(x=>{const q=QUESTS[x.quest];return (sub==='all'||qsub(q)===sub)&&['quiz','tf','fill','odd','who'].includes(x.type)});
@@ -5540,6 +5962,7 @@ const fmtDur=s=>{const m=Math.floor(s/60);return m>=60?`${Math.floor(m/60)} ч $
 const fmtTs=ts=>new Date(ts).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
 /* ================= ЛИТЕРАТУРА ================= */
 const BOOKS=[
+ {sub:'e5',cls:'5 класс',subj:'Английский язык',title:'Gateway 2nd Edition A1+',auth:'David Spencer (Дэвид Спенсер)',pub:'Macmillan Education. Юниты 1–10',col:'#1f3a7a',ic:'🇬🇧',ch:()=>E5CHAPTERS,unit:'Тема'},
  {sub:'e',cls:'6 класс',subj:'Английский язык',title:'Английский язык. 6 класс («Английский в фокусе. Spotlight 6»)',auth:'Ю. Е. Ваулина, Д. Дули, О. Е. Подоляко, В. Эванс',pub:'Москва: Просвещение',col:'#2a3a7a',ic:'🇬🇧',ch:()=>ECHAPTERS,unit:'Тема'},
  {sub:'b',cls:'6 класс',subj:'Биология',title:'Биология. 6 класс',auth:'В. В. Пасечник, С. В. Суматохин, Г. С. Калинова и др.; под ред. В. В. Пасечника',pub:'Москва: Просвещение. Темы — по федеральной рабочей программе',col:'#2f6b3a',ic:'🌿',ch:()=>BCHAPTERS,unit:'Тема'},
  {sub:'w',cls:'6 класс',subj:'Всеобщая история',title:'История. Всеобщая история. История Средних веков',auth:'В. Р. Мединский, А. О. Чубарьян',pub:'Москва: Просвещение',col:'#7a2a12',ic:'🏰',ch:()=>CHAPTERS,unit:'Глава'},
@@ -5572,7 +5995,7 @@ function resultsScreen(){
  const time=L.reduce((s,l)=>s+l.dur,0),errs=L.reduce((s,l)=>s+l.m,0),avg=L.length?(L.reduce((s,l)=>s+logGrade(l),0)/L.length).toFixed(1).replace('.',','):'—';
  const days=new Set(L.map(l=>new Date(l.ts).toDateString())).size;
  const order=questsInOrder();
- const prog=order.filter(id=>QUESTS[id]).map((id,k,arr)=>{const q=QUESTS[id],got=questStars(q),mx=q.stations.length*3,done=q.stations.filter(st=>starsOf(st.id)).length,sb=qsub(q),hd=k===0||qsub(QUESTS[arr[k-1]])!==sb?`<div class="subhd">${(SUBJECTS.find(x=>x.id===({e:'eng',b:'bio',w:'history',g:'geo',r:'rushist',l:'lit',m:'math',y:'rus'})[sb])||SUBJ[sb]).i||SUBJ[sb].icon} ${esc(SUBJ[sb].island)}</div>`:'';return hd+`<div class="qrow"><span>${esc(q.short)} <span class="small" style="color:#7a5a30">· ${done}/${q.stations.length}</span></span><b style="color:#a8322a">★ ${got}/${mx}</b><div class="pb"><i style="width:${Math.round(got/mx*100)}%"></i></div></div>`}).join('');
+ const prog=order.filter(id=>QUESTS[id]).map((id,k,arr)=>{const q=QUESTS[id],got=questStars(q),mx=q.stations.length*3,done=q.stations.filter(st=>starsOf(st.id)).length,sb=qsub(q),hd=k===0||qsub(QUESTS[arr[k-1]])!==sb?`<div class="subhd">${(SUBJECTS.find(x=>x.id===({e:'eng',b:'bio',w:'history',g:'geo',r:'rushist',l:'lit',m:'math',y:'rus'})[sb])||SUBJ[sb]).i||SUBJ[sb].icon} ${esc(SUBJ[sb].island)}${SUBJ[sb].grade?' · '+SUBJ[sb].grade+' класс':''}</div>`:'';return hd+`<div class="qrow"><span>${esc(q.short)} <span class="small" style="color:#7a5a30">· ${done}/${q.stations.length}</span></span><b style="color:#a8322a">★ ${got}/${mx}</b><div class="pb"><i style="width:${Math.round(got/mx*100)}%"></i></div></div>`}).join('');
  const cnt={};L.forEach(l=>(l.errs||[]).forEach(e=>{const k=e.split(' — ответ:')[0].replace(/^«(.+?)» отнёс к.*$/,'«$1» (не та корзина)');cnt[k]=(cnt[k]||0)+1}));
  const weak=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8);
  const logs=L.slice().reverse().slice(0,150).map(l=>`<div class="lg"><div class="l1"><span><b>${esc(l.qt)}</b> · ${esc(l.st)}</span><span style="white-space:nowrap">${gradeBadge(logGrade(l),1)} <span style="color:#e6a817">${starStr(l.stars)}</span></span></div><div class="l2">${fmtTs(l.ts)} · ошибок: ${l.m}${l.n?' из '+l.n+' заданий':''} · ⏱ ${fmtDur(l.dur)}${l.errs&&l.errs.length?' · ▾ мои ошибки':''}</div>${l.errs&&l.errs.length?`<ol class="errs">${l.errs.map(e=>`<li>${esc(e)}</li>`).join('')}</ol>`:''}</div>`).join('');
@@ -5584,7 +6007,7 @@ function resultsScreen(){
   <div class="tile"><b>${avg}</b><span>средний балл (из 5)</span></div>
   <div class="tile"><b>${days}</b><span>дней занятий · ошибок: ${errs}</span></div>
  </div></div>
- <div class="card"><h3>📚 6 класс · все предметы</h3>${prog}</div>
+ <div class="card"><h3>📚 Все предметы</h3>${prog}</div>
  <div class="card"><h3>🔁 Что стоит повторить</h3>${weak.length?weak.map(([k,c])=>`<div class="weak"><b>×${c}</b> ${esc(k)}</div>`).join(''):'<p class="small">Ошибок пока нет — так держать! 🎉</p>'}</div>
  <div class="card"><h3>🗒️ Мои попытки</h3>${logs||'<p class="small">Здесь появятся твои попытки, когда ты пройдёшь первое испытание.</p>'}</div>
  <div class="row"><button class="btn" id="mc2">🏅 Мои грамоты</button><button class="btn" id="tr2">💾 Перенос</button></div>
